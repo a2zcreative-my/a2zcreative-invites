@@ -5,8 +5,8 @@ pages_build_output_dir = "./src/pages"
 # D1 Database Binding
 [[d1_databases]]
 binding = "DB"
-database_name = "invites-db"
-database_id = "YOUR_DATABASE_ID_HERE"  # Replace after creating D1 database
+database_name = "invites-db-prod"
+database_id = "51caac18-287a-4094-87da-51c56621755c"
 
 # Environment Variables (set in Cloudflare Dashboard for production)
 [vars]
