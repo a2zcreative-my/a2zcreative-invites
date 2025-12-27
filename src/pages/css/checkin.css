@@ -1,0 +1,537 @@
+/* =============================================
+   Check-in Scanner Page Styles
+   Dark Luxury Theme - Consistent with Invitation
+   ============================================= */
+
+:root {
+    --checkin-bg: #0a192f;
+    --checkin-surface: rgba(255, 255, 255, 0.05);
+    --checkin-primary: #d4af37;
+    --checkin-primary-light: rgba(212, 175, 55, 0.2);
+    --checkin-text: #ffffff;
+    --checkin-text-muted: #8892b0;
+    --checkin-success: #28a745;
+    --checkin-error: #dc3545;
+    --checkin-warning: #ffc107;
+}
+
+.checkin-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0a192f 0%, #112240 100%);
+    color: var(--checkin-text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Header */
+.checkin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.checkin-header h1 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--checkin-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.checkin-header h1 i,
+.checkin-header h1 svg {
+    color: var(--checkin-primary);
+    width: 24px;
+    height: 24px;
+}
+
+.event-selector {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    color: var(--checkin-text);
+    font-size: 0.875rem;
+}
+
+.event-selector option {
+    background: #0a192f;
+    color: var(--checkin-text);
+}
+
+/* Stats Bar */
+.stats-bar {
+    display: flex;
+    justify-content: space-around;
+    padding: 1.25rem 1rem;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--checkin-primary);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.625rem;
+    color: var(--checkin-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 0.25rem;
+}
+
+/* Scanner Container */
+.scanner-container {
+    padding: 1.5rem 1rem;
+}
+
+.scanner-box {
+    position: relative;
+    max-width: 350px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #000;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+}
+
+#qr-reader {
+    width: 100%;
+    height: 100%;
+}
+
+#qr-reader video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Scanner overlay */
+.scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.scanner-corner {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-color: var(--checkin-primary);
+    border-style: solid;
+    border-width: 0;
+}
+
+.scanner-corner.top-left {
+    top: 20px;
+    left: 20px;
+    border-top-width: 4px;
+    border-left-width: 4px;
+    border-top-left-radius: 8px;
+}
+
+.scanner-corner.top-right {
+    top: 20px;
+    right: 20px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-top-right-radius: 8px;
+}
+
+.scanner-corner.bottom-left {
+    bottom: 20px;
+    left: 20px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    border-bottom-left-radius: 8px;
+}
+
+.scanner-corner.bottom-right {
+    bottom: 20px;
+    right: 20px;
+    border-bottom-width: 4px;
+    border-right-width: 4px;
+    border-bottom-right-radius: 8px;
+}
+
+.scanner-line {
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--checkin-primary), transparent);
+    box-shadow: 0 0 10px var(--checkin-primary);
+    animation: scanLine 2s linear infinite;
+}
+
+@keyframes scanLine {
+    0% {
+        top: 30px;
+    }
+
+    50% {
+        top: calc(100% - 30px);
+    }
+
+    100% {
+        top: 30px;
+    }
+}
+
+/* Scanner status */
+.scanner-status {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--checkin-text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    display: inline-block;
+    width: 100%;
+}
+
+.scanner-status.scanning {
+    color: var(--checkin-primary);
+}
+
+.scanner-status.success {
+    color: var(--checkin-success);
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.scanner-status.error {
+    color: var(--checkin-error);
+    background: rgba(220, 53, 69, 0.1);
+}
+
+/* Manual Search */
+.manual-search {
+    max-width: 350px;
+    margin: 1.5rem auto 0;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+}
+
+.manual-search h3 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0 0 0.75rem 0;
+    color: var(--checkin-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.manual-search h3 i,
+.manual-search h3 svg {
+    width: 18px;
+    height: 18px;
+    color: var(--checkin-primary);
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.5rem;
+    color: var(--checkin-text);
+    font-size: 1rem;
+}
+
+.search-form input::placeholder {
+    color: var(--checkin-text-muted);
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: var(--checkin-primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.search-form button {
+    padding: 0.75rem 1.25rem;
+    background: var(--checkin-primary);
+    border: none;
+    border-radius: 0.5rem;
+    color: #0a192f;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-form button:hover {
+    background: #f4d03f;
+    transform: translateY(-1px);
+}
+
+/* Guest Result Card */
+.guest-result {
+    display: none;
+    max-width: 350px;
+    margin: 1.5rem auto 0;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+    border: 2px solid var(--checkin-primary);
+    border-radius: 1rem;
+    text-align: center;
+}
+
+.guest-result.visible {
+    display: block;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.guest-avatar {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 1rem;
+    background: var(--checkin-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0a192f;
+}
+
+.guest-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--checkin-text);
+    margin-bottom: 0.25rem;
+}
+
+.guest-phone {
+    font-size: 0.875rem;
+    color: var(--checkin-text-muted);
+    margin-bottom: 1.25rem;
+}
+
+.guest-details {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.guest-detail {
+    text-align: center;
+}
+
+.guest-detail-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--checkin-primary);
+}
+
+.guest-detail-label {
+    font-size: 0.625rem;
+    color: var(--checkin-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Check-in Button */
+.checkin-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--checkin-success);
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.checkin-btn:hover:not(:disabled) {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.checkin-btn:disabled {
+    background: var(--checkin-text-muted);
+    cursor: not-allowed;
+}
+
+.checkin-btn.checked-in {
+    background: var(--checkin-primary);
+    color: #0a192f;
+}
+
+.checkin-btn i,
+.checkin-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Already Checked In */
+.already-checkedin {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid var(--checkin-warning);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--checkin-warning);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.already-checkedin.hidden {
+    display: none;
+}
+
+/* Recent Check-ins */
+.recent-checkins {
+    max-width: 350px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.recent-checkins h3 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--checkin-text-muted);
+}
+
+.recent-checkins h3 i,
+.recent-checkins h3 svg {
+    width: 18px;
+    height: 18px;
+}
+
+.checkin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.checkin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.5rem;
+}
+
+.checkin-item-name {
+    font-weight: 500;
+    color: var(--checkin-text);
+}
+
+.checkin-item-time {
+    font-size: 0.75rem;
+    color: var(--checkin-text-muted);
+}
+
+.checkin-item-pax {
+    background: var(--checkin-primary);
+    color: #0a192f;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Camera permission */
+.camera-permission {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.camera-permission i,
+.camera-permission svg {
+    width: 64px;
+    height: 64px;
+    color: var(--checkin-text-muted);
+    margin-bottom: 1rem;
+}
+
+.camera-permission p {
+    color: var(--checkin-text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.camera-permission button {
+    padding: 0.75rem 1.5rem;
+    background: var(--checkin-primary);
+    border: none;
+    border-radius: 0.5rem;
+    color: #0a192f;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+    .stats-bar {
+        padding: 1rem 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.5rem;
+    }
+
+    .scanner-box {
+        border-radius: 0.75rem;
+    }
+
+    .guest-details {
+        gap: 2rem;
+    }
+}

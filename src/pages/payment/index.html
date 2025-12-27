@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <style>
+        .payment-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #0a192f 100%);
+            padding: 2rem 1rem;
+        }
+
+        .payment-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .payment-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-summary h2 {
+            font-size: 1.25rem;
+            margin: 0 0 1.5rem 0;
+            color: #ffffff;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: #8892b0;
+        }
+
+        .summary-value {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .summary-total {
+            font-size: 1.5rem;
+            color: #d4af37;
+            font-weight: 700;
+        }
+
+        .payment-methods h3 {
+            font-size: 1rem;
+            margin: 0 0 1rem 0;
+            color: #ffffff;
+        }
+
+        .method-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .method-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .method-option:hover {
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .method-option.selected {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .method-option input {
+            display: none;
+        }
+
+        .method-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d4af37;
+        }
+
+        .method-details {
+            flex: 1;
+        }
+
+        .method-name {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .method-desc {
+            font-size: 0.875rem;
+            color: #8892b0;
+        }
+
+        .pay-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            border: none;
+            border-radius: 0.5rem;
+            color: #0a192f;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.5rem;
+        }
+
+        .pay-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .pay-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* DuitNow Modal */
+        .duitnow-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .duitnow-modal.open {
+            display: flex;
+        }
+
+        .duitnow-content {
+            background: #112240;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .duitnow-content h3 {
+            font-size: 1.25rem;
+            margin: 0 0 1rem 0;
+            color: #d4af37;
+        }
+
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: #ffffff;
+            border-radius: 0.5rem;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0a192f;
+            font-size: 0.875rem;
+        }
+
+        .duitnow-info {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .duitnow-info p {
+            margin: 0.5rem 0;
+            color: #ccd6f6;
+            font-size: 0.875rem;
+        }
+
+        .duitnow-info strong {
+            color: #d4af37;
+        }
+
+        .whatsapp-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #25d366;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .close-modal {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            color: #8892b0;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .secure-notice {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #8892b0;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        .secure-notice i {
+            color: #28a745;
+        }
+    </style>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="payment-page">
+    <div class="payment-container">
+        <!-- Order Summary -->
+        <div class="payment-card order-summary">
+            <h2>Ringkasan Pesanan</h2>
+
+            <div class="summary-row">
+                <span class="summary-label">Pakej</span>
+                <span class="summary-value" id="packageName">Premium</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Majlis</span>
+                <span class="summary-value" id="eventName">Majlis Aiman & Rafhanah</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">No. Pesanan</span>
+                <span class="summary-value" id="orderRef">-</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Jumlah</span>
+                <span class="summary-value summary-total" id="totalAmount">RM99</span>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-card payment-methods">
+            <h3>Pilih Kaedah Pembayaran</h3>
+
+            <div class="method-options">
+                <label class="method-option selected" id="methodFpx">
+                    <input type="radio" name="paymentMethod" value="billplz" checked>
+                    <div class="method-icon">
+                        <i data-lucide="building-2"></i>
+                    </div>
+                    <div class="method-details">
+                        <div class="method-name">FPX Online Banking</div>
+                        <div class="method-desc">Maybank, CIMB, Public Bank, dll.</div>
+                    </div>
+                </label>
+
+                <label class="method-option" id="methodDuitnow">
+                    <input type="radio" name="paymentMethod" value="duitnow">
+                    <div class="method-icon">
+                        <i data-lucide="qr-code"></i>
+                    </div>
+                    <div class="method-details">
+                        <div class="method-name">DuitNow QR</div>
+                        <div class="method-desc">Scan & bayar, hantar resit via WhatsApp</div>
+                    </div>
+                </label>
+            </div>
+
+            <button class="pay-btn" id="payBtn" onclick="processPayment()">
+                <span id="payBtnText">Bayar Sekarang</span>
+            </button>
+
+            <div class="secure-notice">
+                <i data-lucide="shield-check"></i>
+                Pembayaran selamat & terjamin
+            </div>
+        </div>
+    </div>
+
+    <!-- DuitNow Modal -->
+    <div class="duitnow-modal" id="duitnowModal">
+        <div class="duitnow-content">
+            <h3>DuitNow QR</h3>
+
+            <div class="qr-placeholder" id="duitnowQr">
+                [QR Code akan dipaparkan]
+            </div>
+
+            <div class="duitnow-info">
+                <p><strong>Akaun:</strong> A2Z CREATIVE SDN BHD</p>
+                <p><strong>No. Akaun:</strong> 1234567890</p>
+                <p><strong>Jumlah:</strong> <span id="modalAmount">RM99</span></p>
+                <p><strong>Rujukan:</strong> <span id="modalRef">-</span></p>
+            </div>
+
+            <p style="color: #8892b0; font-size: 0.875rem;">
+                Selepas bayar, sila hantar resit kepada kami untuk pengesahan.
+            </p>
+
+            <a class="whatsapp-btn" id="whatsappLink" href="#" target="_blank">
+                <i data-lucide="message-circle"></i>
+                Hantar Resit via WhatsApp
+            </a>
+
+            <button class="close-modal" onclick="closeModal()">Tutup</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        lucide.createIcons();
+
+        // Get URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('event_id') || 1;
+        const packageId = urlParams.get('package') || 'premium';
+
+        const PACKAGES = {
+            basic: { price: 4900, name: 'Asas' },
+            premium: { price: 9900, name: 'Premium' },
+            business: { price: 19900, name: 'Bisnes' }
+        };
+
+        let currentOrder = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const pkg = PACKAGES[packageId] || PACKAGES.premium;
+            document.getElementById('packageName').textContent = pkg.name;
+            document.getElementById('totalAmount').textContent = `RM${(pkg.price / 100).toFixed(0)}`;
+            document.getElementById('modalAmount').textContent = `RM${(pkg.price / 100).toFixed(0)}`;
+
+            // Payment method selection
+            document.querySelectorAll('.method-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+        });
+
+        async function processPayment() {
+            const payBtn = document.getElementById('payBtn');
+            const payBtnText = document.getElementById('payBtnText');
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+            payBtn.disabled = true;
+            payBtnText.textContent = 'Memproses...';
+
+            try {
+                // Create payment order
+                const response = await fetch('/api/payment/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        eventId: parseInt(eventId),
+                        packageId: packageId,
+                        paymentMethod: selectedMethod
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Payment creation failed');
+                }
+
+                currentOrder = data;
+                document.getElementById('orderRef').textContent = data.orderRef;
+                document.getElementById('modalRef').textContent = data.orderRef;
+
+                if (selectedMethod === 'billplz') {
+                    // Redirect to Billplz (simulated)
+                    alert('Dalam versi sebenar, anda akan diarahkan ke laman pembayaran Billplz.');
+                    // window.location.href = data.paymentUrl;
+                } else if (selectedMethod === 'duitnow') {
+                    // Show DuitNow modal
+                    document.getElementById('whatsappLink').href =
+                        `https://wa.me/60123456789?text=Pembayaran%20${data.orderRef}%20-%20${data.amountDisplay}`;
+                    document.getElementById('duitnowModal').classList.add('open');
+                }
+
+            } catch (error) {
+                alert('Ralat: ' + error.message);
+            } finally {
+                payBtn.disabled = false;
+                payBtnText.textContent = 'Bayar Sekarang';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('duitnowModal').classList.remove('open');
+        }
+    </script>
+</body>
+
+</html>

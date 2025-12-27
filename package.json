@@ -1,0 +1,25 @@
+{
+  "name": "a2zcreative-invites",
+  "version": "1.0.0",
+  "description": "Multi-Purpose Digital Invitation & Attendance Management Platform",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev ./src/pages --d1 DB",
+    "deploy": "wrangler pages deploy ./src/pages",
+    "db:init": "wrangler d1 execute DB --file=./schema.sql",
+    "db:seed": "wrangler d1 execute DB --file=./seed.sql"
+  },
+  "keywords": [
+    "invitation",
+    "rsvp",
+    "wedding",
+    "corporate",
+    "cloudflare",
+    "d1"
+  ],
+  "author": "A2Z Creative",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

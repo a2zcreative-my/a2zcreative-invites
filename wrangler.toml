@@ -1,0 +1,13 @@
+name = "a2zcreative-invites"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "./src/pages"
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "invites-db"
+database_id = "YOUR_DATABASE_ID_HERE"  # Replace after creating D1 database
+
+# Environment Variables (set in Cloudflare Dashboard for production)
+[vars]
+ENVIRONMENT = "development"

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cipta Jemputan | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/wizard.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="wizard-page">
+    <!-- Header -->
+    <header class="wizard-header">
+        <div class="wizard-header-left">
+            <button class="back-btn" onclick="history.back()">
+                <i data-lucide="arrow-left"></i>
+            </button>
+            <h1 class="wizard-title">Cipta Jemputan Baru</h1>
+        </div>
+        <div class="user-menu">
+            <span class="user-name" id="userName">Demo User</span>
+            <div class="user-avatar" id="userAvatar">DU</div>
+        </div>
+    </header>
+
+    <!-- Progress Steps -->
+    <div class="wizard-progress">
+        <div class="progress-steps">
+            <div class="progress-step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Jenis Majlis</div>
+            </div>
+            <div class="progress-step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Maklumat</div>
+            </div>
+            <div class="progress-step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Tema</div>
+            </div>
+            <div class="progress-step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Atur Cara</div>
+            </div>
+            <div class="progress-step" data-step="5">
+                <div class="step-number">5</div>
+                <div class="step-label">Hubungi</div>
+            </div>
+            <div class="progress-step" data-step="6">
+                <div class="step-number">6</div>
+                <div class="step-label">Terbit</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wizard Content -->
+    <div class="wizard-content">
+        <!-- Step 1: Event Type -->
+        <div class="wizard-step active" id="step1">
+            <h2 class="section-title">Pilih Jenis Majlis</h2>
+            <p class="section-desc">Pilih jenis majlis untuk menyesuaikan tema dan kandungan jemputan.</p>
+
+            <div class="event-type-grid">
+                <label class="event-type-card selected">
+                    <input type="radio" name="eventType" value="1" checked>
+                    <div class="event-type-icon">💒</div>
+                    <div class="event-type-name">Perkahwinan</div>
+                </label>
+                <label class="event-type-card">
+                    <input type="radio" name="eventType" value="2">
+                    <div class="event-type-icon">🏢</div>
+                    <div class="event-type-name">Korporat</div>
+                </label>
+                <label class="event-type-card">
+                    <input type="radio" name="eventType" value="3">
+                    <div class="event-type-icon">👨‍👩‍👧‍👦</div>
+                    <div class="event-type-name">Keluarga</div>
+                </label>
+                <label class="event-type-card">
+                    <input type="radio" name="eventType" value="4">
+                    <div class="event-type-icon">🎂</div>
+                    <div class="event-type-name">Hari Lahir</div>
+                </label>
+                <label class="event-type-card">
+                    <input type="radio" name="eventType" value="5">
+                    <div class="event-type-icon">🌿</div>
+                    <div class="event-type-name">Komuniti</div>
+                </label>
+            </div>
+
+            <div class="wizard-nav">
+                <div></div>
+                <button class="nav-btn primary" onclick="nextStep()">
+                    Seterusnya
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Basic Details -->
+        <div class="wizard-step" id="step2">
+            <h2 class="section-title">Maklumat Asas</h2>
+            <p class="section-desc">Masukkan butiran majlis anda.</p>
+
+            <form class="wizard-form" id="detailsForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hostName1">Nama Pengantin Lelaki</label>
+                        <input type="text" id="hostName1" name="hostName1" placeholder="AHMAD" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hostName2">Nama Pengantin Perempuan</label>
+                        <input type="text" id="hostName2" name="hostName2" placeholder="SITI" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="parentNames1">Nama Ibu Bapa (Lelaki)</label>
+                        <input type="text" id="parentNames1" name="parentNames1" placeholder="En. Abu & Pn. Aminah">
+                    </div>
+                    <div class="form-group">
+                        <label for="parentNames2">Nama Ibu Bapa (Perempuan)</label>
+                        <input type="text" id="parentNames2" name="parentNames2" placeholder="En. Ali & Pn. Fatimah">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Tarikh Majlis</label>
+                        <input type="date" id="eventDate" name="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startTime">Masa Mula</label>
+                        <input type="time" id="startTime" name="startTime" value="11:00">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="venueName">Nama Tempat</label>
+                    <input type="text" id="venueName" name="venueName" placeholder="Dewan Seri Angkasa" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="venueAddress">Alamat Penuh</label>
+                    <textarea id="venueAddress" name="venueAddress"
+                        placeholder="Jalan Angkasa, 50470 Kuala Lumpur"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="mapLink">Pautan Google Maps</label>
+                    <input type="url" id="mapLink" name="mapLink" placeholder="https://goo.gl/maps/...">
+                </div>
+            </form>
+
+            <div class="wizard-nav">
+                <button class="nav-btn secondary" onclick="prevStep()">
+                    <i data-lucide="arrow-left"></i>
+                    Sebelumnya
+                </button>
+                <button class="nav-btn primary" onclick="nextStep()">
+                    Seterusnya
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Theme -->
+        <div class="wizard-step" id="step3">
+            <h2 class="section-title">Pilih Tema</h2>
+            <p class="section-desc">Pilih warna tema untuk jemputan anda.</p>
+
+            <div class="theme-grid">
+                <label class="theme-card selected">
+                    <input type="radio" name="theme" value="elegant-gold" checked>
+                    <div class="theme-preview elegant-gold"></div>
+                    <div class="theme-name">Emas Elegan</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="professional-blue">
+                    <div class="theme-preview professional-blue"></div>
+                    <div class="theme-name">Biru Profesional</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="warm-coral">
+                    <div class="theme-preview warm-coral"></div>
+                    <div class="theme-name">Koral Hangat</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="festive-purple">
+                    <div class="theme-preview festive-purple"></div>
+                    <div class="theme-name">Ungu Meriah</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="nature-green">
+                    <div class="theme-preview nature-green"></div>
+                    <div class="theme-name">Hijau Alam</div>
+                </label>
+            </div>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Kandungan Jemputan</h3>
+
+            <form class="wizard-form">
+                <div class="form-group">
+                    <label for="inviteTitle">Tajuk Jemputan</label>
+                    <input type="text" id="inviteTitle" name="inviteTitle" value="Perutusan Raja Sehari">
+                </div>
+
+                <div class="form-group">
+                    <label for="verseText">Ayat Al-Quran / Doa</label>
+                    <textarea id="verseText"
+                        name="verseText">Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri...</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="verseRef">Rujukan Ayat</label>
+                    <input type="text" id="verseRef" name="verseRef" value="Ar-Rum: 21">
+                </div>
+
+                <div class="form-group">
+                    <label for="hashtag">Hashtag</label>
+                    <input type="text" id="hashtag" name="hashtag" placeholder="#AhmadSitiWedding">
+                </div>
+            </form>
+
+            <div class="wizard-nav">
+                <button class="nav-btn secondary" onclick="prevStep()">
+                    <i data-lucide="arrow-left"></i>
+                    Sebelumnya
+                </button>
+                <button class="nav-btn primary" onclick="nextStep()">
+                    Seterusnya
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Schedule -->
+        <div class="wizard-step" id="step4">
+            <h2 class="section-title">Atur Cara Majlis</h2>
+            <p class="section-desc">Tambah jadual aktiviti majlis anda.</p>
+
+            <div class="schedule-builder">
+                <div class="schedule-list" id="scheduleList">
+                    <div class="schedule-item">
+                        <input type="text" placeholder="Masa" value="11:00 AM">
+                        <input type="text" placeholder="Aktiviti" value="Majlis Bermula">
+                        <button class="remove-btn" onclick="removeScheduleItem(this)">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <div class="schedule-item">
+                        <input type="text" placeholder="Masa" value="12:00 PM">
+                        <input type="text" placeholder="Aktiviti" value="Ketibaan Pengantin">
+                        <button class="remove-btn" onclick="removeScheduleItem(this)">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <div class="schedule-item">
+                        <input type="text" placeholder="Masa" value="01:00 PM">
+                        <input type="text" placeholder="Aktiviti" value="Makan Beradab">
+                        <button class="remove-btn" onclick="removeScheduleItem(this)">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="add-schedule-btn" onclick="addScheduleItem()">
+                    <i data-lucide="plus"></i>
+                    Tambah Aktiviti
+                </button>
+            </div>
+
+            <div class="wizard-nav">
+                <button class="nav-btn secondary" onclick="prevStep()">
+                    <i data-lucide="arrow-left"></i>
+                    Sebelumnya
+                </button>
+                <button class="nav-btn primary" onclick="nextStep()">
+                    Seterusnya
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 5: Contacts -->
+        <div class="wizard-step" id="step5">
+            <h2 class="section-title">Maklumat Hubungi</h2>
+            <p class="section-desc">Tambah kenalan untuk tetamu menghubungi.</p>
+
+            <div class="contacts-builder">
+                <div id="contactsList">
+                    <div class="contact-item">
+                        <input type="text" placeholder="Peranan" value="Wakil Pengantin Lelaki">
+                        <input type="text" placeholder="Nama" value="Ahmad">
+                        <input type="tel" placeholder="No. Telefon" value="012-3456789">
+                        <button class="remove-btn" onclick="removeContactItem(this)">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <div class="contact-item">
+                        <input type="text" placeholder="Peranan" value="Wakil Pengantin Perempuan">
+                        <input type="text" placeholder="Nama" value="Siti">
+                        <input type="tel" placeholder="No. Telefon" value="012-9876543">
+                        <button class="remove-btn" onclick="removeContactItem(this)">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="add-schedule-btn" onclick="addContactItem()" style="margin-top: 1rem;">
+                    <i data-lucide="plus"></i>
+                    Tambah Kenalan
+                </button>
+            </div>
+
+            <div class="wizard-nav">
+                <button class="nav-btn secondary" onclick="prevStep()">
+                    <i data-lucide="arrow-left"></i>
+                    Sebelumnya
+                </button>
+                <button class="nav-btn primary" onclick="nextStep()">
+                    Seterusnya
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 6: Preview & Publish -->
+        <div class="wizard-step" id="step6">
+            <h2 class="section-title">Pratonton & Terbit</h2>
+            <p class="section-desc">Semak jemputan anda sebelum menerbitkan.</p>
+
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>
+                        <i data-lucide="eye"></i>
+                        Pratonton Jemputan
+                    </h3>
+                    <div class="preview-device-toggle">
+                        <button class="device-btn active" data-device="mobile">
+                            <i data-lucide="smartphone"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-frame">
+                    <div class="preview-mobile">
+                        <iframe id="previewFrame" src="/inv/"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-nav">
+                <button class="nav-btn secondary" onclick="prevStep()">
+                    <i data-lucide="arrow-left"></i>
+                    Sebelumnya
+                </button>
+                <button class="nav-btn success" onclick="publishEvent()">
+                    <i data-lucide="rocket"></i>
+                    Terbitkan Jemputan
+                </button>
+            </div>
+        </div>
+
+        <!-- Publish Success (hidden by default) -->
+        <div class="wizard-step" id="stepSuccess">
+            <div class="publish-success">
+                <div class="success-icon">
+                    <i data-lucide="check"></i>
+                </div>
+                <h2>Jemputan Berjaya Diterbitkan!</h2>
+                <p>Kongsi pautan ini kepada tetamu anda.</p>
+
+                <div class="invite-link-box">
+                    <input type="text" id="inviteLink" value="https://a2zcreative.my/inv/demo" readonly>
+                    <button class="copy-link-btn" onclick="copyLink()">Salin</button>
+                </div>
+
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" onclick="shareWhatsApp()">
+                        <i data-lucide="message-circle"></i>
+                    </button>
+                    <button class="share-btn facebook" onclick="shareFacebook()">
+                        <i data-lucide="facebook"></i>
+                    </button>
+                    <button class="share-btn twitter" onclick="shareTwitter()">
+                        <i data-lucide="twitter"></i>
+                    </button>
+                    <button class="share-btn email" onclick="shareEmail()">
+                        <i data-lucide="mail"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/wizard.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

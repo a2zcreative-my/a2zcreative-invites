@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Check-in Scanner | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/checkin.css">
+
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="checkin-page">
+
+    <!-- Header -->
+    <header class="checkin-header">
+        <h1>
+            <i data-lucide="scan-line"></i>
+            Check-in Scanner
+        </h1>
+        <select class="event-selector" id="eventSelector">
+            <option value="1">Majlis Aiman & Rafhanah</option>
+        </select>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-label">Dijemput</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="statCheckedIn">0</div>
+            <div class="stat-label">Hadir</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="statPax">0</div>
+            <div class="stat-label">Jumlah Pax</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="statPercentage">0%</div>
+            <div class="stat-label">Kehadiran</div>
+        </div>
+    </div>
+
+    <!-- Scanner -->
+    <div class="scanner-container">
+        <div class="scanner-box">
+            <div id="qr-reader"></div>
+            <div class="scanner-overlay">
+                <div class="scanner-corner top-left"></div>
+                <div class="scanner-corner top-right"></div>
+                <div class="scanner-corner bottom-left"></div>
+                <div class="scanner-corner bottom-right"></div>
+                <div class="scanner-line"></div>
+            </div>
+        </div>
+        <div class="scanner-status" id="scannerStatus">
+            Mengimbas QR Code...
+        </div>
+    </div>
+
+    <!-- Manual Search -->
+    <div class="manual-search">
+        <h3>
+            <i data-lucide="search"></i>
+            Carian Manual
+        </h3>
+        <form class="search-form" id="searchForm">
+            <input type="text" id="searchInput" placeholder="Nama atau No. Telefon">
+            <button type="submit">Cari</button>
+        </form>
+    </div>
+
+    <!-- Guest Result Card -->
+    <div class="guest-result" id="guestResult">
+        <div class="already-checkedin hidden" id="alreadyCheckedIn">
+            <i data-lucide="alert-circle"></i>
+            Tetamu ini sudah check-in pada <span id="checkinTime"></span>
+        </div>
+
+        <div class="guest-avatar" id="guestAvatar">👤</div>
+        <div class="guest-name" id="guestName">Nama Tetamu</div>
+        <div class="guest-phone" id="guestPhone">01X-XXXXXXX</div>
+
+        <div class="guest-details">
+            <div class="guest-detail">
+                <div class="guest-detail-value" id="guestPax">1</div>
+                <div class="guest-detail-label">Pax</div>
+            </div>
+            <div class="guest-detail">
+                <div class="guest-detail-value" id="guestArrival">--:--</div>
+                <div class="guest-detail-label">Waktu</div>
+            </div>
+        </div>
+
+        <button class="checkin-btn" id="checkinBtn">
+            <i data-lucide="check-circle"></i>
+            Check-in Tetamu
+        </button>
+    </div>
+
+    <!-- Recent Check-ins -->
+    <div class="recent-checkins">
+        <h3>
+            <i data-lucide="clock"></i>
+            Check-in Terkini
+        </h3>
+        <div class="checkin-list" id="recentList">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/checkin.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

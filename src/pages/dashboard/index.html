@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="dashboard-page">
+    <div class="dashboard-layout">
+        <!-- Sidebar Overlay (mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/" class="sidebar-logo">A2Z Creative</a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Menu Utama</div>
+                    <a href="/dashboard/" class="nav-item active">
+                        <i data-lucide="layout-dashboard"></i>
+                        Dashboard
+                    </a>
+                    <a href="/create/" class="nav-item">
+                        <i data-lucide="plus-circle"></i>
+                        Cipta Jemputan
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Pengurusan</div>
+                    <a href="#guests" class="nav-item" id="navGuests">
+                        <i data-lucide="users"></i>
+                        Senarai Tetamu
+                        <span class="nav-item-badge" id="guestCount">0</span>
+                    </a>
+                    <a href="/checkin/" class="nav-item">
+                        <i data-lucide="scan-line"></i>
+                        Check-in
+                    </a>
+                    <a href="#analytics" class="nav-item" id="navAnalytics">
+                        <i data-lucide="bar-chart-3"></i>
+                        Analitik
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Tetapan</div>
+                    <a href="#settings" class="nav-item">
+                        <i data-lucide="settings"></i>
+                        Tetapan Akaun
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">DU</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">Demo User</div>
+                        <div class="user-role">Event Admin</div>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i data-lucide="log-out"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+                <select class="event-selector" id="eventSelector">
+                    <option value="1">Majlis Aiman & Rafhanah</option>
+                </select>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-icon">
+                                <i data-lucide="calendar"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statEvents">1</div>
+                        <div class="stat-label">Majlis Aktif</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-icon">
+                                <i data-lucide="users"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statGuests">0</div>
+                        <div class="stat-label">Jumlah Tetamu</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-icon">
+                                <i data-lucide="check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statConfirmed">0</div>
+                        <div class="stat-label">Akan Hadir</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-icon">
+                                <i data-lucide="eye"></i>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statViews">0</div>
+                        <div class="stat-label">Paparan</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="/create/" class="action-card">
+                        <div class="action-icon">
+                            <i data-lucide="plus"></i>
+                        </div>
+                        <div class="action-label">Cipta Majlis Baru</div>
+                    </a>
+                    <a href="/checkin/" class="action-card">
+                        <div class="action-icon">
+                            <i data-lucide="scan-line"></i>
+                        </div>
+                        <div class="action-label">Buka Check-in</div>
+                    </a>
+                    <a href="#" class="action-card" onclick="shareInvite()">
+                        <div class="action-icon">
+                            <i data-lucide="share-2"></i>
+                        </div>
+                        <div class="action-label">Kongsi Jemputan</div>
+                    </a>
+                    <a href="#" class="action-card" onclick="exportGuests()">
+                        <div class="action-icon">
+                            <i data-lucide="download"></i>
+                        </div>
+                        <div class="action-label">Eksport Data</div>
+                    </a>
+                </div>
+
+                <!-- Guest List Section -->
+                <div class="section-card" id="guestsSection">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i data-lucide="users"></i>
+                            Senarai Tetamu
+                        </h2>
+                        <div class="section-actions">
+                            <button class="section-btn" onclick="exportGuests()">
+                                <i data-lucide="download"></i>
+                                Eksport
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-filters">
+                        <div class="search-wrapper">
+                            <i data-lucide="search"></i>
+                            <input type="text" class="search-input" id="searchGuests"
+                                placeholder="Cari nama atau telefon...">
+                        </div>
+                        <select class="filter-select" id="filterStatus">
+                            <option value="">Semua Status</option>
+                            <option value="yes">Akan Hadir</option>
+                            <option value="no">Tidak Hadir</option>
+                            <option value="maybe">Belum Pasti</option>
+                        </select>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tetamu</th>
+                                <th>Status</th>
+                                <th>Pax</th>
+                                <th>Waktu</th>
+                                <th>Check-in</th>
+                            </tr>
+                        </thead>
+                        <tbody id="guestTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <div class="empty-state-icon">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <h3>Tiada Tetamu</h3>
+                        <p>Belum ada tetamu yang mendaftar.</p>
+                    </div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div class="section-card" id="analyticsSection">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i data-lucide="bar-chart-3"></i>
+                            Analitik RSVP
+                        </h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="rsvpChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/dashboard.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

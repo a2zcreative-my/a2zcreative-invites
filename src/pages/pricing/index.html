@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harga | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- SEO -->
+    <meta name="description"
+        content="Pakej harga jemputan digital A2Z Creative. Pilih pakej yang sesuai untuk majlis anda.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/pricing.css">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="pricing-page">
+    <div class="pricing-container">
+        <!-- Header -->
+        <header class="pricing-header">
+            <h1>Pilih Pakej Anda</h1>
+            <p>Jemputan digital profesional untuk setiap bajet</p>
+        </header>
+
+        <!-- Pricing Cards -->
+        <div class="pricing-grid">
+            <!-- Free Trial -->
+            <div class="pricing-card">
+                <h3 class="package-name">Percuma</h3>
+                <p class="package-desc">Cuba dulu sebelum beli</p>
+
+                <div class="package-price">
+                    <div class="price-amount">RM0</div>
+                    <div class="price-period">14 hari percubaan</div>
+                </div>
+
+                <ul class="package-features">
+                    <li>
+                        <i data-lucide="check"></i>
+                        10 tetamu maksimum
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        50 paparan
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Jemputan dengan watermark
+                    </li>
+                    <li class="disabled">
+                        <i data-lucide="x"></i>
+                        Kod QR check-in
+                    </li>
+                    <li class="disabled">
+                        <i data-lucide="x"></i>
+                        Eksport senarai tetamu
+                    </li>
+                </ul>
+
+                <a href="/create/" class="package-cta secondary">
+                    Cuba Percuma
+                </a>
+            </div>
+
+            <!-- Basic -->
+            <div class="pricing-card">
+                <h3 class="package-name">Asas</h3>
+                <p class="package-desc">Untuk majlis kecil</p>
+
+                <div class="package-price">
+                    <div class="price-amount">RM49</div>
+                    <div class="price-period">sekali bayar</div>
+                </div>
+
+                <ul class="package-features">
+                    <li>
+                        <i data-lucide="check"></i>
+                        100 tetamu maksimum
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        500 paparan
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Tiada watermark
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Kod QR untuk tetamu
+                    </li>
+                    <li class="disabled">
+                        <i data-lucide="x"></i>
+                        Check-in scanner
+                    </li>
+                    <li class="disabled">
+                        <i data-lucide="x"></i>
+                        Eksport CSV
+                    </li>
+                </ul>
+
+                <button class="package-cta secondary" onclick="selectPackage('basic')">
+                    Pilih Asas
+                </button>
+            </div>
+
+            <!-- Premium -->
+            <div class="pricing-card popular">
+                <span class="popular-badge">Popular</span>
+                <h3 class="package-name">Premium</h3>
+                <p class="package-desc">Paling popular untuk majlis perkahwinan</p>
+
+                <div class="package-price">
+                    <div class="price-amount">RM99</div>
+                    <div class="price-period">sekali bayar</div>
+                </div>
+
+                <ul class="package-features">
+                    <li>
+                        <i data-lucide="check"></i>
+                        300 tetamu maksimum
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        2,000 paparan
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Tiada watermark
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Kod QR untuk tetamu
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Check-in scanner
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Eksport CSV
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        URL khas pilihan anda
+                    </li>
+                </ul>
+
+                <button class="package-cta primary" onclick="selectPackage('premium')">
+                    <i data-lucide="crown"></i>
+                    Pilih Premium
+                </button>
+            </div>
+
+            <!-- Business -->
+            <div class="pricing-card">
+                <h3 class="package-name">Bisnes</h3>
+                <p class="package-desc">Untuk event besar & korporat</p>
+
+                <div class="package-price">
+                    <div class="price-amount">RM199</div>
+                    <div class="price-period">sekali bayar</div>
+                </div>
+
+                <ul class="package-features">
+                    <li>
+                        <i data-lucide="check"></i>
+                        1,000 tetamu maksimum
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        10,000 paparan
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Semua ciri Premium
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Multiple events
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Sokongan prioriti
+                    </li>
+                    <li>
+                        <i data-lucide="check"></i>
+                        Analitik terperinci
+                    </li>
+                </ul>
+
+                <button class="package-cta secondary" onclick="selectPackage('business')">
+                    Pilih Bisnes
+                </button>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <h3>Kaedah Pembayaran</h3>
+            <div class="payment-icons">
+                <div class="payment-icon">
+                    <i data-lucide="credit-card"></i>
+                    FPX Online Banking
+                </div>
+                <div class="payment-icon">
+                    <i data-lucide="smartphone"></i>
+                    DuitNow QR
+                </div>
+                <div class="payment-icon">
+                    <i data-lucide="wallet"></i>
+                    Touch 'n Go eWallet
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="comparison-section">
+            <h2 class="comparison-title">Perbandingan Ciri</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Ciri</th>
+                        <th>Percuma</th>
+                        <th>Asas</th>
+                        <th>Premium</th>
+                        <th>Bisnes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Tetamu maksimum</td>
+                        <td>10</td>
+                        <td>100</td>
+                        <td>300</td>
+                        <td>1,000</td>
+                    </tr>
+                    <tr>
+                        <td>Paparan maksimum</td>
+                        <td>50</td>
+                        <td>500</td>
+                        <td>2,000</td>
+                        <td>10,000</td>
+                    </tr>
+                    <tr>
+                        <td>Tiada Watermark</td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Kod QR Tetamu</td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Check-in Scanner</td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>Eksport CSV</td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                    </tr>
+                    <tr>
+                        <td>URL Khas</td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="x" class="cross-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                        <td><i data-lucide="check" class="check-icon"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq-section">
+            <h2 class="faq-title">Soalan Lazim</h2>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Bagaimana cara pembayaran?
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Kami menerima pembayaran melalui FPX (online banking), DuitNow QR, dan e-wallet seperti Touch 'n
+                        Go. Pembayaran adalah sekali bayar, tiada langganan bulanan.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Berapa lama akses saya?
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Akses anda aktif sehingga 30 hari selepas tarikh majlis. Anda boleh melihat data dan eksport
+                        senarai tetamu walaupun selepas majlis.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Boleh upgrade pakej?
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Ya, anda boleh upgrade ke pakej lebih tinggi bila-bila masa. Anda hanya perlu bayar perbezaan
+                        harga.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Ada jaminan wang dikembalikan?
+                        <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        Ya, kami menawarkan jaminan wang dikembalikan 100% dalam tempoh 7 hari jika anda tidak berpuas
+                        hati dengan perkhidmatan kami.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        lucide.createIcons();
+
+        function selectPackage(packageId) {
+            // Get event ID from URL or session
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('event_id');
+
+            if (eventId) {
+                // Redirect to payment page
+                window.location.href = `/payment/?event_id=${eventId}&package=${packageId}`;
+            } else {
+                // Redirect to create event first
+                window.location.href = `/create/?package=${packageId}`;
+            }
+        }
+
+        function toggleFaq(button) {
+            const item = button.parentElement;
+            item.classList.toggle('open');
+        }
+    </script>
+</body>
+
+</html>
