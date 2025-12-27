@@ -153,7 +153,7 @@
 
             } catch (err) {
                 console.error("Login Failed:", err);
-                errorMsg.textContent = "Error: " + err.message;
+                errorMsg.innerHTML = `Error: ${err.message}<br><small>Target: ${new URL(API_URL, window.location.href).href}</small>`;
                 errorMsg.classList.remove('hidden');
             }
         }
