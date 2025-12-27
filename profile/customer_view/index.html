@@ -156,9 +156,35 @@
 
     <script>
         const API_URL = '/profile/fetch-clients'; // Matches existing functions/profile/fetch-clients.js
+        const SESSION_KEY = 'client_view_session';
+        const EXPIRY_MINUTES = 15;
 
-        async function login() {
-            const password = document.getElementById('password').value;
+        // Auto-check session on load
+        window.onload = checkSession;
+
+        function checkSession() {
+            const sessionStr = localStorage.getItem(SESSION_KEY);
+            if (sessionStr) {
+                try {
+                    const session = JSON.parse(sessionStr);
+                    const now = Date.now();
+                    const ageMinutes = (now - session.timestamp) / (1000 * 60);
+
+                    if (ageMinutes < EXPIRY_MINUTES) {
+                        // valid session
+                        login(session.password);
+                    } else {
+                        // expired
+                        localStorage.removeItem(SESSION_KEY);
+                    }
+                } catch (e) {
+                    localStorage.removeItem(SESSION_KEY);
+                }
+            }
+        }
+
+        async function login(autoPassword = null) {
+            const password = autoPassword || document.getElementById('password').value;
             const errorMsg = document.getElementById('error-msg');
 
             try {
@@ -174,6 +200,13 @@
                     try {
                         const data = JSON.parse(text);
                         renderTable(data);
+
+                        // Save session (rolling expiry)
+                        localStorage.setItem(SESSION_KEY, JSON.stringify({
+                            password: password,
+                            timestamp: Date.now()
+                        }));
+
                         document.getElementById('login-section').classList.add('hidden');
                         document.getElementById('data-section').classList.remove('hidden');
                     } catch (e) {
@@ -187,8 +220,13 @@
 
             } catch (err) {
                 console.error("Login Failed:", err);
-                errorMsg.innerHTML = `Error: ${err.message}<br><small>Target: ${new URL(API_URL, window.location.href).href}</small>`;
-                errorMsg.classList.remove('hidden');
+                if (!autoPassword) {
+                    errorMsg.innerHTML = `Error: ${err.message}<br><small>Target: ${new URL(API_URL, window.location.href).href}</small>`;
+                    errorMsg.classList.remove('hidden');
+                } else {
+                    // If auto-login failed (conflicts?), clear session
+                    localStorage.removeItem(SESSION_KEY);
+                }
             }
         }
 
@@ -235,13 +273,26 @@
             "Labuan": [5.2831, 115.2308]
         };
 
+        let map = null;
+
         function initMap(data) {
+            // Prevent "Map container is already initialized" error
+            if (map) {
+                map.remove();
+            }
+
             // Default center: Malaysia
-            const map = L.map('map').setView([4.2105, 101.9758], 6);
+            map = L.map('map').setView([4.2105, 101.9758], 6);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
+
+            // FORCE RESIZE: Fix "Gray Map" by telling Leaflet to check its size again
+            // after a short delay to ensure the div is visible.
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
 
             data.forEach(client => {
                 const coords = stateCoords[client.location];
