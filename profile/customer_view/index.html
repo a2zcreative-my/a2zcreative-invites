@@ -143,12 +143,18 @@
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    renderTable(data);
-                    document.getElementById('login-section').classList.add('hidden');
-                    document.getElementById('data-section').classList.remove('hidden');
+                    const text = await response.text();
+                    try {
+                        const data = JSON.parse(text);
+                        renderTable(data);
+                        document.getElementById('login-section').classList.add('hidden');
+                        document.getElementById('data-section').classList.remove('hidden');
+                    } catch (e) {
+                        throw new Error(`Invalid JSON response: ${text.substring(0, 50)}...`);
+                    }
                 } else {
-                    throw new Error('Unauthorized');
+                    const text = await response.text();
+                    throw new Error(`Server Error (${response.status}): ${text}`);
                 }
 
             } catch (err) {
