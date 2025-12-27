@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Data View</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <style>
         body {
             font-family: 'Outfit', sans-serif;
@@ -93,6 +95,14 @@
             color: #ef4444;
             margin-top: 10px;
         }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 8px;
+            z-index: 1;
+        }
     </style>
 </head>
 
@@ -110,6 +120,7 @@
 
         <!-- Data Section -->
         <div id="data-section" class="hidden">
+            <div id="map"></div>
             <table id="data-table">
                 <thead>
                     <tr>
@@ -128,7 +139,7 @@
     </div>
 
     <script>
-        const API_URL = '../fetch-clients'; // Renamed endpoint
+        const API_URL = '/fetch-clients'; // Absolute path to root function
 
         async function login() {
             const password = document.getElementById('password').value;
@@ -179,6 +190,48 @@
                     <td>${new Date(row.created_at).toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
+            });
+
+            initMap(data);
+        }
+
+        const stateCoords = {
+            "Johor": [1.9344, 103.3587],
+            "Kedah": [6.1184, 100.3685],
+            "Kelantan": [5.1500, 101.9758],
+            "Melaka": [2.1896, 102.2501],
+            "Negeri Sembilan": [2.7258, 101.9424],
+            "Pahang": [3.8126, 103.3256],
+            "Penang": [5.4141, 100.3288],
+            "Perak": [4.6936, 101.1176],
+            "Perlis": [6.4449, 100.2048],
+            "Sabah": [5.9788, 116.0753],
+            "Sarawak": [1.5533, 110.3592],
+            "Selangor": [3.0738, 101.5183],
+            "Terengganu": [5.3117, 103.1324],
+            "Kuala Lumpur": [3.1390, 101.6869],
+            "Putrajaya": [2.9264, 101.6964],
+            "Labuan": [5.2831, 115.2308]
+        };
+
+        function initMap(data) {
+            // Default center: Malaysia
+            const map = L.map('map').setView([4.2105, 101.9758], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            data.forEach(client => {
+                const coords = stateCoords[client.location];
+                if (coords) {
+                    // Add a small random offset so pins don't overlap perfectly
+                    const lat = coords[0] + (Math.random() - 0.5) * 0.05;
+                    const lng = coords[1] + (Math.random() - 0.5) * 0.05;
+
+                    L.marker([lat, lng]).addTo(map)
+                        .bindPopup(`<b>${client.name}</b><br>${client.location}<br>${client.phone}`);
+                }
             });
         }
     </script>
