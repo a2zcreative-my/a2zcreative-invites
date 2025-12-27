@@ -5,7 +5,7 @@ compatibility_date = "2024-01-01"
 # Serve files from the public directory
 # Recent wrangler versions support this directly for Workers
 [assets]
-directory = "./public"
+directory = "."
 binding = "ASSETS"
 
 # D1 Database Binding
