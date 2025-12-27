@@ -61,6 +61,21 @@
             background: #2563eb;
         }
 
+        .wa-btn {
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: #22c55e;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .wa-btn:hover {
+            background-color: #16a34a;
+        }
+
         /* Table */
         table {
             width: 100%;
@@ -128,6 +143,7 @@
                         <th>Name</th>
                         <th>Location</th>
                         <th>Phone</th>
+                        <th>Action</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -187,6 +203,11 @@
                     <td>${row.name}</td>
                     <td>${row.location}</td>
                     <td>${row.phone}</td>
+                    <td>
+                        <a href="https://wa.me/${row.phone.replace(/^0/, '60')}" target="_blank" class="wa-btn">
+                            WhatsApp
+                        </a>
+                    </td>
                     <td>${new Date(row.created_at).toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);

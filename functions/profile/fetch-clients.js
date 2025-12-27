@@ -25,7 +25,7 @@ export async function onRequest(context) {
     // 3. Database Query
     try {
         // Ensure the DB binding is named 'DB' in Pages settings manually
-        const result = await env.DB.prepare("SELECT * FROM clients ORDER BY created_at DESC").all();
+        const result = await env.DB.prepare("SELECT * FROM clients ORDER BY id ASC").all();
         return new Response(JSON.stringify(result.results), {
             headers: {
                 "Content-Type": "application/json",
