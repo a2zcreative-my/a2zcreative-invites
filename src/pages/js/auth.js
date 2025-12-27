@@ -7,8 +7,8 @@
 // Supabase Configuration
 // =============================================
 // These will be replaced with actual values from env vars
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
+const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
 
 // Initialize Supabase client
 let supabase;
