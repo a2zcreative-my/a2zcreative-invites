@@ -1,0 +1,16 @@
+name = "a2zcreative-profile"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+# Serve files from the public directory
+# Recent wrangler versions support this directly for Workers
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# D1 Database Binding
+# You must replace database_id with your actual DB ID after running 'npx wrangler d1 create ...'
+[[d1_databases]]
+binding = "DB"
+database_name = "client-a2zcreative-profile"
+database_id = "REPLACE_WITH_YOUR_DB_ID"
