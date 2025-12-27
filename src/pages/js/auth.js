@@ -152,15 +152,48 @@ function initGoogleLogin() {
                 return;
             }
 
-            console.log('Starting Google OAuth...');
-            const { error } = await supabase.auth.signInWithOAuth({
+            console.log('Opening Google OAuth popup...');
+
+            // Use skipBrowserRedirect to open in popup instead of redirecting
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin + '/create/'
+                    redirectTo: window.location.origin + '/create/',
+                    skipBrowserRedirect: true
                 }
             });
 
             if (error) throw error;
+
+            // Open the OAuth URL in a popup window
+            if (data?.url) {
+                const width = 500;
+                const height = 600;
+                const left = window.screenX + (window.outerWidth - width) / 2;
+                const top = window.screenY + (window.outerHeight - height) / 2;
+
+                const popup = window.open(
+                    data.url,
+                    'google-login',
+                    `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
+                );
+
+                console.log('Popup opened, waiting for authentication...');
+
+                // Listen for auth state changes
+                const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+                    console.log('Auth state changed:', event);
+                    if (event === 'SIGNED_IN' && session) {
+                        console.log('User signed in successfully!');
+                        // Close popup if still open
+                        if (popup && !popup.closed) {
+                            popup.close();
+                        }
+                        // Redirect to dashboard
+                        window.location.href = '/create/';
+                    }
+                });
+            }
         } catch (error) {
             console.error('Google login error:', error);
             showError('Gagal menyambung ke Google. Sila cuba sebentar lagi.');
