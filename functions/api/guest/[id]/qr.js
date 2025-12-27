@@ -3,8 +3,8 @@
  * Generate QR code for guest check-in (with access control)
  */
 
-import { checkAccess } from '../../lib/access-control.js';
-import { errorResponse } from '../../lib/security.js';
+import { checkAccess } from '../../../lib/access-control.js';
+import { errorResponse } from '../../../lib/security.js';
 
 export async function onRequestGet(context) {
     const { params, env } = context;

@@ -3,8 +3,8 @@
  * Export guest list with security checks
  */
 
-import { checkRateLimit, getClientIP, errorResponse } from '../lib/security.js';
-import { checkAccess } from '../lib/access-control.js';
+import { checkRateLimit, getClientIP, errorResponse } from '../../lib/security.js';
+import { checkAccess } from '../../lib/access-control.js';
 
 export async function onRequestGet(context) {
     const { request, env } = context;
