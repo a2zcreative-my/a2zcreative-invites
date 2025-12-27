@@ -4,17 +4,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A2Z Creative Invites</title>
-    <link rel="stylesheet" href="style.css">
+    <title>A2Z Creative - Business Profile</title>
+    <link rel="stylesheet" href="profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>Welcome to A2Z Creative Invites</h1>
-        <p>Your one-stop solution for creative invitations.</p>
-        <a href="profile/" class="btn">View Company Profile</a>
+        <!-- Profile Header -->
+        <header class="profile-header">
+            <div class="profile-image">
+                <!-- Placeholder for Logo (Text fallback or Image) -->
+                <img src="logo.jpg" alt="A2Z Creative Logo" class="logo-img">
+            </div>
+            <h1>A2Z Creative</h1>
+            <p class="tagline">Innovative Solutions & Design</p>
+
+            <button id="verified-badge-btn" class="verified-badge">
+                Verified Business <i class="fa-solid fa-circle-check"></i>
+            </button>
+        </header>
+
+        <!-- Business Card Modal/Overlay -->
+        <div id="business-card-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="verified-card">
+                    <div class="card-header">
+                        <span class="close-modal">&times;</span>
+                        <div class="security-icon">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div class="header-text">
+                            <h3>Verified Business</h3>
+                            <span class="official-label">OFFICIAL ACCOUNT</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <h2>A2Z Creative Enterprise</h2>
+                        <p class="ssm-text">SSM: 202403263053 (CA0391903-U)</p>
+
+                        <div class="card-footer-info">
+                            <div class="info-block">
+                                <i class="fa-regular fa-calendar"></i>
+                                <span>Est. Since</span>
+                                <strong>October 2024</strong>
+                            </div>
+                            <div class="info-block">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span>Location</span>
+                                <strong>Johor Bahru, MY</strong>
+                            </div>
+                        </div>
+
+                        <div class="trust-badge">
+                            <i class="fa-solid fa-circle-check"></i> Identity Verified & Trusted
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Media Modal -->
+        <div id="social-media-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="verified-card social-card">
+                    <div class="card-header social-header">
+                        <span class="close-modal close-social">&times;</span>
+                        <div class="security-icon social-icon-wrapper">
+                            <i class="fa-solid fa-hashtag"></i>
+                        </div>
+                        <div class="header-text">
+                            <h3>Connect With Us</h3>
+                            <span class="official-label">FOLLOW A2Z CREATIVE</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="social-grid">
+                            <a href="https://instagram.com" target="_blank" class="social-item instagram">
+                                <i class="fa-brands fa-instagram"></i>
+                                <span>Instagram</span>
+                            </a>
+                            <a href="https://facebook.com" target="_blank" class="social-item facebook">
+                                <i class="fa-brands fa-facebook-f"></i>
+                                <span>Facebook</span>
+                            </a>
+                            <a href="https://tiktok.com" target="_blank" class="social-item tiktok">
+                                <i class="fa-brands fa-tiktok"></i>
+                                <span>TikTok</span>
+                            </a>
+                            <a href="https://threads.net" target="_blank" class="social-item threads">
+                                <i class="fa-brands fa-threads"></i>
+                                <span>Threads</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="links-section">
+            <a href="https://wa.me/60123834821" class="link-btn" target="_blank">
+                <i class="fa-brands fa-whatsapp"></i> Chat with A2Z Creative
+            </a>
+            <a href="https://a2zcreative.my" class="link-btn" target="_blank">
+                <i class="fa-solid fa-book-open"></i> Catalog
+            </a>
+            <button id="social-media-btn" class="link-btn social-trigger">
+                <i class="fa-solid fa-share-nodes"></i> Social Media
+            </button>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="contact-section">
+            <h2>Contact Us</h2>
+            <form id="client-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <select id="location" name="location" required>
+                        <option value="" disabled selected>Select City/State</option>
+                        <option value="Johor">Johor</option>
+                        <option value="Kedah">Kedah</option>
+                        <option value="Kelantan">Kelantan</option>
+                        <option value="Melaka">Melaka</option>
+                        <option value="Negeri Sembilan">Negeri Sembilan</option>
+                        <option value="Pahang">Pahang</option>
+                        <option value="Penang">Penang</option>
+                        <option value="Perak">Perak</option>
+                        <option value="Perlis">Perlis</option>
+                        <option value="Sabah">Sabah</option>
+                        <option value="Sarawak">Sarawak</option>
+                        <option value="Selangor">Selangor</option>
+                        <option value="Terengganu">Terengganu</option>
+                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                        <option value="Putrajaya">Putrajaya</option>
+                        <option value="Labuan">Labuan</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Contact Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+60123456789" required>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submit-btn">Send Details</button>
+                <div id="form-message" class="hidden"></div>
+            </form>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 A2Z Creative Enterprise</p>
+        </footer>
     </div>
-    <script src="script.js"></script>
+
+    <script src="profile.js"></script>
 </body>
 
 </html>
