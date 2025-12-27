@@ -20,22 +20,25 @@ try {
 }
 
 // =============================================
-// DOM Elements
+// DOM Elements (populated after DOMContentLoaded)
 // =============================================
-const DOM = {
-    loginForm: document.getElementById('loginForm'),
-    registerForm: document.getElementById('registerForm'),
-    googleLogin: document.getElementById('googleLogin'),
-    togglePassword: document.getElementById('togglePassword'),
-    authError: document.getElementById('authError'),
-    submitBtn: document.getElementById('submitBtn'),
-    loadingSpinner: document.getElementById('loadingSpinner')
-};
+let DOM = {};
 
 // =============================================
 // Initialization
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Get DOM elements after page is loaded
+    DOM = {
+        loginForm: document.getElementById('loginForm'),
+        registerForm: document.getElementById('registerForm'),
+        googleLogin: document.getElementById('googleLogin'),
+        togglePassword: document.getElementById('togglePassword'),
+        authError: document.getElementById('authError'),
+        submitBtn: document.getElementById('submitBtn'),
+        loadingSpinner: document.getElementById('loadingSpinner')
+    };
+
     initPasswordToggle();
     initLoginForm();
     initRegisterForm();
