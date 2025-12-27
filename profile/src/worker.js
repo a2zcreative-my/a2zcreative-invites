@@ -64,7 +64,8 @@ export default {
         });
       }
     }
-    return new Response(`Not Found: ${request.url}`, { status: 404 });
+    // 5. Fallback: Serve Static Assets (HTML, CSS, JS)
+    return env.ASSETS.fetch(request);
   }
 };
 
