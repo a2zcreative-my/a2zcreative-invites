@@ -1,0 +1,1162 @@
+/* =====================================================
+   Wedding Invitation - Aiman & Rafhanah
+   Royal Blue & Gold Songket Theme
+   ===================================================== */
+
+/* CSS Variables */
+:root {
+    --royal-blue-bg: #1A1040;
+    /* Deep Royal Purple/Blue base */
+    --royal-blue-dark: #120A2B;
+    --gold-primary: #C5A059;
+    /* Antique Gold */
+    --gold-light: #E5CD95;
+    --cream-accent: #FAF7F0;
+    /* Cream/Ivory for the arch background */
+    --text-navy: #1A1040;
+    /* Dark text for cream background */
+    --text-white: #FFFFFF;
+    --glass-bg: rgba(26, 16, 64, 0.7);
+    --border-gold: rgba(197, 160, 89, 0.5);
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Cinzel', serif;
+    background-color: var(--royal-blue-bg);
+    /* Pattern: Simulating the Songket Diamond Pattern */
+    background-image:
+        repeating-linear-gradient(45deg, rgba(197, 160, 89, 0.05) 0px, rgba(197, 160, 89, 0.05) 1px, transparent 1px, transparent 10px),
+        repeating-linear-gradient(-45deg, rgba(197, 160, 89, 0.05) 0px, rgba(197, 160, 89, 0.05) 1px, transparent 1px, transparent 10px),
+        radial-gradient(circle at center, rgba(197, 160, 89, 0.1) 0%, transparent 60%);
+    background-attachment: fixed;
+    background-size: 20px 20px, 20px 20px, cover;
+    color: var(--text-white);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+}
+
+/* Desktop Centered UI */
+.app-container {
+    max-width: 500px;
+    /* Slightly narrower for mobile card feel */
+    margin: 0 auto;
+    background-color: var(--royal-blue-bg);
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    /* Continue pattern on container */
+    background-image:
+        repeating-linear-gradient(45deg, rgba(197, 160, 89, 0.03) 0px, rgba(197, 160, 89, 0.03) 1px, transparent 1px, transparent 10px),
+        repeating-linear-gradient(-45deg, rgba(197, 160, 89, 0.03) 0px, rgba(197, 160, 89, 0.03) 1px, transparent 1px, transparent 10px);
+    border-left: 2px solid var(--gold-primary);
+    border-right: 2px solid var(--gold-primary);
+}
+
+/* =====================================================
+   Splash / Cover Section
+   ===================================================== */
+/* Decorative Arch Frame Wrapper for Cover */
+.cover-content {
+    position: relative;
+    z-index: 1002;
+    text-align: center;
+    color: var(--text-navy);
+    transition: opacity 0.8s ease;
+    width: 90%;
+    max-width: 400px;
+
+    /* The Cream Arch Shape */
+    background-color: var(--cream-accent);
+    padding: 60px 20px;
+
+    /* Intricate Border Radius to Mimic Islamic Arch */
+    border-radius: 150px 150px 20px 20px;
+    border: 4px double var(--gold-primary);
+    box-shadow:
+        inset 0 0 20px rgba(197, 160, 89, 0.3),
+        0 10px 40px rgba(0, 0, 0, 0.5);
+
+    /* Inner Pattern on Cream */
+    background-image:
+        radial-gradient(circle at 50% 100%, rgba(197, 160, 89, 0.1) 0%, transparent 50%),
+        url("https://www.transparenttextures.com/patterns/arabesque.png");
+    /* Subtle texture */
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Additional Frame Outline (The inner dark purple shape) */
+.cover-content::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border: 2px solid var(--gold-primary);
+    border-radius: 140px 140px 15px 15px;
+    pointer-events: none;
+}
+
+/* The Dark Central Cartouche for Names */
+.cover-names {
+    background-color: var(--royal-blue-dark);
+    padding: 30px 10px;
+    width: 90%;
+    border-radius: 80px 80px 80px 80px;
+    /* Rounded fancy shape */
+    border: 2px solid var(--gold-primary);
+    color: var(--gold-primary);
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Ornaments Top/Bottom of Names (CSS Simulation) */
+.cover-names::before,
+.cover-names::after {
+    content: '✦  ⚜  ✦';
+    display: block;
+    font-size: 1.2rem;
+    color: var(--gold-light);
+    margin: 10px 0;
+    opacity: 0.8;
+}
+
+.cover-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: all;
+    background-color: rgba(0, 0, 0, 0.8);
+    /* Darken bg behind modal */
+}
+
+/* Door Panels - Songket Pattern */
+.door-panel {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background-color: var(--royal-blue-bg);
+
+    /* RICH SONGKET DIAGOND PATTERN */
+    background-image:
+        linear-gradient(135deg, rgba(197, 160, 89, 0.3) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(197, 160, 89, 0.3) 25%, transparent 25%),
+        linear-gradient(45deg, rgba(197, 160, 89, 0.3) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(197, 160, 89, 0.3) 25%, transparent 25%);
+    background-position: 20px 0, 20px 0, 0 0, 0 0;
+    background-size: 40px 40px;
+    background-repeat: repeat;
+
+    transition: transform 1.5s cubic-bezier(0.7, 0, 0.3, 1);
+    z-index: 1001;
+    border-right: 2px solid var(--gold-primary);
+
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+    /* Inner shadow for depth */
+}
+
+.door-left {
+    left: 0;
+    transform-origin: left;
+    border-right: 2px solid var(--gold-primary);
+}
+
+.door-right {
+    right: 0;
+    transform-origin: right;
+    border-left: 2px solid var(--gold-primary);
+    background-position: 20px 0, 20px 0, 0 0, 0 0;
+    /* Keep pattern aligned */
+}
+
+/* Open State */
+.cover-section.open .door-left {
+    transform: translateX(-100%);
+}
+
+.cover-section.open .door-right {
+    transform: translateX(100%);
+}
+
+.cover-section.open .cover-content {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.9);
+}
+
+/* Text Styles in Cover */
+.perutusan {
+    letter-spacing: 3px;
+    font-size: 0.7rem;
+    color: var(--gold-light);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+}
+
+.cover-names h1 {
+    font-family: 'Great Vibes', cursive;
+    /* Script font for elegance */
+    font-size: 3.5rem;
+    color: var(--gold-primary);
+    line-height: 1.0;
+    margin: 10px 0;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+    font-weight: normal;
+}
+
+.cover-names .ampersand {
+    font-size: 1.5rem;
+    display: block;
+    /* Stack vertically */
+    margin: 5px 0;
+    font-family: 'Cinzel', serif;
+}
+
+.cover-date {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-top: 10px;
+    color: var(--gold-light);
+    font-weight: bold;
+}
+
+/* Circle Open Button - Positioned absolute to overlap bottom of frame */
+.open-btn-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--royal-blue-dark);
+    border: 2px solid var(--gold-primary);
+    color: var(--gold-primary);
+    font-family: inherit;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: -40px;
+    /* Pull up to overlap */
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1003;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+.open-btn-circle:hover {
+    background: var(--gold-primary);
+    color: var(--royal-blue-dark);
+}
+
+.circle-inner {
+    width: 90%;
+    height: 90%;
+    border: 1px dashed var(--gold-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: spin 15s linear infinite;
+}
+
+.circle-inner span {
+    animation: spin 15s linear infinite reverse;
+    /* Keep text upright */
+}
+
+/* Navigation Buttons override */
+.navigation-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+    padding: 0 10px;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 15px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    flex: 1;
+    /* Stretch to fill equally */
+    max-width: 200px;
+    /* Don't get too wide */
+}
+
+.nav-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.nav-btn.google-maps {
+    background-color: #fff;
+    color: #DB4437;
+    border-color: #DB4437;
+}
+
+.nav-btn.waze {
+    background-color: #fff;
+    color: #33CCFF;
+    border-color: #33CCFF;
+}
+
+.nav-btn i {
+    width: 20px;
+    height: 20px;
+}
+
+/* Modal Styles (Gift) */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    /* Darker backdrop */
+    z-index: 9999;
+    /* Highest priority */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(5px);
+    /* Premium blur effect */
+}
+
+.modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-content {
+    background: var(--royal-blue-dark);
+    border: 1px solid var(--gold-primary);
+    padding: 30px 20px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 90%;
+    width: 380px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: var(--gold-primary);
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.close-modal:hover {
+    transform: scale(1.1);
+}
+
+.close-modal i {
+    width: 24px;
+    height: 24px;
+}
+
+.bank-details {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px dashed var(--gold-light);
+}
+
+.bank-name {
+    font-weight: bold;
+    color: var(--gold-primary);
+    font-size: 1.2rem;
+}
+
+.acc-number {
+    font-size: 1.6rem;
+    margin: 10px 0;
+    letter-spacing: 2px;
+    font-family: monospace;
+    color: var(--text-white);
+}
+
+.acc-holder {
+    font-size: 0.9rem;
+    color: var(--gold-light);
+    margin-bottom: 15px;
+}
+
+.copy-btn {
+    background: transparent;
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.copy-btn:hover {
+    background: var(--gold-primary);
+    color: var(--royal-blue-bg);
+}
+
+/* RSVP Form Toggle */
+.cover-section.hidden {
+    transform: translate(-50%, -150%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.perutusan {
+    letter-spacing: 4px;
+    font-size: 0.8rem;
+    color: var(--gold-primary);
+    margin-bottom: 20px;
+}
+
+.cover-names h1 {
+    font-size: 3.5rem;
+    color: var(--gold-primary);
+    line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.cover-date {
+    letter-spacing: 3px;
+    font-size: 1rem;
+    color: var(--gold-light);
+}
+
+.open-btn {
+    margin-top: 50px;
+    background: transparent;
+    border: 2px solid var(--gold-primary);
+    color: var(--gold-primary);
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.open-btn:hover {
+    background: var(--gold-primary);
+    color: var(--royal-blue-bg);
+}
+
+/* =====================================================
+   Invitation Sections
+   ===================================================== */
+.invitation-container.hidden {
+    display: none;
+}
+
+.section {
+    padding: 80px 30px;
+    text-align: center;
+    position: relative;
+}
+
+.section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 1px;
+    background: var(--border-gold);
+}
+
+/* Hero Section */
+.hero-section {
+    padding-top: 100px;
+}
+
+.names-hero h1 {
+    font-size: 3rem;
+    color: var(--gold-primary);
+}
+
+.hashtag {
+    margin-top: 30px;
+    font-style: italic;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+}
+
+/* Verse Section */
+.verse-text {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #CCC;
+}
+
+.verse-ref {
+    margin-top: 10px;
+    color: var(--gold-primary);
+}
+
+/* Parents Section */
+.parents-names {
+    color: var(--gold-primary);
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+}
+
+.intro-text {
+    margin: 30px 0;
+    font-size: 0.95rem;
+    color: #DDD;
+}
+
+.couple-full-names h2 {
+    font-size: 1.8rem;
+    color: var(--gold-primary);
+}
+
+/* Schedule */
+.section-header {
+    color: var(--gold-primary);
+    letter-spacing: 4px;
+    font-size: 1.5rem;
+    margin-bottom: 40px;
+}
+
+.schedule-item {
+    margin-bottom: 25px;
+}
+
+.schedule-item .time {
+    display: block;
+    color: var(--gold-light);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.schedule-item .event {
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 550px;
+    /* Matched to app-container */
+    background: rgba(26, 16, 64, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-gold);
+    z-index: 900;
+}
+
+.nav-item {
+    background: transparent;
+    border: none;
+    color: var(--gold-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.65rem;
+    cursor: pointer;
+    gap: 5px;
+    width: 20%;
+}
+
+.nav-item i {
+    width: 20px;
+    height: 20px;
+}
+
+/* Floating Particles */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Scroll Reveal Animation */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+}
+
+.reveal-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Premium Enhancements */
+body {
+    letter-spacing: 0.5px;
+    /* Slight letter spacing for elegance */
+}
+
+h1,
+h2,
+h3,
+.perutusan,
+.invite-title,
+.date-hero,
+.section-header {
+    letter-spacing: 2px;
+}
+
+.section {
+    padding: 80px 20px;
+    /* More vertical breathing room */
+}
+
+.section-content {
+    background: rgba(26, 16, 64, 0.6);
+    /* Slightly more opaque for readability, but still transparent */
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    /* Subtle gold border */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+    /* Glassmorphism */
+}
+
+/* Save Date Button */
+.calendar-actions {
+    margin: 20px 0;
+}
+
+/* Calendar Strip in Hero */
+.calendar-strip-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.calendar-strip-container h3 {
+    font-size: 1.2rem;
+    color: var(--gold-primary);
+    margin-bottom: 15px;
+    letter-spacing: 4px;
+    font-weight: normal;
+}
+
+.calendar-strip {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.calendar-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 5px;
+    width: 40px;
+}
+
+/* Footer Credit Animation */
+.made-by {
+    font-family: 'Cinzel', serif;
+    /* Changed to readable serif */
+    font-size: 0.9rem;
+    /* Increased slightly */
+    font-weight: bold;
+    /* Added bold for clarity */
+    color: rgba(212, 175, 55, 1);
+    /* Full opacity */
+    margin-top: 30px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: shimmer 3s infinite alternate;
+}
+
+@keyframes shimmer {
+    0% {
+        opacity: 0.5;
+        text-shadow: 0 0 5px rgba(212, 175, 55, 0);
+    }
+
+    100% {
+        opacity: 0.9;
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    }
+}
+
+/* Contact Modal Styles */
+.contact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.contact-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--gold-primary);
+}
+
+.contact-role {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.contact-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--gold-primary);
+    margin-bottom: 10px;
+}
+
+.whatsapp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #25D366;
+    /* WhatsApp Green */
+    color: white;
+    padding: 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.whatsapp-btn:hover {
+    transform: scale(1.05);
+}
+
+.day-name {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+
+.day-number {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* Active Day (Wedding Day) */
+.calendar-day.active {
+    background-color: var(--gold-primary);
+    /* Gold background */
+    color: var(--royal-blue-bg);
+    /* Dark text */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    transform: scale(1.15);
+    /* Slightly larger */
+    width: 50px;
+    /* Stronger width */
+    position: relative;
+    /* For absolute positioning of heart if needed, though flex stack works well */
+    border: 2px solid #fff;
+    /* White border to pop */
+}
+
+.hero-full-date {
+    font-size: 1.1rem;
+    color: var(--gold-primary);
+    margin-top: 10px;
+    letter-spacing: 2px;
+    font-family: 'Cinzel', serif;
+}
+
+/* Carousel Styles */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(212, 175, 55, 0.3);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dot.active {
+    background-color: var(--gold-primary);
+}
+
+/* Premium RSVP Form */
+.premium-form {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 30px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-gold);
+}
+
+.attendance-options {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.attendance-card {
+    flex: 1;
+    cursor: pointer;
+    position: relative;
+}
+
+.attendance-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.card-content {
+    background: transparent;
+    border: 1px solid var(--gold-primary);
+    border-radius: 8px;
+    padding: 15px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--gold-primary);
+    transition: all 0.3s ease;
+}
+
+.attendance-card input:checked+.card-content {
+    background: var(--gold-primary);
+    color: var(--royal-blue-bg);
+    font-weight: bold;
+}
+
+.attendance-card i {
+    width: 24px;
+    height: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    color: var(--gold-light);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    background: rgba(26, 16, 64, 0.4);
+    color: white;
+    border: 1px solid var(--border-gold);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--gold-primary);
+    background: rgba(26, 16, 64, 0.8);
+}
+
+.submit-btn {
+    width: 100%;
+    background: var(--gold-primary);
+    color: var(--royal-blue-bg);
+    border: none;
+    padding: 15px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+}
+
+/* =====================================================
+   Mobile Responsiveness
+   ===================================================== */
+@media (max-width: 480px) {
+    .cover-names h1 {
+        font-size: 2.5rem;
+        /* Reduce form 3.5rem */
+    }
+
+    .names-hero h1 {
+        font-size: 2rem;
+        /* Reduce from 3rem */
+    }
+
+    .open-btn-circle {
+        margin: 30px auto 0 auto;
+        /* Ensure centering */
+    }
+
+    .section {
+        padding: 60px 20px;
+        /* Reduce padding */
+    }
+
+    .bottom-nav {
+        padding: 5px 0;
+    }
+
+    .nav-item span {
+        font-size: 0.55rem;
+        /* Smaller text for nav */
+    }
+
+    .nav-item i {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.save-date-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid var(--gold-primary);
+    border-radius: 20px;
+    color: var(--gold-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.save-date-btn:hover {
+    background-color: var(--gold-primary);
+    color: var(--royal-blue-bg);
+}
+
+.save-date-btn i {
+    width: 16px;
+    height: 16px;
+}
+
+/* RSVP Buttons */
+.rsvp-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rsvp-btn {
+    background: var(--gold-primary);
+    color: var(--royal-blue-bg);
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.rsvp-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+}
+
+/* Map Styling */
+.map-container {
+    margin-top: 30px;
+    border: 1px solid var(--border-gold);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section-content {
+    animation: fadeIn 1s ease forwards;
+}
+
+/* Countdown Timer */
+.countdown-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(26, 16, 64, 0.8);
+    border: 1px solid var(--gold-primary);
+    padding: 10px 15px;
+    border-radius: 8px;
+    min-width: 70px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.countdown-item span:first-child {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--gold-primary);
+    font-family: 'Cinzel', serif;
+    line-height: 1;
+}
+
+.countdown-item .label {
+    font-size: 0.65rem;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+    margin-top: 5px;
+    text-transform: uppercase;
+}
+
+/* Add shimmer effect to countdown */
+.countdown-item::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: rotate(45deg);
+    animation: shimmer-card 3s infinite;
+}
+
+@keyframes shimmer-card {
+    0% {
+        transform: translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateY(100%) rotate(45deg);
+    }
+}
