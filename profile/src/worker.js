@@ -11,9 +11,14 @@ export default {
       });
     }
 
-    // 4. Handle GET/POST (View Clients) - Protected
+    // 4. Handle DATA FETCH - Protected
+    // Renamed to avoid static file conflicts and moved logic up if needed.
     const url = new URL(request.url);
-    if (request.method === "POST" && url.pathname.endsWith("/api/clients")) {
+    if (url.pathname.includes("/fetch-clients")) {
+
+      // Allow both GET and POST for now to be safe, but we use POST from frontend
+      if (request.method === "OPTIONS") { return new Response(null, { headers: { "Access-Control-Allow-Origin": "*" } }); }
+
       const authHeader = request.headers.get("Authorization");
 
       if (!authHeader || authHeader !== `Bearer ${env.ADMIN_PASSWORD}`) {

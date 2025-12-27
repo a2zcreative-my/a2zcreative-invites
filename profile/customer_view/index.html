@@ -128,7 +128,7 @@
     </div>
 
     <script>
-        const API_URL = '../api/clients'; // Relative path to worker API
+        const API_URL = '../fetch-clients'; // Renamed endpoint
 
         async function login() {
             const password = document.getElementById('password').value;
@@ -150,7 +150,8 @@
                         document.getElementById('login-section').classList.add('hidden');
                         document.getElementById('data-section').classList.remove('hidden');
                     } catch (e) {
-                        throw new Error(`Invalid JSON response: ${text.substring(0, 50)}...`);
+                        // Show first 200 chars to identify if it is HTML
+                        throw new Error(`Invalid JSON: ${text.substring(0, 200)}...`);
                     }
                 } else {
                     const text = await response.text();
