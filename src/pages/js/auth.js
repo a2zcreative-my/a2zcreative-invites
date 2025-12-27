@@ -27,7 +27,7 @@ let DOM = {};
 // =============================================
 // Initialization
 // =============================================
-document.addEventListener('DOMContentLoaded', () => {
+function initAuth() {
     // Get DOM elements after page is loaded
     DOM = {
         loginForm: document.getElementById('loginForm'),
@@ -44,7 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initRegisterForm();
     initGoogleLogin();
     checkSession();
-});
+}
+
+// Handle both scenarios: script loads before OR after DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuth);
+} else {
+    // DOM is already ready (interactive or complete)
+    initAuth();
+}
 
 // =============================================
 // Session Check
