@@ -128,7 +128,7 @@
     </div>
 
     <script>
-        const API_URL = '/'; // Relative path to worker root
+        const API_URL = '../api/clients'; // Relative path to worker API
 
         async function login() {
             const password = document.getElementById('password').value;
@@ -152,7 +152,8 @@
                 }
 
             } catch (err) {
-                console.error(err);
+                console.error("Login Failed:", err);
+                errorMsg.textContent = "Error: " + err.message;
                 errorMsg.classList.remove('hidden');
             }
         }

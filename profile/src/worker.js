@@ -12,7 +12,8 @@ export default {
     }
 
     // 4. Handle GET (View Clients) - Protected
-    if (request.method === "GET") {
+    const url = new URL(request.url);
+    if (request.method === "GET" && url.pathname === "/api/clients") {
       const authHeader = request.headers.get("Authorization");
 
       if (!authHeader || authHeader !== `Bearer ${env.ADMIN_PASSWORD}`) {
