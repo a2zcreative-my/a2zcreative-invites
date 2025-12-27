@@ -5,10 +5,32 @@ export default {
       return new Response(null, {
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       });
+    }
+
+    // 4. Handle GET (View Clients) - Protected
+    if (request.method === "GET") {
+      const authHeader = request.headers.get("Authorization");
+
+      if (!authHeader || authHeader !== `Bearer ${env.ADMIN_PASSWORD}`) {
+        return new Response("Unauthorized", { status: 401 });
+      }
+
+      try {
+        const result = await env.DB.prepare("SELECT * FROM clients ORDER BY created_at DESC").all();
+        return new Response(JSON.stringify(result.results), {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"
+          }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+      }
     }
 
     if (request.method === 'POST') {
