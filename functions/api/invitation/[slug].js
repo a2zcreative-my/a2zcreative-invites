@@ -68,6 +68,7 @@ export async function onRequestGet(context) {
         const responseData = {
             event: {
                 id: invitation.event_id,
+                event_type_id: invitation.event_type_id,
                 event_name: invitation.event_name,
                 event_date: invitation.event_date,
                 start_time: invitation.start_time,

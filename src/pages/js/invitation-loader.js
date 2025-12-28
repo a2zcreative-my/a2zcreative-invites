@@ -124,9 +124,17 @@ function populateInvitation(data) {
         if (verseSection) verseSection.style.display = 'none';
     }
 
+    // Event Type Logic
+    // 1: Perkahwinan (Dual Host, Parents visible)
+    // 2: Korporat (Single Host, No Parents)
+    // 3: Keluarga (Single Host, No Parents)
+    // 4: Hari Lahir (Single Host, No Parents - host2 is Age)
+    // 5: Komuniti (Single Host, No Parents)
+    const isWedding = event.event_type_id === 1;
+
     // Parents section
     const parentsSection = document.getElementById('parents');
-    if (event.parent_names_1) {
+    if (isWedding && event.parent_names_1) {
         if (parentsSection) parentsSection.style.display = 'block';
         setText('parent1', event.parent_names_1);
         setText('parent2', event.parent_names_2 || '');
@@ -141,33 +149,40 @@ function populateInvitation(data) {
             if (ampersand?.textContent === '&') ampersand.style.display = 'none';
         }
     } else {
-        // Hide parents section for events like Corporate/Community
+        // Hide parents section for non-weddings
         if (parentsSection) parentsSection.style.display = 'none';
     }
 
-    // Handle single host display (for Corporate/Birthday)
-    if (!event.host_name_2) {
-        // Cover
-        const coverAmp = document.getElementById('cover-name2')?.previousElementSibling;
-        if (coverAmp?.classList.contains('ampersand')) coverAmp.style.display = 'none';
-        const coverName2 = document.getElementById('cover-name2');
-        if (coverName2) coverName2.style.display = 'none';
-
-        // Hero
-        const heroAmp = document.getElementById('name2')?.previousElementSibling;
-        if (heroAmp?.classList.contains('ampersand')) heroAmp.style.display = 'none';
-        const heroName2 = document.getElementById('name2');
-        if (heroName2) heroName2.style.display = 'none';
-
-        // Use full name for single host (e.g. Company Name)
-        setText('cover-name1', event.host_name_1?.toUpperCase() || '');
-        setText('name1', event.host_name_1?.toUpperCase() || '');
-    } else {
-        // Split names for weddings (First name only)
+    // Host Names Display
+    if (isWedding) {
+        // Wedding: Show both names with Ampersand
         setText('cover-name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || '');
         setText('cover-name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || '');
         setText('name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || '');
         setText('name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || '');
+
+        // Ensure ampersands are visible
+        const coverAmp = document.getElementById('cover-name2')?.previousElementSibling;
+        if (coverAmp?.classList.contains('ampersand')) coverAmp.style.display = 'inline';
+        const heroAmp = document.getElementById('name2')?.previousElementSibling;
+        if (heroAmp?.classList.contains('ampersand')) heroAmp.style.display = 'inline';
+
+    } else {
+        // Non-wedding: Single Host Mode
+        // Use full name for host 1 (e.g. Company Name, Birthday Person)
+        setText('cover-name1', event.host_name_1?.toUpperCase() || '');
+        setText('name1', event.host_name_1?.toUpperCase() || '');
+
+        // Hide Host 2 elements
+        const coverName2 = document.getElementById('cover-name2');
+        if (coverName2) coverName2.style.display = 'none';
+        const coverAmp = coverName2?.previousElementSibling;
+        if (coverAmp?.classList.contains('ampersand')) coverAmp.style.display = 'none';
+
+        const heroName2 = document.getElementById('name2');
+        if (heroName2) heroName2.style.display = 'none';
+        const heroAmp = heroName2?.previousElementSibling;
+        if (heroAmp?.classList.contains('ampersand')) heroAmp.style.display = 'none';
     }
 
     // Schedule section
