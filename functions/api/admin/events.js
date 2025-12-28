@@ -1,6 +1,23 @@
+/**
+ * GET /api/admin/events
+ * List all events (admin only)
+ * 
+ * SECURITY: Requires authentication + admin role verification
+ */
+
+import { requireAuth, requireAdmin } from '../../lib/auth.js';
+
 export async function onRequestGet(context) {
-    const { env } = context;
+    const { request, env } = context;
     const db = env.DB;
+
+    // 1. Authenticate user
+    const { userId, errorResponse: authError } = await requireAuth(request, db);
+    if (authError) return authError;
+
+    // 2. Verify user is admin
+    const adminError = await requireAdmin(db, userId);
+    if (adminError) return adminError;
 
     try {
         const query = `
@@ -25,6 +42,7 @@ export async function onRequestGet(context) {
         });
 
     } catch (error) {
+        console.error('Admin events error:', error);
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }

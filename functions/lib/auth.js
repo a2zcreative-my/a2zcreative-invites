@@ -88,3 +88,108 @@ export async function syncUserToD1(db, user) {
 
     return result.meta?.last_row_id;
 }
+
+/**
+ * Verify user owns a specific event
+ * @param {D1Database} db - D1 database
+ * @param {number} eventId - Event ID to check
+ * @param {number} userId - User's D1 ID
+ * @returns {boolean} true if user owns the event
+ */
+export async function verifyEventOwnership(db, eventId, userId) {
+    if (!eventId || !userId) return false;
+
+    const event = await db.prepare(`
+        SELECT id FROM events WHERE id = ? AND created_by = ?
+    `).bind(eventId, userId).first();
+
+    return !!event;
+}
+
+/**
+ * Check if user has admin role
+ * @param {D1Database} db - D1 database
+ * @param {number} userId - User's D1 ID
+ * @returns {boolean} true if user is admin
+ */
+export async function isAdmin(db, userId) {
+    if (!userId) return false;
+
+    const user = await db.prepare(`
+        SELECT role FROM users WHERE id = ?
+    `).bind(userId).first();
+
+    return user?.role === 'admin' || user?.role === 'super_admin';
+}
+
+/**
+ * Authentication middleware helper - returns error response or null
+ * @param {Request} request - Incoming request
+ * @param {D1Database} db - D1 database
+ * @returns {Object} { user, userId, errorResponse }
+ */
+export async function requireAuth(request, db) {
+    const authUser = await getAuthUser(request);
+
+    if (!authUser) {
+        return {
+            user: null,
+            userId: null,
+            errorResponse: new Response(JSON.stringify({
+                error: 'Unauthorized',
+                message: 'Please log in to access this resource'
+            }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            })
+        };
+    }
+
+    const userId = await syncUserToD1(db, authUser);
+    return { user: authUser, userId, errorResponse: null };
+}
+
+/**
+ * Ownership check helper - returns error response or null
+ * @param {D1Database} db - D1 database
+ * @param {number} eventId - Event ID
+ * @param {number} userId - User's D1 ID
+ * @returns {Response|null} Error response or null if authorized
+ */
+export async function requireEventOwnership(db, eventId, userId) {
+    const isOwner = await verifyEventOwnership(db, eventId, userId);
+
+    if (!isOwner) {
+        return new Response(JSON.stringify({
+            error: 'Forbidden',
+            message: 'You do not have access to this event'
+        }), {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    return null;
+}
+
+/**
+ * Admin role check helper
+ * @param {D1Database} db - D1 database
+ * @param {number} userId - User's D1 ID
+ * @returns {Response|null} Error response or null if admin
+ */
+export async function requireAdmin(db, userId) {
+    const adminCheck = await isAdmin(db, userId);
+
+    if (!adminCheck) {
+        return new Response(JSON.stringify({
+            error: 'Forbidden',
+            message: 'Admin access required'
+        }), {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    return null;
+}

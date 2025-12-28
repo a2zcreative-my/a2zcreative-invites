@@ -1,10 +1,14 @@
 /**
  * GET /api/analytics/[event_id]
  * Get analytics data for an event
+ * 
+ * SECURITY: Requires authentication + event ownership verification
  */
 
+import { requireAuth, requireEventOwnership } from '../../lib/auth.js';
+
 export async function onRequestGet(context) {
-    const { params, env } = context;
+    const { request, params, env } = context;
     const eventId = params.event_id;
 
     if (!eventId) {
@@ -13,6 +17,14 @@ export async function onRequestGet(context) {
             headers: { 'Content-Type': 'application/json' }
         });
     }
+
+    // 1. Authenticate user
+    const { userId, errorResponse } = await requireAuth(request, env.DB);
+    if (errorResponse) return errorResponse;
+
+    // 2. Verify user owns this event
+    const ownershipError = await requireEventOwnership(env.DB, eventId, userId);
+    if (ownershipError) return ownershipError;
 
     try {
         // RSVP breakdown

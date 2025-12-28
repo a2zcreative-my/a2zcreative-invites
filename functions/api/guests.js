@@ -1,13 +1,35 @@
 /**
  * GET /api/guests - List guests for an event
  * GET /api/guests/search - Search guests
+ * 
+ * SECURITY: Requires authentication + event ownership verification
  */
+
+import { requireAuth, requireEventOwnership } from '../lib/auth.js';
 
 export async function onRequestGet(context) {
     const { request, env } = context;
+
+    // 1. Authenticate user
+    const { userId, errorResponse } = await requireAuth(request, env.DB);
+    if (errorResponse) return errorResponse;
+
     const url = new URL(request.url);
-    const eventId = url.searchParams.get('event_id') || 1;
+    const eventId = url.searchParams.get('event_id');
     const search = url.searchParams.get('q');
+
+    if (!eventId) {
+        return new Response(JSON.stringify({
+            error: 'Event ID is required'
+        }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // 2. Verify user owns this event
+    const ownershipError = await requireEventOwnership(env.DB, eventId, userId);
+    if (ownershipError) return ownershipError;
 
     try {
         let query;

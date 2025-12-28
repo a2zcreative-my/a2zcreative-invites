@@ -1,11 +1,14 @@
 /**
  * Check-in API with access control
- * POST /api/checkin - Record guest check-in
- * GET /api/checkin - Get check-in stats
+ * POST /api/checkin - Record guest check-in (token-based)
+ * GET /api/checkin - Get check-in stats (requires auth + ownership)
+ * 
+ * SECURITY: POST uses token, GET requires authentication + ownership
  */
 
 import { checkAccess } from '../lib/access-control.js';
 import { getClientIP, errorResponse, successResponse } from '../lib/security.js';
+import { requireAuth, requireEventOwnership } from '../lib/auth.js';
 
 export async function onRequestPost(context) {
     const { request, env } = context;
@@ -82,8 +85,8 @@ export async function onRequestPost(context) {
         // Record check-in
         await env.DB.prepare(`
             INSERT INTO attendance_logs (event_id, guest_id, check_in_method, checked_in_by)
-            VALUES (?, ?, ?, ?)
-        `).bind(guest.event_id, guest.id, method, 1).run();
+            VALUES (?, ?, ?, 1)
+        `).bind(guest.event_id, guest.id, method).run();
 
         // Log audit
         await env.DB.prepare(`
@@ -123,6 +126,14 @@ export async function onRequestGet(context) {
     if (!eventId) {
         return errorResponse('Event ID is required', 400);
     }
+
+    // 1. Authenticate user
+    const { userId, errorResponse: authError } = await requireAuth(request, env.DB);
+    if (authError) return authError;
+
+    // 2. Verify user owns this event
+    const ownershipError = await requireEventOwnership(env.DB, eventId, userId);
+    if (ownershipError) return ownershipError;
 
     try {
         // Get stats

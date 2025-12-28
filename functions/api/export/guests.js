@@ -1,17 +1,32 @@
 /**
  * GET /api/export/guests
  * Export guest list with security checks
+ * 
+ * SECURITY: Requires authentication + event ownership verification
  */
 
 import { checkRateLimit, getClientIP, errorResponse } from '../../lib/security.js';
 import { checkAccess } from '../../lib/access-control.js';
+import { requireAuth, requireEventOwnership } from '../../lib/auth.js';
 
 export async function onRequestGet(context) {
     const { request, env } = context;
     const url = new URL(request.url);
-    const eventId = url.searchParams.get('event_id') || 1;
+    const eventId = url.searchParams.get('event_id');
     const format = url.searchParams.get('format') || 'csv';
     const clientIP = getClientIP(request);
+
+    if (!eventId) {
+        return errorResponse('Event ID is required', 400);
+    }
+
+    // 1. Authenticate user
+    const { userId, errorResponse: authError } = await requireAuth(request, env.DB);
+    if (authError) return authError;
+
+    // 2. Verify user owns this event
+    const ownershipError = await requireEventOwnership(env.DB, eventId, userId);
+    if (ownershipError) return ownershipError;
 
     // Rate limiting for exports
     const rateCheck = checkRateLimit(clientIP, 'export');
@@ -62,7 +77,7 @@ export async function onRequestGet(context) {
             VALUES (?, 'data_exported', ?, ?)
         `).bind(
             eventId,
-            JSON.stringify({ format, recordCount: data.length }),
+            JSON.stringify({ format, recordCount: data.length, userId }),
             clientIP
         ).run();
 

@@ -1,7 +1,11 @@
 /**
  * POST /api/payment/create
  * Create a new payment order
+ * 
+ * SECURITY: Requires authentication + event ownership verification
  */
+
+import { requireAuth, requireEventOwnership } from '../../lib/auth.js';
 
 // Generate unique order reference
 function generateOrderRef() {
@@ -20,6 +24,10 @@ const PACKAGES = {
 export async function onRequestPost(context) {
     const { request, env } = context;
 
+    // 1. Authenticate user
+    const { userId, errorResponse: authError } = await requireAuth(request, env.DB);
+    if (authError) return authError;
+
     let data;
     try {
         data = await request.json();
@@ -30,7 +38,13 @@ export async function onRequestPost(context) {
         });
     }
 
-    const { eventId, packageId, paymentMethod, userId = 1 } = data;
+    const { eventId, packageId, paymentMethod } = data;
+
+    // 2. Verify user owns the event
+    if (eventId) {
+        const ownershipError = await requireEventOwnership(env.DB, eventId, userId);
+        if (ownershipError) return ownershipError;
+    }
 
     // Validate package
     const pkg = PACKAGES[packageId];
@@ -49,15 +63,15 @@ export async function onRequestPost(context) {
     expiresAt.setHours(expiresAt.getHours() + 24);
 
     try {
-        // Create payment order in database
+        // Create payment order in database (using authenticated userId, NOT from request)
         await env.DB.prepare(`
             INSERT INTO payment_orders (
                 event_id, user_id, order_ref, amount_cents, package_id, 
                 payment_method, status, expires_at
             ) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
         `).bind(
-            eventId,
-            userId,
+            eventId || null,
+            userId,  // ✅ SECURE: userId from JWT, not from request
             orderRef,
             pkg.price,
             packageId,
