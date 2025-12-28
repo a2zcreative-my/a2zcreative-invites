@@ -10,7 +10,7 @@
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-light) 100%);
-    overflow: hidden;
+    overflow: visible;
     padding-top: 100px;
     /* Prevent navbar overlap */
 }

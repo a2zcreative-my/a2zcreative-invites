@@ -81,48 +81,45 @@
                 dan analitik masa nyata. Sesuai untuk perkahwinan, korporat, dan majlis keluarga.
             </p>
 
-            <div class="hero-cta">
+            <div class="hero-cta" style="position: relative; z-index: 10;">
                 <a href="/create/" class="btn btn-primary btn-lg">
                     <i data-lucide="plus-circle"></i>
                     Cipta Jemputan Sekarang
                 </a>
-                <div style="position: relative;">
-                    <button class="btn btn-secondary btn-lg" onclick="toggleDemoMenu()"
-                        style="display: flex; align-items: center; gap: 8px;">
-                        <i data-lucide="eye"></i>
-                        Lihat Demo
-                        <i data-lucide="chevron-down" id="demoArrow"
-                            style="width: 16px; height: 16px; transition: transform 0.2s;"></i>
-                    </button>
+                <button class="btn btn-secondary btn-lg" onclick="toggleDemoMenu()" style="position: relative;">
+                    <i data-lucide="eye"></i>
+                    Lihat Demo
+                    <i data-lucide="chevron-down" id="demoArrow"
+                        style="width: 16px; height: 16px; transition: transform 0.2s; margin-left: 8px;"></i>
                     <div id="demoMenu"
-                        style="position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%) scale(0.95); min-width: 200px; background: rgba(10, 25, 47, 0.98); backdrop-filter: blur(10px); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 8px; opacity: 0; visibility: hidden; transition: all 0.2s; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                        style="position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%) scale(0.95); min-width: 200px; background: rgba(10, 25, 47, 0.98); backdrop-filter: blur(10px); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 8px; opacity: 0; visibility: hidden; transition: all 0.2s; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
                         <a href="/inv/demo-perkahwinan"
-                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 14px;">
+                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; font-size: 14px;">
                             <span style="font-size: 1.2rem;">💒</span>
                             <span>Perkahwinan</span>
                         </a>
                         <a href="/inv/demo-korporat"
-                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 14px;">
+                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; font-size: 14px;">
                             <span style="font-size: 1.2rem;">🏢</span>
                             <span>Korporat</span>
                         </a>
                         <a href="/inv/demo-keluarga"
-                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 14px;">
+                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; font-size: 14px;">
                             <span style="font-size: 1.2rem;">👨‍👩‍👧‍👦</span>
                             <span>Keluarga</span>
                         </a>
                         <a href="/inv/demo-hari-jadi"
-                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 14px;">
+                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; font-size: 14px;">
                             <span style="font-size: 1.2rem;">🎂</span>
                             <span>Hari Jadi</span>
                         </a>
                         <a href="/inv/demo-komuniti"
-                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 14px;">
+                            style="display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #ccd6f6; text-decoration: none; border-radius: 8px; font-size: 14px;">
                             <span style="font-size: 1.2rem;">🌿</span>
                             <span>Komuniti</span>
                         </a>
                     </div>
-                </div>
+                </button>
             </div>
 
             <div class="hero-stats">
