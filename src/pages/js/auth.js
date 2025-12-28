@@ -14,19 +14,26 @@ const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
 // =============================================
 let DOM = {};
 let supabaseClient = null;
+let isInitialized = false;
 
 // =============================================
 // Initialization - Define FIRST, then export immediately
 // =============================================
 function initAuth() {
+    // Prevent double initialization
+    if (isInitialized) {
+        console.log('initAuth already called, skipping');
+        return;
+    }
+    isInitialized = true;
     console.log('initAuth called');
 
-    // Initialize Supabase client (moved inside initAuth)
+    // Initialize Supabase client (only once)
     try {
-        if (window.supabase && window.supabase.createClient) {
+        if (!supabaseClient && window.supabase && window.supabase.createClient) {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('Supabase client created');
-        } else {
+        } else if (!window.supabase) {
             console.warn('Supabase library not loaded');
         }
     } catch (e) {
