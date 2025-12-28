@@ -824,26 +824,38 @@ async function publishEvent() {
         // Get auth token from Supabase session
         let authToken = null;
         try {
-            const supabaseClient = window.A2ZAuth?.supabaseClient;
-            if (supabaseClient) {
-                const { data: { session } } = await supabaseClient.auth.getSession();
+            // Try A2ZAuth first, then create our own client if needed
+            let client = window.A2ZAuth?.supabaseClient;
+
+            if (!client && window.supabase?.createClient) {
+                // Create our own client using same config as auth.js
+                client = window.supabase.createClient(
+                    'https://bzxjsdtkoakscmeuthlu.supabase.co',
+                    'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi'
+                );
+            }
+
+            if (client) {
+                const { data: { session } } = await client.auth.getSession();
                 authToken = session?.access_token;
+                console.log('Auth token retrieved:', authToken ? 'Yes' : 'No');
             }
         } catch (e) {
-            console.log('Could not get auth token:', e);
+            console.error('Could not get auth token:', e);
         }
 
-        // Build headers with auth if available
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        if (authToken) {
-            headers['Authorization'] = `Bearer ${authToken}`;
+        if (!authToken) {
+            alert('Sila log masuk semula untuk menyimpan jemputan anda.');
+            window.location.href = '/auth/login';
+            return;
         }
 
         const response = await fetch('/api/events', {
             method: 'POST',
-            headers,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
             body: JSON.stringify({
                 ...eventData,
                 slug
@@ -855,7 +867,7 @@ async function publishEvent() {
             console.error('API Error:', errorData);
 
             if (response.status === 401) {
-                alert('Sila log masuk semula untuk menyimpan jemputan anda.');
+                alert('Sesi anda telah tamat. Sila log masuk semula.');
                 window.location.href = '/auth/login';
                 return;
             }
@@ -872,7 +884,7 @@ async function publishEvent() {
     } catch (error) {
         console.error('Publish error:', error);
 
-        // Show error message instead of fake success
+        // Show error message
         alert('Gagal menyimpan jemputan. Sila cuba lagi.');
     }
 }
