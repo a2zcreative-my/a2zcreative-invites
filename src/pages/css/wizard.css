@@ -9,6 +9,11 @@
     color: #ffffff;
 }
 
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
 /* Header */
 .wizard-header {
     display: flex;
