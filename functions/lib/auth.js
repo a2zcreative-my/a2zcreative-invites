@@ -110,7 +110,7 @@ export async function verifyEventOwnership(db, eventId, userId) {
  * Check if user has admin role
  * @param {D1Database} db - D1 database
  * @param {number} userId - User's D1 ID
- * @returns {boolean} true if user is admin
+ * @returns {boolean} true if user is super_admin
  */
 export async function isAdmin(db, userId) {
     if (!userId) return false;
@@ -119,7 +119,8 @@ export async function isAdmin(db, userId) {
         SELECT role FROM users WHERE id = ?
     `).bind(userId).first();
 
-    return user?.role === 'admin' || user?.role === 'super_admin';
+    // Only 'super_admin' has admin access (matches schema constraint)
+    return user?.role === 'super_admin';
 }
 
 /**
