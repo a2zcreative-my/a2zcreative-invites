@@ -77,7 +77,13 @@ function generateCalendarUrl(event) {
 
 // Populate invitation data
 function populateInvitation(data) {
-    const { event, invitation, schedule, contacts, messages } = data;
+    const { event, invitation, schedule, contacts, messages, settings } = data;
+
+    // Apply theme from settings
+    if (settings?.theme_name) {
+        document.body.dataset.theme = settings.theme_name;
+        console.log('Applied theme:', settings.theme_name);
+    }
 
     // Format date
     const dateInfo = formatDate(event.event_date);
