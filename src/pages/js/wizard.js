@@ -21,12 +21,169 @@ const eventData = {
     venueAddress: '',
     mapLink: '',
     theme: 'elegant-gold',
-    inviteTitle: 'Perutusan Raja Sehari',
+    inviteTitle: '',
     verseText: '',
-    verseRef: 'Ar-Rum: 21',
+    verseRef: '',
     hashtag: '',
     schedule: [],
     contacts: []
+};
+
+// =============================================
+// Event Context Configuration
+// =============================================
+const EVENT_CONTEXT = {
+    1: { // Perkahwinan
+        theme: {
+            titleDefault: 'Perutusan Raja Sehari',
+            ayatDefault: 'Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri...',
+            rujukanDefault: 'Ar-Rum: 21',
+            hashtagPlaceholder: '#AhmadSitiWedding'
+        },
+        schedulePresets: [
+            { time: '11:00 AM', label: 'Majlis Bermula' },
+            { time: '12:00 PM', label: 'Ketibaan Pengantin' },
+            { time: '01:00 PM', label: 'Makan Beradab' }
+        ],
+        contactRoles: ['Wakil Pengantin Lelaki', 'Wakil Pengantin Perempuan']
+    },
+    2: { // Korporat
+        theme: {
+            titleDefault: 'Jemputan Rasmi',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#MajlisRasmi'
+        },
+        schedulePresets: [
+            { time: '09:00 AM', label: 'Pendaftaran' },
+            { time: '10:00 AM', label: 'Ucapan Aluan' },
+            { time: '12:00 PM', label: 'Jamuan Makan' }
+        ],
+        contactRoles: ['Pegawai Bertugas', 'PIC Program']
+    },
+    3: { // Keluarga
+        theme: {
+            titleDefault: 'Jemputan Keluarga',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#MajlisKeluarga'
+        },
+        schedulePresets: [
+            { time: '11:00 AM', label: 'Majlis Bermula' },
+            { time: '12:00 PM', label: 'Jamuan Makan' }
+        ],
+        contactRoles: ['Ketua Keluarga', 'Penganjur']
+    },
+    4: { // Hari Lahir
+        theme: {
+            titleDefault: 'Jemputan Hari Jadi',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#HariJadi'
+        },
+        schedulePresets: [
+            { time: '05:00 PM', label: 'Majlis Bermula' },
+            { time: '06:00 PM', label: 'Potong Kek' },
+            { time: '07:00 PM', label: 'Jamuan' }
+        ],
+        contactRoles: ['Ibu / Bapa', 'Penganjur']
+    },
+    5: { // Komuniti
+        theme: {
+            titleDefault: 'Program Komuniti',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#ProgramKomuniti'
+        },
+        schedulePresets: [
+            { time: '08:00 AM', label: 'Pendaftaran' },
+            { time: '09:00 AM', label: 'Aktiviti Bermula' },
+            { time: '12:00 PM', label: 'Rehat & Makan' }
+        ],
+        contactRoles: ['Ketua Program', 'Setiausaha']
+    }
+};
+
+// =============================================
+// Step 2 Field Configuration
+// =============================================
+const STEP2_CONFIG = {
+    1: { // Perkahwinan
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Pengantin Lelaki',
+            placeholder: 'Contoh: Ahmad Bin Ali'
+        },
+        host2: {
+            visible: true,
+            required: true,
+            label: 'Nama Pengantin Perempuan',
+            placeholder: 'Contoh: Siti Binti Abu'
+        },
+        parents1: {
+            visible: true,
+            required: true,
+            label: 'Nama Bapa Pengantin',
+            placeholder: 'Contoh: En. Ali Bin Hassan'
+        },
+        parents2: {
+            visible: true,
+            required: true,
+            label: 'Nama Ibu Pengantin',
+            placeholder: 'Contoh: Pn. Aminah Binti Osman'
+        }
+    },
+    2: { // Korporat
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Penganjur / Syarikat',
+            placeholder: 'Contoh: ABC Corporation Sdn Bhd'
+        },
+        host2: { visible: false },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    },
+    3: { // Keluarga
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Ketua Keluarga / Penganjur',
+            placeholder: 'Contoh: Keluarga Hassan'
+        },
+        host2: { visible: false },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    },
+    4: { // Hari Lahir
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Yang Dirai',
+            placeholder: 'Contoh: Aisyah'
+        },
+        host2: {
+            visible: true,
+            required: false,
+            label: 'Umur',
+            placeholder: 'Contoh: 25',
+            type: 'number'
+        },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    },
+    5: { // Komuniti
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Penganjur / Organisasi',
+            placeholder: 'Contoh: Jawatankuasa Surau Al-Ikhlas'
+        },
+        host2: { visible: false },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    }
 };
 
 // =============================================
@@ -34,6 +191,14 @@ const eventData = {
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
     initEventTypeCards();
+    // Initialize form state based on default selection
+    const defaultType = document.querySelector('input[name="eventType"]:checked');
+    if (defaultType) {
+        const typeId = parseInt(defaultType.value);
+        eventData.eventType = typeId; // Sync state with default selection
+        applyAllContext(typeId);
+    }
+
     filterEventTypesByPackage();
     initThemeCards();
     initFormInputs();
@@ -70,6 +235,36 @@ function getInitials(name) {
 // =============================================
 function nextStep() {
     if (currentStep < totalSteps) {
+        // Step-specific Validation
+        if (currentStep === 1) {
+            // Step 1: Event Type
+            if (!eventData.eventType) {
+                alert('Sila pilih jenis majlis.');
+                return;
+            }
+        } else if (currentStep === 2) {
+            // Step 2: Details (Form Validation)
+            const currentForm = document.querySelector(`#step${currentStep} form`);
+            if (currentForm && !currentForm.checkValidity()) {
+                currentForm.reportValidity();
+                return;
+            }
+        } else if (currentStep === 4) {
+            // Step 4: Schedule (Min 1 Item)
+            const items = document.querySelectorAll('.schedule-item');
+            if (items.length === 0) {
+                alert('Sila tambah sekurang-kurangnya satu aktiviti.');
+                return;
+            }
+        } else if (currentStep === 5) {
+            // Step 5: Contacts (Min 1 Item)
+            const items = document.querySelectorAll('.contact-item');
+            if (items.length === 0) {
+                alert('Sila tambah sekurang-kurangnya satu kenalan.');
+                return;
+            }
+        }
+
         collectStepData();
         currentStep++;
         showStep(currentStep);
@@ -163,6 +358,10 @@ function filterEventTypesByPackage() {
     const currentSelected = document.querySelector('.event-type-card.selected');
     if ((!currentSelected || currentSelected.style.display === 'none') && firstVisibleCard) {
         firstVisibleCard.click();
+    } else if (currentSelected) {
+        // Initialize fields based on initially selected card
+        const input = currentSelected.querySelector('input');
+        if (input) applyAllContext(parseInt(input.value));
     }
 }
 
@@ -182,12 +381,281 @@ function initEventTypeCards() {
             // Update data
             const input = card.querySelector('input');
             if (input) {
-                eventData.eventType = parseInt(input.value);
-                // Also update the hidden radio input to checked for form submission consistency if needed
+                const eventTypeId = parseInt(input.value);
+                eventData.eventType = eventTypeId;
                 input.checked = true;
+
+                // Trigger all context updates
+                applyAllContext(eventTypeId);
             }
         });
     });
+}
+
+// =============================================
+// Context Application Functions
+// =============================================
+function applyAllContext(eventType) {
+    applyStep2Config(eventType);
+    applyThemeContext(eventType);
+    applyScheduleContext(eventType);
+    applyContactContext(eventType);
+}
+
+// =============================================
+// Step 2 Config Application
+// =============================================
+function applyStep2Config(eventType) {
+    const cfg = STEP2_CONFIG[eventType];
+    if (!cfg) {
+        throw new Error('Invalid event type for Step 2: ' + eventType);
+    }
+
+    applyFieldConfig('host1', cfg.host1);
+    applyFieldConfig('host2', cfg.host2);
+    applyFieldConfig('parents1', cfg.parents1);
+    applyFieldConfig('parents2', cfg.parents2);
+}
+
+function applyFieldConfig(fieldKey, rules) {
+    const wrapper = document.querySelector(`[data-field="${fieldKey}"]`);
+    if (!wrapper) return;
+
+    const input = wrapper.querySelector('input');
+    const label = wrapper.querySelector('label');
+
+    if (!rules || rules.visible === false) {
+        wrapper.classList.add('hidden');
+        if (input) {
+            input.value = '';
+            input.removeAttribute('required');
+        }
+        return;
+    }
+
+    wrapper.classList.remove('hidden');
+    if (label) label.textContent = rules.label || '';
+    if (input) {
+        input.placeholder = rules.placeholder || '';
+        input.type = rules.type || 'text';
+        if (rules.required) {
+            input.setAttribute('required', 'required');
+        } else {
+            input.removeAttribute('required');
+        }
+    }
+}
+
+function applyThemeContext(eventType) {
+    const ctx = EVENT_CONTEXT[eventType];
+    if (!ctx) return;
+
+    const titleInput = document.getElementById('inviteTitle');
+    const verseTextarea = document.getElementById('verseText');
+    const verseRefInput = document.getElementById('verseRef');
+    const hashtagInput = document.getElementById('hashtag');
+    const verseGroup = document.getElementById('verseGroup');
+    const verseRefGroup = document.getElementById('verseRefGroup');
+
+    if (titleInput) {
+        titleInput.value = ctx.theme.titleDefault;
+        titleInput.placeholder = ctx.theme.titleDefault;
+    }
+    if (verseTextarea) {
+        verseTextarea.value = ctx.theme.ayatDefault;
+    }
+    if (verseRefInput) {
+        verseRefInput.value = ctx.theme.rujukanDefault;
+    }
+    if (hashtagInput) {
+        hashtagInput.placeholder = ctx.theme.hashtagPlaceholder;
+    }
+
+    // Hide verse fields for non-wedding events
+    if (verseGroup) {
+        verseGroup.classList.toggle('hidden', !ctx.theme.ayatDefault);
+    }
+    if (verseRefGroup) {
+        verseRefGroup.classList.toggle('hidden', !ctx.theme.rujukanDefault);
+    }
+}
+
+function applyScheduleContext(eventType) {
+    const ctx = EVENT_CONTEXT[eventType];
+    if (!ctx) return;
+
+    clearScheduleItems();
+
+    ctx.schedulePresets.forEach(preset => {
+        addScheduleItemWithData(preset.time, preset.label);
+    });
+
+    lucide.createIcons();
+}
+
+function applyContactContext(eventType) {
+    const ctx = EVENT_CONTEXT[eventType];
+    if (!ctx) return;
+
+    clearContactItems();
+
+    ctx.contactRoles.forEach(role => {
+        addContactItemWithRole(role);
+    });
+
+    lucide.createIcons();
+}
+
+function clearScheduleItems() {
+    const list = document.getElementById('scheduleList');
+    if (list) list.innerHTML = '';
+}
+
+function clearContactItems() {
+    const list = document.getElementById('contactsList');
+    if (list) list.innerHTML = '';
+}
+
+function addScheduleItemWithData(time, label) {
+    const list = document.getElementById('scheduleList');
+    if (!list) return;
+
+    const item = document.createElement('div');
+    item.className = 'schedule-item';
+    item.innerHTML = `
+        <input type="text" placeholder="Masa" value="${time}">
+        <input type="text" placeholder="Aktiviti" value="${label}">
+        <button class="remove-btn" onclick="removeScheduleItem(this)">
+            <i data-lucide="x"></i>
+        </button>
+    `;
+    list.appendChild(item);
+}
+
+function addContactItemWithRole(role) {
+    const list = document.getElementById('contactsList');
+    if (!list) return;
+
+    const item = document.createElement('div');
+    item.className = 'contact-item';
+    item.innerHTML = `
+        <input type="text" placeholder="Peranan" value="${role}">
+        <input type="text" placeholder="Nama" value="">
+        <input type="tel" placeholder="No. Telefon" value="">
+        <button class="remove-btn" onclick="removeContactItem(this)">
+            <i data-lucide="x"></i>
+        </button>
+    `;
+    list.appendChild(item);
+}
+
+// =============================================
+// Field Logic (Strict Specification)
+// =============================================
+function updateFormFields(typeId) {
+    // Configuration Object - Single Source of Truth
+    // 1: Perkahwinan, 2: Korporat, 3: Keluarga, 4: Hari Lahir, 5: Komuniti
+    const config = {
+        1: {
+            host1: { label: 'Nama Pengantin Lelaki', placeholder: 'AHMAD', required: true },
+            host2: { show: true, label: 'Nama Pengantin Perempuan', placeholder: 'SITI', required: true, type: 'text' },
+            parents: {
+                show: true,
+                required: true,
+                labels: { parent1: 'Nama Ibu Bapa (Lelaki)', parent2: 'Nama Ibu Bapa (Perempuan)' },
+                placeholders: { parent1: 'En. Abu & Pn. Aminah', parent2: 'En. Ali & Pn. Fatimah' }
+            }
+        },
+        2: {
+            host1: { label: 'Nama Penganjur / Syarikat', placeholder: 'Tech Corp Sdn Bhd', required: true },
+            host2: { show: false, required: false },
+            parents: { show: false, required: false }
+        },
+        3: {
+            host1: { label: 'Nama Ketua Keluarga / Penganjur', placeholder: 'En. Razak', required: true },
+            host2: { show: false, required: false },
+            parents: { show: false, required: false }
+        },
+        4: {
+            host1: { label: 'Nama Yang Dirai', placeholder: 'Adik Mia', required: true },
+            host2: { show: true, label: 'Umur', placeholder: '12', required: false, type: 'number' },
+            parents: { show: false, required: false }
+        },
+        5: {
+            host1: { label: 'Nama Penganjur / Organisasi', placeholder: 'Persatuan Penduduk', required: true },
+            host2: { show: false, required: false },
+            parents: { show: false, required: false }
+        }
+    };
+
+    // Strict validation: Throw error if invalid type
+    if (!config[typeId]) {
+        throw new Error('Invalid event type ID: ' + typeId);
+    }
+
+    const settings = config[typeId];
+
+    // --- Host 1 ---
+    const host1Label = document.getElementById('label-host-1');
+    const host1Input = document.getElementById('hostName1');
+
+    if (host1Label && host1Input) {
+        host1Label.innerText = settings.host1.label;
+        host1Input.placeholder = settings.host1.placeholder;
+        toggleRequired(host1Input, settings.host1.required);
+    }
+
+    // --- Host 2 ---
+    const host2Group = document.querySelector('[data-field-id="host-2"]');
+    const host2Label = document.getElementById('label-host-2');
+    const host2Input = document.getElementById('hostName2');
+
+    if (host2Group && host2Input) {
+        if (settings.host2.show) {
+            host2Group.classList.remove('hidden');
+            if (host2Label) host2Label.innerText = settings.host2.label;
+            host2Input.placeholder = settings.host2.placeholder || '';
+            host2Input.type = settings.host2.type || 'text';
+            toggleRequired(host2Input, settings.host2.required);
+        } else {
+            host2Group.classList.add('hidden');
+            host2Input.value = ''; // Clear value
+            toggleRequired(host2Input, false);
+        }
+    }
+
+    // --- Parents ---
+    const parentsGroup = document.querySelector('[data-field-id="parents"]');
+    const parent1Label = document.getElementById('label-parents-1');
+    const parent1Input = document.getElementById('parentNames1');
+    const parent2Label = document.getElementById('label-parents-2');
+    const parent2Input = document.getElementById('parentNames2');
+
+    if (parentsGroup) {
+        if (settings.parents.show) {
+            parentsGroup.classList.remove('hidden');
+            // Apply labels and placeholders
+            if (parent1Label) parent1Label.innerText = settings.parents.labels?.parent1 || '';
+            if (parent1Input) parent1Input.placeholder = settings.parents.placeholders?.parent1 || '';
+            if (parent2Label) parent2Label.innerText = settings.parents.labels?.parent2 || '';
+            if (parent2Input) parent2Input.placeholder = settings.parents.placeholders?.parent2 || '';
+            // Apply required
+            if (parent1Input) toggleRequired(parent1Input, settings.parents.required);
+            if (parent2Input) toggleRequired(parent2Input, settings.parents.required);
+        } else {
+            parentsGroup.classList.add('hidden');
+            if (parent1Input) { parent1Input.value = ''; toggleRequired(parent1Input, false); }
+            if (parent2Input) { parent2Input.value = ''; toggleRequired(parent2Input, false); }
+        }
+    }
+}
+
+function toggleRequired(element, isRequired) {
+    if (isRequired) {
+        element.setAttribute('required', '');
+    } else {
+        element.removeAttribute('required');
+    }
 }
 
 // =============================================
