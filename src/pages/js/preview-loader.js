@@ -71,20 +71,34 @@ function renderPreview(data) {
     // Event type logic
     const eventType = parseInt(data.eventType) || 1;
     const isWedding = eventType === 1;
+    const isBirthday = eventType === 4;
 
     // Cover section
     setText('cover-label', data.inviteTitle || 'Jemputan Istimewa');
-    setText('cover-name1', (data.hostName1 || 'NAMA').split(' ')[0].toUpperCase());
 
-    // Handle name2 visibility
+    // Handle name display based on event type
+    const coverName1 = document.getElementById('cover-name1');
     const coverName2 = document.getElementById('cover-name2');
     const coverAmpersand = document.querySelector('.cover-content .ampersand');
 
     if (isWedding && data.hostName2) {
+        // Wedding: First Name 1 & First Name 2
+        setText('cover-name1', (data.hostName1 || 'PENGANTIN').split(' ')[0].toUpperCase());
         setText('cover-name2', data.hostName2.split(' ')[0].toUpperCase());
         if (coverName2) coverName2.style.display = '';
         if (coverAmpersand) coverAmpersand.style.display = '';
+    } else if (isBirthday && data.hostName2) {
+        // Birthday: Name + Age display
+        setText('cover-name1', (data.hostName1 || 'NAMA').toUpperCase());
+        setText('cover-name2', `${data.hostName2} TAHUN`);
+        if (coverName2) {
+            coverName2.style.display = '';
+            coverName2.style.fontSize = '1.5rem';
+        }
+        if (coverAmpersand) coverAmpersand.style.display = 'none';
     } else {
+        // Other event types: Full Name only
+        setText('cover-name1', (data.hostName1 || 'NAMA').toUpperCase());
         if (coverName2) coverName2.style.display = 'none';
         if (coverAmpersand) coverAmpersand.style.display = 'none';
     }
@@ -93,16 +107,29 @@ function renderPreview(data) {
 
     // Hero section
     setText('invite-label', data.inviteTitle || 'Jemputan Istimewa');
-    setText('name1', (data.hostName1 || '').split(' ')[0].toUpperCase());
 
+    const heroName1 = document.getElementById('name1');
     const heroName2 = document.getElementById('name2');
     const heroAmpersand = document.querySelector('.hero-section .ampersand');
 
     if (isWedding && data.hostName2) {
+        // Wedding: First Name 1 & First Name 2
+        setText('name1', (data.hostName1 || '').split(' ')[0].toUpperCase());
         setText('name2', data.hostName2.split(' ')[0].toUpperCase());
         if (heroName2) heroName2.style.display = '';
         if (heroAmpersand) heroAmpersand.style.display = '';
+    } else if (isBirthday && data.hostName2) {
+        // Birthday: Name + Age
+        setText('name1', (data.hostName1 || '').toUpperCase());
+        setText('name2', `${data.hostName2} TAHUN`);
+        if (heroName2) {
+            heroName2.style.display = '';
+            heroName2.style.fontSize = '1.5rem';
+        }
+        if (heroAmpersand) heroAmpersand.style.display = 'none';
     } else {
+        // Other: Full Name only
+        setText('name1', (data.hostName1 || '').toUpperCase());
         if (heroName2) heroName2.style.display = 'none';
         if (heroAmpersand) heroAmpersand.style.display = 'none';
     }
