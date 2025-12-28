@@ -893,8 +893,8 @@ async function publishEvent() {
             if (error.status === 409) {
                 console.log('Slug taken, retrying with suffix...');
                 // Attempt 2: With Suffix
-                const randomSuffix = Math.random().toString(36).substring(2, 6);
-                finalSlug = `${baseSlug}-${randomSuffix}`;
+                const randomSuffix = Math.random().toString(36).substring(2, 4);
+                finalSlug = `${baseSlug}-ev${randomSuffix}`;
 
                 try {
                     const resultRetry = await tryCreate(finalSlug);
