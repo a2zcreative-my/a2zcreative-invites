@@ -1,12 +1,12 @@
 /**
  * A2Z Creative - Authentication
- * supabaseClient Auth integration for login, register, and session management
+ * Supabase Auth integration for login, register, and session management
  */
 
 // =============================================
-// supabaseClient Configuration
+// Supabase Configuration
 // =============================================
-const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabaseClient.co';
+const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
 
 // =============================================
