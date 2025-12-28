@@ -280,6 +280,15 @@ function prevStep() {
     }
 }
 
+function handleBackButton() {
+    if (currentStep > 1) {
+        prevStep();
+    } else {
+        // On Step 1, go back to dashboard or previous page
+        window.location.href = '/dashboard/';
+    }
+}
+
 function goToStep(step) {
     if (step >= 1 && step <= totalSteps) {
         currentStep = step;
