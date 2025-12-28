@@ -409,6 +409,22 @@ function applyAllContext(eventType) {
     applyThemeContext(eventType);
     applyScheduleContext(eventType);
     applyContactContext(eventType);
+    updatePreviewFrame(eventType);
+}
+
+// Update preview iframe based on event type
+function updatePreviewFrame(eventType) {
+    const previewMap = {
+        1: '/inv/demo-perkahwinan/',
+        2: '/inv/demo-korporat/',
+        3: '/inv/demo-keluarga/',
+        4: '/inv/demo-hari-jadi/',
+        5: '/inv/demo-komuniti/'
+    };
+    const iframe = document.getElementById('previewFrame');
+    if (iframe) {
+        iframe.src = previewMap[eventType] || '/inv/demo-perkahwinan/';
+    }
 }
 
 // =============================================
