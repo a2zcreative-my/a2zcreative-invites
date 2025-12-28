@@ -77,6 +77,10 @@
     justify-content: center;
 }
 
+.hero-cta .btn {
+    min-width: 280px;
+}
+
 .hero-stats {
     display: flex;
     justify-content: center;
@@ -317,7 +321,7 @@
 
 .event-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: var(--space-6);
 }
 
