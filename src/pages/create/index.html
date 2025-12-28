@@ -221,23 +221,22 @@
             <form class="wizard-form">
                 <div class="form-group">
                     <label for="inviteTitle">Tajuk Jemputan</label>
-                    <input type="text" id="inviteTitle" name="inviteTitle" value="Perutusan Raja Sehari">
+                    <input type="text" id="inviteTitle" name="inviteTitle" placeholder="" value="">
                 </div>
 
-                <div class="form-group">
-                    <label for="verseText">Ayat Al-Quran / Doa</label>
-                    <textarea id="verseText"
-                        name="verseText">Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri...</textarea>
+                <div class="form-group" id="verseGroup">
+                    <label for="verseText">Ayat / Doa</label>
+                    <textarea id="verseText" name="verseText" placeholder=""></textarea>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="verseRefGroup">
                     <label for="verseRef">Rujukan Ayat</label>
-                    <input type="text" id="verseRef" name="verseRef" value="Ar-Rum: 21">
+                    <input type="text" id="verseRef" name="verseRef" placeholder="" value="">
                 </div>
 
                 <div class="form-group">
                     <label for="hashtag">Hashtag</label>
-                    <input type="text" id="hashtag" name="hashtag" placeholder="#AhmadSitiWedding">
+                    <input type="text" id="hashtag" name="hashtag" placeholder="">
                 </div>
             </form>
 
@@ -260,27 +259,7 @@
 
             <div class="schedule-builder">
                 <div class="schedule-list" id="scheduleList">
-                    <div class="schedule-item">
-                        <input type="text" placeholder="Masa" value="11:00 AM">
-                        <input type="text" placeholder="Aktiviti" value="Majlis Bermula">
-                        <button class="remove-btn" onclick="removeScheduleItem(this)">
-                            <i data-lucide="x"></i>
-                        </button>
-                    </div>
-                    <div class="schedule-item">
-                        <input type="text" placeholder="Masa" value="12:00 PM">
-                        <input type="text" placeholder="Aktiviti" value="Ketibaan Pengantin">
-                        <button class="remove-btn" onclick="removeScheduleItem(this)">
-                            <i data-lucide="x"></i>
-                        </button>
-                    </div>
-                    <div class="schedule-item">
-                        <input type="text" placeholder="Masa" value="01:00 PM">
-                        <input type="text" placeholder="Aktiviti" value="Makan Beradab">
-                        <button class="remove-btn" onclick="removeScheduleItem(this)">
-                            <i data-lucide="x"></i>
-                        </button>
-                    </div>
+                    <!-- Dynamic content populated by JS -->
                 </div>
 
                 <button class="add-schedule-btn" onclick="addScheduleItem()">
@@ -308,22 +287,7 @@
 
             <div class="contacts-builder">
                 <div id="contactsList">
-                    <div class="contact-item">
-                        <input type="text" placeholder="Peranan" value="Wakil Pengantin Lelaki">
-                        <input type="text" placeholder="Nama" value="Ahmad">
-                        <input type="tel" placeholder="No. Telefon" value="012-3456789">
-                        <button class="remove-btn" onclick="removeContactItem(this)">
-                            <i data-lucide="x"></i>
-                        </button>
-                    </div>
-                    <div class="contact-item">
-                        <input type="text" placeholder="Peranan" value="Wakil Pengantin Perempuan">
-                        <input type="text" placeholder="Nama" value="Siti">
-                        <input type="tel" placeholder="No. Telefon" value="012-9876543">
-                        <button class="remove-btn" onclick="removeContactItem(this)">
-                            <i data-lucide="x"></i>
-                        </button>
-                    </div>
+                    <!-- Dynamic content populated by JS -->
                 </div>
 
                 <button class="add-schedule-btn" onclick="addContactItem()" style="margin-top: 1rem;">

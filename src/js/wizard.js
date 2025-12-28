@@ -21,12 +21,87 @@ const eventData = {
     venueAddress: '',
     mapLink: '',
     theme: 'elegant-gold',
-    inviteTitle: 'Perutusan Raja Sehari',
+    inviteTitle: '',
     verseText: '',
-    verseRef: 'Ar-Rum: 21',
+    verseRef: '',
     hashtag: '',
     schedule: [],
     contacts: []
+};
+
+// =============================================
+// Event Context Configuration
+// =============================================
+const EVENT_CONTEXT = {
+    1: { // Perkahwinan
+        theme: {
+            titleDefault: 'Perutusan Raja Sehari',
+            ayatDefault: 'Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri...',
+            rujukanDefault: 'Ar-Rum: 21',
+            hashtagPlaceholder: '#AhmadSitiWedding'
+        },
+        schedulePresets: [
+            { time: '11:00 AM', label: 'Majlis Bermula' },
+            { time: '12:00 PM', label: 'Ketibaan Pengantin' },
+            { time: '01:00 PM', label: 'Makan Beradab' }
+        ],
+        contactRoles: ['Wakil Pengantin Lelaki', 'Wakil Pengantin Perempuan']
+    },
+    2: { // Korporat
+        theme: {
+            titleDefault: 'Jemputan Rasmi',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#MajlisRasmi'
+        },
+        schedulePresets: [
+            { time: '09:00 AM', label: 'Pendaftaran' },
+            { time: '10:00 AM', label: 'Ucapan Aluan' },
+            { time: '12:00 PM', label: 'Jamuan Makan' }
+        ],
+        contactRoles: ['Pegawai Bertugas', 'PIC Program']
+    },
+    3: { // Keluarga
+        theme: {
+            titleDefault: 'Jemputan Keluarga',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#MajlisKeluarga'
+        },
+        schedulePresets: [
+            { time: '11:00 AM', label: 'Majlis Bermula' },
+            { time: '12:00 PM', label: 'Jamuan Makan' }
+        ],
+        contactRoles: ['Ketua Keluarga', 'Penganjur']
+    },
+    4: { // Hari Lahir
+        theme: {
+            titleDefault: 'Jemputan Hari Jadi',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#HariJadi'
+        },
+        schedulePresets: [
+            { time: '05:00 PM', label: 'Majlis Bermula' },
+            { time: '06:00 PM', label: 'Potong Kek' },
+            { time: '07:00 PM', label: 'Jamuan' }
+        ],
+        contactRoles: ['Ibu / Bapa', 'Penganjur']
+    },
+    5: { // Komuniti
+        theme: {
+            titleDefault: 'Program Komuniti',
+            ayatDefault: '',
+            rujukanDefault: '',
+            hashtagPlaceholder: '#ProgramKomuniti'
+        },
+        schedulePresets: [
+            { time: '08:00 AM', label: 'Pendaftaran' },
+            { time: '09:00 AM', label: 'Aktiviti Bermula' },
+            { time: '12:00 PM', label: 'Rehat & Makan' }
+        ],
+        contactRoles: ['Ketua Program', 'Setiausaha']
+    }
 };
 
 // =============================================
@@ -39,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (defaultType) {
         const typeId = parseInt(defaultType.value);
         eventData.eventType = typeId; // Sync state with default selection
-        updateFormFields(typeId);
+        applyAllContext(typeId);
     }
 
     filterEventTypesByPackage();
@@ -204,7 +279,7 @@ function filterEventTypesByPackage() {
     } else if (currentSelected) {
         // Initialize fields based on initially selected card
         const input = currentSelected.querySelector('input');
-        if (input) updateFormFields(parseInt(input.value));
+        if (input) applyAllContext(parseInt(input.value));
     }
 }
 
@@ -228,11 +303,124 @@ function initEventTypeCards() {
                 eventData.eventType = eventTypeId;
                 input.checked = true;
 
-                // Trigger dynamic form updates
-                updateFormFields(eventTypeId);
+                // Trigger all context updates
+                applyAllContext(eventTypeId);
             }
         });
     });
+}
+
+// =============================================
+// Context Application Functions
+// =============================================
+function applyAllContext(eventType) {
+    updateFormFields(eventType);
+    applyThemeContext(eventType);
+    applyScheduleContext(eventType);
+    applyContactContext(eventType);
+}
+
+function applyThemeContext(eventType) {
+    const ctx = EVENT_CONTEXT[eventType];
+    if (!ctx) return;
+
+    const titleInput = document.getElementById('inviteTitle');
+    const verseTextarea = document.getElementById('verseText');
+    const verseRefInput = document.getElementById('verseRef');
+    const hashtagInput = document.getElementById('hashtag');
+    const verseGroup = document.getElementById('verseGroup');
+    const verseRefGroup = document.getElementById('verseRefGroup');
+
+    if (titleInput) {
+        titleInput.value = ctx.theme.titleDefault;
+        titleInput.placeholder = ctx.theme.titleDefault;
+    }
+    if (verseTextarea) {
+        verseTextarea.value = ctx.theme.ayatDefault;
+    }
+    if (verseRefInput) {
+        verseRefInput.value = ctx.theme.rujukanDefault;
+    }
+    if (hashtagInput) {
+        hashtagInput.placeholder = ctx.theme.hashtagPlaceholder;
+    }
+
+    // Hide verse fields for non-wedding events
+    if (verseGroup) {
+        verseGroup.classList.toggle('hidden', !ctx.theme.ayatDefault);
+    }
+    if (verseRefGroup) {
+        verseRefGroup.classList.toggle('hidden', !ctx.theme.rujukanDefault);
+    }
+}
+
+function applyScheduleContext(eventType) {
+    const ctx = EVENT_CONTEXT[eventType];
+    if (!ctx) return;
+
+    clearScheduleItems();
+
+    ctx.schedulePresets.forEach(preset => {
+        addScheduleItemWithData(preset.time, preset.label);
+    });
+
+    lucide.createIcons();
+}
+
+function applyContactContext(eventType) {
+    const ctx = EVENT_CONTEXT[eventType];
+    if (!ctx) return;
+
+    clearContactItems();
+
+    ctx.contactRoles.forEach(role => {
+        addContactItemWithRole(role);
+    });
+
+    lucide.createIcons();
+}
+
+function clearScheduleItems() {
+    const list = document.getElementById('scheduleList');
+    if (list) list.innerHTML = '';
+}
+
+function clearContactItems() {
+    const list = document.getElementById('contactsList');
+    if (list) list.innerHTML = '';
+}
+
+function addScheduleItemWithData(time, label) {
+    const list = document.getElementById('scheduleList');
+    if (!list) return;
+
+    const item = document.createElement('div');
+    item.className = 'schedule-item';
+    item.innerHTML = `
+        <input type="text" placeholder="Masa" value="${time}">
+        <input type="text" placeholder="Aktiviti" value="${label}">
+        <button class="remove-btn" onclick="removeScheduleItem(this)">
+            <i data-lucide="x"></i>
+        </button>
+    `;
+    list.appendChild(item);
+}
+
+function addContactItemWithRole(role) {
+    const list = document.getElementById('contactsList');
+    if (!list) return;
+
+    const item = document.createElement('div');
+    item.className = 'contact-item';
+    item.innerHTML = `
+        <input type="text" placeholder="Peranan" value="${role}">
+        <input type="text" placeholder="Nama" value="">
+        <input type="tel" placeholder="No. Telefon" value="">
+        <button class="remove-btn" onclick="removeContactItem(this)">
+            <i data-lucide="x"></i>
+        </button>
+    `;
+    list.appendChild(item);
 }
 
 // =============================================
