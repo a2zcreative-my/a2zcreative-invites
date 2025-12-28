@@ -6,28 +6,33 @@
 // =============================================
 // Supabase Configuration
 // =============================================
-// These will be replaced with actual values from env vars
 const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
-
-// Initialize Supabase client
-let supabase;
-
-try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (e) {
-    console.warn('Supabase not configured. Auth will be simulated.');
-}
 
 // =============================================
 // DOM Elements (populated after DOMContentLoaded)
 // =============================================
 let DOM = {};
+let supabase = null;
 
 // =============================================
-// Initialization
+// Initialization - Define FIRST, then export immediately
 // =============================================
 function initAuth() {
+    console.log('initAuth called');
+
+    // Initialize Supabase client (moved inside initAuth)
+    try {
+        if (window.supabase && window.supabase.createClient) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('Supabase client created');
+        } else {
+            console.warn('Supabase library not loaded');
+        }
+    } catch (e) {
+        console.warn('Supabase not configured:', e.message);
+    }
+
     // Get DOM elements after page is loaded
     DOM = {
         loginForm: document.getElementById('loginForm'),
@@ -46,6 +51,9 @@ function initAuth() {
     checkSession();
 }
 
+// Export to global scope IMMEDIATELY after function definition
+window.initAuth = initAuth;
+
 // Handle both scenarios: script loads before OR after DOMContentLoaded
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAuth);
@@ -53,9 +61,6 @@ if (document.readyState === 'loading') {
     // DOM is already ready (interactive or complete)
     initAuth();
 }
-
-// Export initAuth to global scope for explicit calling
-window.initAuth = initAuth;
 
 // =============================================
 // Session Check
