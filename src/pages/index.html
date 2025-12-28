@@ -86,10 +86,35 @@
                     <i data-lucide="plus-circle"></i>
                     Cipta Jemputan Sekarang
                 </a>
-                <a href="/inv/" class="btn btn-secondary btn-lg">
-                    <i data-lucide="eye"></i>
-                    Lihat Demo
-                </a>
+                <div class="demo-dropdown">
+                    <button class="btn btn-secondary btn-lg demo-trigger" onclick="toggleDemoMenu()">
+                        <i data-lucide="eye"></i>
+                        Lihat Demo
+                        <i data-lucide="chevron-down" class="dropdown-arrow"></i>
+                    </button>
+                    <div class="demo-menu" id="demoMenu">
+                        <a href="/inv/demo-perkahwinan" class="demo-link">
+                            <span class="demo-icon">💒</span>
+                            <span>Perkahwinan</span>
+                        </a>
+                        <a href="/inv/demo-korporat" class="demo-link">
+                            <span class="demo-icon">🏢</span>
+                            <span>Korporat</span>
+                        </a>
+                        <a href="/inv/demo-keluarga" class="demo-link">
+                            <span class="demo-icon">👨‍👩‍👧‍👦</span>
+                            <span>Keluarga</span>
+                        </a>
+                        <a href="/inv/demo-hari-jadi" class="demo-link">
+                            <span class="demo-icon">🎂</span>
+                            <span>Hari Jadi</span>
+                        </a>
+                        <a href="/inv/demo-komuniti" class="demo-link">
+                            <span class="demo-icon">🌿</span>
+                            <span>Komuniti</span>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             <div class="hero-stats">
@@ -476,6 +501,20 @@
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
+        });
+
+        // Demo dropdown toggle
+        function toggleDemoMenu() {
+            const dropdown = document.querySelector('.demo-dropdown');
+            dropdown.classList.toggle('open');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdown = document.querySelector('.demo-dropdown');
+            if (dropdown && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
         });
     </script>
 </body>
