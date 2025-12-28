@@ -16,41 +16,40 @@ const CONFIG = {
 // =============================================
 let guests = [];
 let rsvpChart = null;
-
-// =============================================
-// DOM Elements
-// =============================================
-const DOM = {
-    // Stats
-    statEvents: document.getElementById('statEvents'),
-    statGuests: document.getElementById('statGuests'),
-    statConfirmed: document.getElementById('statConfirmed'),
-    statViews: document.getElementById('statViews'),
-    guestCount: document.getElementById('guestCount'),
-
-    // User
-    userName: document.getElementById('userName'),
-    userAvatar: document.getElementById('userAvatar'),
-
-    // Guest Table
-    guestTableBody: document.getElementById('guestTableBody'),
-    searchGuests: document.getElementById('searchGuests'),
-    filterStatus: document.getElementById('filterStatus'),
-    emptyState: document.getElementById('emptyState'),
-
-    // Sidebar
-    sidebar: document.getElementById('sidebar'),
-    sidebarOverlay: document.getElementById('sidebarOverlay'),
-    menuToggle: document.getElementById('menuToggle'),
-
-    // Event Selector
-    eventSelector: document.getElementById('eventSelector')
-};
+let DOM = {}; // Will be populated after DOMContentLoaded
 
 // =============================================
 // Initialization
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Capture DOM elements AFTER DOM is loaded
+    DOM = {
+        // Stats
+        statEvents: document.getElementById('statEvents'),
+        statGuests: document.getElementById('statGuests'),
+        statConfirmed: document.getElementById('statConfirmed'),
+        statViews: document.getElementById('statViews'),
+        guestCount: document.getElementById('guestCount'),
+
+        // User
+        userName: document.getElementById('userName'),
+        userAvatar: document.getElementById('userAvatar'),
+
+        // Guest Table
+        guestTableBody: document.getElementById('guestTableBody'),
+        searchGuests: document.getElementById('searchGuests'),
+        filterStatus: document.getElementById('filterStatus'),
+        emptyState: document.getElementById('emptyState'),
+
+        // Sidebar
+        sidebar: document.getElementById('sidebar'),
+        sidebarOverlay: document.getElementById('sidebarOverlay'),
+        menuToggle: document.getElementById('menuToggle'),
+
+        // Event Selector
+        eventSelector: document.getElementById('eventSelector')
+    };
+
     loadUserInfo();
     initSidebar();
     initFilters();
