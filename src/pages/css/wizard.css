@@ -249,7 +249,7 @@
     gap: 1rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .event-type-card {
         flex-direction: column !important;
         padding: 1rem;

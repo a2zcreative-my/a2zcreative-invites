@@ -11,6 +11,8 @@
     justify-content: center;
     background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-secondary-light) 100%);
     overflow: hidden;
+    padding-top: 100px;
+    /* Prevent navbar overlap */
 }
 
 .hero::before {
@@ -502,6 +504,8 @@
 .pricing {
     padding: var(--space-20) 0;
     background: var(--color-secondary);
+    background-color: #0a192f;
+    /* Fallback for dark theme */
 }
 
 .pricing .section-title {
