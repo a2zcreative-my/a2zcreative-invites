@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Dashboard | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css?v=2">
+    <link rel="stylesheet" href="admin.css?v=2">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="/"><img src="/logo.png" alt="A2Z Creative"></a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="switchTab('dashboard')">
+                    <i data-lucide="layout-dashboard"></i> Overview
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('clients')">
+                    <i data-lucide="users"></i> Clients
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('events')">
+                    <i data-lucide="calendar"></i> All Events
+                </a>
+                <div style="flex: 1"></div>
+                <a href="javascript:void(0)" class="nav-item" onclick="logout()">
+                    <i data-lucide="log-out"></i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="page-header">
+                    <h1 class="page-title">Admin Overview</h1>
+                    <p class="text-secondary">Welcome back, Super Admin.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i data-lucide="users"></i></div>
+                        </div>
+                        <div class="stat-value" id="totalUsers">-</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i data-lucide="calendar"></i></div>
+                        </div>
+                        <div class="stat-value" id="totalEvents">-</div>
+                        <div class="stat-label">Total Events</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon"><i data-lucide="users-2"></i></div>
+                        </div>
+                        <div class="stat-value" id="totalGuests">-</div>
+                        <div class="stat-label">Total Guests Managed</div>
+                    </div>
+                </div>
+
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Activity</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Event</th>
+                                <th>Created By</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivityBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Clients Tab -->
+            <div id="tab-clients" class="tab-content">
+                <div class="page-header">
+                    <h1 class="page-title">Client Management</h1>
+                </div>
+                <div class="data-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Client Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Events Created</th>
+                                <th>Joined Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsTableBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Events Tab -->
+            <div id="tab-events" class="tab-content">
+                <div class="page-header">
+                    <h1 class="page-title">Event Monitoring</h1>
+                </div>
+                <div class="data-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event Name</th>
+                                <th>Organizer</th>
+                                <th>Date</th>
+                                <th>Guests</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/auth.js?v=10"></script>
+    <script src="admin.js?v=3"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

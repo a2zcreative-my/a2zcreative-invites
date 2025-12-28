@@ -3,8 +3,12 @@
 -- =============================================
 
 -- Create a demo user
-INSERT OR IGNORE INTO users (id, name, email, role) VALUES 
-    (1, 'Demo Admin', 'demo@a2zcreative.my', 'event_admin');
+INSERT OR IGNORE INTO users (id, name, email, password_hash, role) VALUES 
+    (1, 'Demo Admin', 'demo@a2zcreative.my', NULL, 'event_admin'),
+    (999, 'Super Admin', 'admin@a2zcreative.my', 'Admin@2025', 'super_admin');
+
+-- Force update to ensure password is set (in case row existed)
+UPDATE users SET password_hash = 'Admin@2025' WHERE email = 'admin@a2zcreative.my';
 
 -- Create a demo event (Wedding)
 INSERT OR IGNORE INTO events (

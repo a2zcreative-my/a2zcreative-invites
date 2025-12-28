@@ -34,6 +34,7 @@ const eventData = {
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
     initEventTypeCards();
+    filterEventTypesByPackage();
     initThemeCards();
     initFormInputs();
     loadUserInfo();
@@ -125,11 +126,52 @@ function updateProgressSteps() {
 }
 
 // =============================================
-// Event Type Selection
+// Event Type Selection & Filtering
 // =============================================
+function filterEventTypesByPackage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedPackage = urlParams.get('package')?.toLowerCase();
+
+    if (!selectedPackage) return;
+
+    const cards = document.querySelectorAll('.event-type-card');
+    let firstVisibleCard = null;
+
+    cards.forEach(card => {
+        const input = card.querySelector('input');
+        const eventValue = parseInt(input.value);
+        let isVisible = true;
+
+        if (selectedPackage === 'premium') {
+            // Premium: Perkahwinan (1), Keluarga (3), Hari Lahir (4)
+            isVisible = [1, 3, 4].includes(eventValue);
+        } else if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
+            // Bisnes: Korporat (2), Komuniti (5)
+            isVisible = [2, 5].includes(eventValue);
+        }
+
+        if (isVisible) {
+            card.style.display = 'flex';
+            if (!firstVisibleCard) firstVisibleCard = card;
+        } else {
+            card.style.display = 'none';
+            card.classList.remove('selected');
+        }
+    });
+
+    // Auto-select first visible if current selection is hidden
+    const currentSelected = document.querySelector('.event-type-card.selected');
+    if ((!currentSelected || currentSelected.style.display === 'none') && firstVisibleCard) {
+        firstVisibleCard.click();
+    }
+}
+
 function initEventTypeCards() {
     document.querySelectorAll('.event-type-card').forEach(card => {
         card.addEventListener('click', () => {
+            // Only allow clicking visible cards
+            if (card.style.display === 'none') return;
+
             // Remove selected from all
             document.querySelectorAll('.event-type-card').forEach(c => {
                 c.classList.remove('selected');
@@ -141,6 +183,8 @@ function initEventTypeCards() {
             const input = card.querySelector('input');
             if (input) {
                 eventData.eventType = parseInt(input.value);
+                // Also update the hidden radio input to checked for form submission consistency if needed
+                input.checked = true;
             }
         });
     });
