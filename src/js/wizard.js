@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize form state based on default selection
     const defaultType = document.querySelector('input[name="eventType"]:checked');
     if (defaultType) {
-        updateFormFields(parseInt(defaultType.value));
+        const typeId = parseInt(defaultType.value);
+        eventData.eventType = typeId; // Sync state with default selection
+        updateFormFields(typeId);
     }
 
     filterEventTypesByPackage();
@@ -76,11 +78,34 @@ function getInitials(name) {
 // =============================================
 function nextStep() {
     if (currentStep < totalSteps) {
-        // Validation Check
-        const currentForm = document.querySelector(`#step${currentStep} form`);
-        if (currentForm && !currentForm.checkValidity()) {
-            currentForm.reportValidity();
-            return;
+        // Step-specific Validation
+        if (currentStep === 1) {
+            // Step 1: Event Type
+            if (!eventData.eventType) {
+                alert('Sila pilih jenis majlis.');
+                return;
+            }
+        } else if (currentStep === 2) {
+            // Step 2: Details (Form Validation)
+            const currentForm = document.querySelector(`#step${currentStep} form`);
+            if (currentForm && !currentForm.checkValidity()) {
+                currentForm.reportValidity();
+                return;
+            }
+        } else if (currentStep === 4) {
+            // Step 4: Schedule (Min 1 Item)
+            const items = document.querySelectorAll('.schedule-item');
+            if (items.length === 0) {
+                alert('Sila tambah sekurang-kurangnya satu aktiviti.');
+                return;
+            }
+        } else if (currentStep === 5) {
+            // Step 5: Contacts (Min 1 Item)
+            const items = document.querySelectorAll('.contact-item');
+            if (items.length === 0) {
+                alert('Sila tambah sekurang-kurangnya satu kenalan.');
+                return;
+            }
         }
 
         collectStepData();
