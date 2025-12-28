@@ -125,17 +125,49 @@ function populateInvitation(data) {
     }
 
     // Parents section
-    setText('parent1', event.parent_names_1 || 'Keluarga Tuan Rumah');
-    setText('parent2', event.parent_names_2 || '');
-    setText('full-name1', event.host_name_1?.toUpperCase() || '');
-    setText('full-name2', event.host_name_2?.toUpperCase() || '');
+    const parentsSection = document.getElementById('parents');
+    if (event.parent_names_1) {
+        if (parentsSection) parentsSection.style.display = 'block';
+        setText('parent1', event.parent_names_1);
+        setText('parent2', event.parent_names_2 || '');
+        setText('full-name1', event.host_name_1?.toUpperCase() || '');
+        setText('full-name2', event.host_name_2?.toUpperCase() || '');
 
-    // Hide second parent if not present
-    const parent2 = document.getElementById('parent2');
-    if (parent2 && !event.parent_names_2) {
-        parent2.style.display = 'none';
-        const ampersand = parent2.previousElementSibling;
-        if (ampersand?.textContent === '&') ampersand.style.display = 'none';
+        // Hide second parent if not present
+        const parent2 = document.getElementById('parent2');
+        if (parent2 && !event.parent_names_2) {
+            parent2.style.display = 'none';
+            const ampersand = parent2.previousElementSibling;
+            if (ampersand?.textContent === '&') ampersand.style.display = 'none';
+        }
+    } else {
+        // Hide parents section for events like Corporate/Community
+        if (parentsSection) parentsSection.style.display = 'none';
+    }
+
+    // Handle single host display (for Corporate/Birthday)
+    if (!event.host_name_2) {
+        // Cover
+        const coverAmp = document.getElementById('cover-name2')?.previousElementSibling;
+        if (coverAmp?.classList.contains('ampersand')) coverAmp.style.display = 'none';
+        const coverName2 = document.getElementById('cover-name2');
+        if (coverName2) coverName2.style.display = 'none';
+
+        // Hero
+        const heroAmp = document.getElementById('name2')?.previousElementSibling;
+        if (heroAmp?.classList.contains('ampersand')) heroAmp.style.display = 'none';
+        const heroName2 = document.getElementById('name2');
+        if (heroName2) heroName2.style.display = 'none';
+
+        // Use full name for single host (e.g. Company Name)
+        setText('cover-name1', event.host_name_1?.toUpperCase() || '');
+        setText('name1', event.host_name_1?.toUpperCase() || '');
+    } else {
+        // Split names for weddings (First name only)
+        setText('cover-name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || '');
+        setText('cover-name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || '');
+        setText('name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || '');
+        setText('name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || '');
     }
 
     // Schedule section
