@@ -890,8 +890,15 @@ async function publishEvent() {
 }
 
 function generateSlug(name1, name2) {
-    const clean = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `${clean(name1)}-${clean(name2)}`;
+    const clean = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const s1 = clean(name1);
+    const s2 = clean(name2);
+    const random = Math.random().toString(36).substring(2, 6);
+
+    if (s2) {
+        return `${s1}-${s2}-${random}`;
+    }
+    return `${s1}-${random}`;
 }
 
 function showPublishSuccess(slug) {
