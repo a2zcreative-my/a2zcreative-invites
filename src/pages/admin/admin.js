@@ -1,15 +1,40 @@
 // Admin Dashboard Logic
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Check Auth (Mock for now, should verify role)
+    // 1. Check Auth
     const user = await A2ZAuth.getCurrentUser();
     if (!user) {
         window.location.href = '/auth/login.html';
         return;
     }
 
-    // In a real app, we would verify 'super_admin' role here
-    // For now, we assume access since we are in "Mock/Dev" mode or the API will reject it
+    // Update user info in sidebar
+    document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Super Admin';
+    document.getElementById('userAvatar').textContent = (user.email?.[0] || 'S').toUpperCase();
+
+    // Show login time
+    const loginTime = new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('loginTime').textContent = loginTime;
+
+    // Mobile sidebar toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('open');
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('open');
+        });
+    }
+
     console.log("Logged in as:", user);
 
     // 2. Load Initial Data
