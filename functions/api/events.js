@@ -3,6 +3,8 @@
  * GET /api/events - List user's events
  */
 
+import { getAuthUser, syncUserToD1 } from '../lib/auth.js';
+
 // Generate random slug for invitation
 function generatePublicSlug(prefix = '') {
     const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
@@ -16,6 +18,18 @@ function generatePublicSlug(prefix = '') {
 export async function onRequestPost(context) {
     const { request, env } = context;
 
+    // Authenticate user
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+        return new Response(JSON.stringify({
+            error: 'Unauthorized',
+            message: 'Please log in to create events'
+        }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     let data;
     try {
         data = await request.json();
@@ -27,8 +41,8 @@ export async function onRequestPost(context) {
     }
 
     try {
-        // For now, use a default user (will be replaced with auth)
-        const userId = 1;
+        // Sync user to D1 and get their ID
+        const userId = await syncUserToD1(env.DB, authUser);
 
         // Create event
         const eventResult = await env.DB.prepare(`
@@ -123,10 +137,25 @@ export async function onRequestPost(context) {
 }
 
 export async function onRequestGet(context) {
-    const { env } = context;
+    const { request, env } = context;
+
+    // Authenticate user
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+        return new Response(JSON.stringify({
+            error: 'Unauthorized',
+            message: 'Please log in to view events'
+        }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     try {
-        // For now, get all events (will filter by user with auth)
+        // Get user ID from D1
+        const userId = await syncUserToD1(env.DB, authUser);
+
+        // Get only this user's events
         const events = await env.DB.prepare(`
             SELECT 
                 e.*,
@@ -136,9 +165,9 @@ export async function onRequestGet(context) {
                 (SELECT COUNT(*) FROM rsvps WHERE event_id = e.id AND response = 'yes') as confirmed_count
             FROM events e
             LEFT JOIN invitations i ON e.id = i.event_id
-            WHERE e.deleted_at IS NULL
+            WHERE e.deleted_at IS NULL AND e.created_by = ?
             ORDER BY e.created_at DESC
-        `).all();
+        `).bind(userId).all();
 
         return new Response(JSON.stringify(events.results || []), {
             status: 200,
