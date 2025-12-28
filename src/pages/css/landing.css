@@ -72,23 +72,9 @@
 
 .hero-cta {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: var(--space-4);
-    align-items: stretch;
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-}
-
-.hero-cta>* {
-    flex: 1;
-}
-
-@media (min-width: 640px) {
-    .hero-cta {
-        flex-direction: row;
-        max-width: 600px;
-    }
+    justify-content: center;
 }
 
 .hero-stats {
@@ -272,14 +258,8 @@
 
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-8);
-}
-
-@media (max-width: 768px) {
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 .feature-card {
@@ -337,20 +317,8 @@
 
 .event-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--space-6);
-}
-
-@media (max-width: 1024px) {
-    .event-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .event-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 .event-card {
@@ -550,17 +518,10 @@
 
 .pricing-grid-landing {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-6);
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
-}
-
-@media (max-width: 1024px) {
-    .pricing-grid-landing {
-        grid-template-columns: 1fr;
-        max-width: 400px;
-    }
 }
 
 .pricing-card-landing {
