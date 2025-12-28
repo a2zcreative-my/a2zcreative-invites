@@ -688,19 +688,26 @@
     }
 
     .pricing-card-landing {
-        background: rgba(10, 25, 47, 0.95);
+        background: rgba(10, 25, 47, 0.95) !important;
         /* Enforce dark background */
-        border-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.1) !important;
     }
 
     .pricing-card-landing .package-name,
     .pricing-card-landing .price-amount {
-        color: #ffffff;
+        color: #ffffff !important;
         /* Enforce white text */
     }
 
     .pricing-card-landing .package-desc,
     .pricing-card-landing .price-period {
-        color: #8892b0;
+        color: #8892b0 !important;
+    }
+
+    /* Hero fix for mobile collision */
+    .hero {
+        align-items: flex-start;
+        padding-top: 140px;
+        /* Safe zone below navbar */
     }
 }
