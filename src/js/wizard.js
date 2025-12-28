@@ -34,6 +34,12 @@ const eventData = {
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
     initEventTypeCards();
+    // Initialize form state based on default selection
+    const defaultType = document.querySelector('input[name="eventType"]:checked');
+    if (defaultType) {
+        updateFormFields(parseInt(defaultType.value));
+    }
+
     filterEventTypesByPackage();
     initThemeCards();
     initFormInputs();
@@ -70,6 +76,13 @@ function getInitials(name) {
 // =============================================
 function nextStep() {
     if (currentStep < totalSteps) {
+        // Validation Check
+        const currentForm = document.querySelector(`#step${currentStep} form`);
+        if (currentForm && !currentForm.checkValidity()) {
+            currentForm.reportValidity();
+            return;
+        }
+
         collectStepData();
         currentStep++;
         showStep(currentStep);
