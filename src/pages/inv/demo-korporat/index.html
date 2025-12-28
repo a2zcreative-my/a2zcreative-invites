@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Demo Korporat | A2Z Creative</title>
+    <meta name="description" content="Contoh jemputan digital untuk majlis korporat">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Jemputan Rasmi | Tech Innovate Sdn Bhd">
+    <meta property="og:description" content="Anda dijemput ke Majlis Makan Malam Tahunan 2025">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/invitation.css">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Corporate Theme Override */
+        :root {
+            --theme-primary: #1e3a5f;
+            --theme-accent: #3498db;
+        }
+
+        .invitation-page {
+            background: linear-gradient(180deg, #1e3a5f 0%, #0c1929 100%);
+        }
+
+        .cover-section {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0c1929 100%);
+        }
+
+        .inv-section {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .section-header {
+            color: #3498db;
+        }
+
+        .ampersand {
+            display: none;
+        }
+
+        .verse-section {
+            display: none;
+        }
+
+        .parents-section .intro-text {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body class="invitation-page" data-theme="corporate-blue">
+    <div class="particles-container" id="particles"></div>
+
+    <!-- Cover Section -->
+    <section class="cover-section" id="cover">
+        <div class="door-panel door-left"></div>
+        <div class="door-panel door-right"></div>
+        <div class="cover-content">
+            <div class="cover-names">
+                <p class="cover-label">Jemputan Rasmi</p>
+                <h1>
+                    <span style="font-size: 2rem;">TECH INNOVATE SDN BHD</span>
+                </h1>
+                <p class="cover-date">SABTU • 15.03.2025</p>
+            </div>
+            <button class="open-btn" id="openInvitation">
+                <i data-lucide="door-open"></i>
+                BUKA JEMPUTAN
+            </button>
+        </div>
+    </section>
+
+    <div class="app-container">
+        <main class="invitation-container" id="mainContent">
+            <!-- Hero Section -->
+            <section class="inv-section hero-section" id="hero">
+                <div class="section-content">
+                    <p class="invite-label">Jemputan Rasmi</p>
+                    <div class="names">
+                        <h1 style="font-size: 1.8rem;">MAJLIS MAKAN MALAM TAHUNAN 2025</h1>
+                    </div>
+                    <div class="calendar-container">
+                        <p class="calendar-month">MAC 2025</p>
+                        <p class="full-date">Sabtu, 15 Mac 2025</p>
+                    </div>
+                    <div class="hashtag">#TechInnovate2025</div>
+                </div>
+            </section>
+
+            <!-- Organizer Section -->
+            <section class="inv-section parents-section" id="parents">
+                <div class="section-content">
+                    <p class="intro-text">
+                        <strong>TECH INNOVATE SDN BHD</strong><br><br>
+                        Dengan penuh hormatnya menjemput Dato' / Datin / Tuan / Puan ke Majlis Makan Malam Tahunan
+                        Syarikat kami.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section class="inv-section schedule-section" id="schedule">
+                <div class="section-content">
+                    <h2 class="section-header">Atur Cara Majlis</h2>
+                    <div class="schedule-list">
+                        <div class="schedule-item"><span class="time">06:30 PM</span><span class="activity">Pendaftaran
+                                Tetamu</span></div>
+                        <div class="schedule-item"><span class="time">07:00 PM</span><span class="activity">Ucapan Aluan
+                                CEO</span></div>
+                        <div class="schedule-item"><span class="time">07:30 PM</span><span class="activity">Jamuan Makan
+                                Malam</span></div>
+                        <div class="schedule-item"><span class="time">09:00 PM</span><span class="activity">Penyampaian
+                                Anugerah</span></div>
+                        <div class="schedule-item"><span class="time">10:00 PM</span><span class="activity">Majlis
+                                Bersurai</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Venue Section -->
+            <section class="inv-section venue-section" id="venue">
+                <div class="section-content">
+                    <h2 class="section-header">Lokasi Majlis</h2>
+                    <p class="venue-name">GRAND BALLROOM, HILTON KL</p>
+                    <p class="venue-address">3 Jalan Stesen Sentral,<br>50470 Kuala Lumpur</p>
+                    <div class="nav-buttons">
+                        <a href="https://goo.gl/maps/HiltonKL" target="_blank" class="nav-btn google">
+                            <i data-lucide="map-pin"></i> Google Maps
+                        </a>
+                        <a href="https://waze.com/ul/hw283h2x3" target="_blank" class="nav-btn waze">
+                            <i data-lucide="navigation"></i> Waze
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section class="inv-section rsvp-section" id="rsvp">
+                <div class="section-content">
+                    <h2 class="section-header">Hubungi Penganjur</h2>
+                    <div class="contact-list">
+                        <div class="contact-card">
+                            <p class="contact-role">Pegawai Bertugas</p>
+                            <p class="contact-name">Encik Ahmad Razak</p>
+                            <a href="tel:+60123456789" class="contact-phone">012-345 6789</a>
+                        </div>
+                        <div class="contact-card">
+                            <p class="contact-role">PIC Program</p>
+                            <p class="contact-name">Cik Fatimah Hassan</p>
+                            <a href="tel:+60198765432" class="contact-phone">019-876 5432</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <section class="inv-section footer-section">
+                <div class="section-content">
+                    <p class="prayer-title">Kehadiran anda amat kami hargai</p>
+                    <p class="made-by">Demo oleh A2ZCreative.my</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        document.getElementById('openInvitation')?.addEventListener('click', () => {
+            document.getElementById('cover').classList.add('open');
+            document.querySelector('.app-container').style.display = 'block';
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Demo Keluarga | A2Z Creative</title>
+    <meta name="description" content="Contoh jemputan digital untuk majlis keluarga">
+
+    <meta property="og:title" content="Majlis Keluarga Hassan">
+    <meta property="og:description" content="Jemputan ke Majlis Kesyukuran Keluarga">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/invitation.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --theme-primary: #2e7d32;
+            --theme-accent: #a5d6a7;
+        }
+
+        .invitation-page {
+            background: linear-gradient(180deg, #1b5e20 0%, #0d3311 100%);
+        }
+
+        .cover-section {
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+        }
+
+        .inv-section {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .section-header {
+            color: #a5d6a7;
+        }
+
+        .verse-section {
+            display: none;
+        }
+
+        .ampersand {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="invitation-page" data-theme="family-green">
+    <div class="particles-container" id="particles"></div>
+
+    <section class="cover-section" id="cover">
+        <div class="door-panel door-left"></div>
+        <div class="door-panel door-right"></div>
+        <div class="cover-content">
+            <div class="cover-names">
+                <p class="cover-label">Jemputan Keluarga</p>
+                <h1><span style="font-size: 2rem;">KELUARGA HASSAN</span></h1>
+                <p class="cover-date">AHAD • 06.04.2025</p>
+            </div>
+            <button class="open-btn" id="openInvitation">
+                <i data-lucide="door-open"></i>
+                BUKA JEMPUTAN
+            </button>
+        </div>
+    </section>
+
+    <div class="app-container">
+        <main class="invitation-container" id="mainContent">
+            <section class="inv-section hero-section" id="hero">
+                <div class="section-content">
+                    <p class="invite-label">Jemputan Keluarga</p>
+                    <div class="names">
+                        <h1 style="font-size: 2rem;">MAJLIS KESYUKURAN</h1>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.8); margin-top: 1rem;">Sempena Aqiqah Anak Sulung</p>
+                    <div class="calendar-container">
+                        <p class="calendar-month">APRIL 2025</p>
+                        <p class="full-date">Ahad, 6 April 2025</p>
+                    </div>
+                    <div class="hashtag">#KeluargaHassan2025</div>
+                </div>
+            </section>
+
+            <section class="inv-section parents-section" id="parents">
+                <div class="section-content">
+                    <p class="intro-text">
+                        <strong>EN. HASSAN BIN AHMAD & PN. AMINAH BINTI OSMAN</strong><br><br>
+                        Dengan penuh kesyukuran ke hadrat Ilahi, kami menjemput saudara-mara dan sahabat handai ke
+                        majlis kesyukuran kami.
+                    </p>
+                </div>
+            </section>
+
+            <section class="inv-section schedule-section" id="schedule">
+                <div class="section-content">
+                    <h2 class="section-header">Atur Cara Majlis</h2>
+                    <div class="schedule-list">
+                        <div class="schedule-item"><span class="time">10:00 AM</span><span class="activity">Bacaan Doa &
+                                Aqiqah</span></div>
+                        <div class="schedule-item"><span class="time">11:00 AM</span><span class="activity">Majlis
+                                Bermula</span></div>
+                        <div class="schedule-item"><span class="time">12:00 PM</span><span class="activity">Jamuan
+                                Makan</span></div>
+                        <div class="schedule-item"><span class="time">02:00 PM</span><span class="activity">Majlis
+                                Bersurai</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="inv-section venue-section" id="venue">
+                <div class="section-content">
+                    <h2 class="section-header">Lokasi Majlis</h2>
+                    <p class="venue-name">KEDIAMAN KELUARGA HASSAN</p>
+                    <p class="venue-address">No. 45, Kampung Seri Menanti,<br>71500 Negeri Sembilan</p>
+                    <div class="nav-buttons">
+                        <a href="#" class="nav-btn google"><i data-lucide="map-pin"></i> Google Maps</a>
+                        <a href="#" class="nav-btn waze"><i data-lucide="navigation"></i> Waze</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="inv-section rsvp-section" id="rsvp">
+                <div class="section-content">
+                    <h2 class="section-header">Hubungi Penganjur</h2>
+                    <div class="contact-list">
+                        <div class="contact-card">
+                            <p class="contact-role">Ketua Keluarga</p>
+                            <p class="contact-name">En. Hassan</p>
+                            <a href="tel:+60123456789" class="contact-phone">012-345 6789</a>
+                        </div>
+                        <div class="contact-card">
+                            <p class="contact-role">Penganjur</p>
+                            <p class="contact-name">Pn. Aminah</p>
+                            <a href="tel:+60198765432" class="contact-phone">019-876 5432</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="inv-section footer-section">
+                <div class="section-content">
+                    <p class="prayer-title">Kehadiran anda amat kami hargai</p>
+                    <p class="made-by">Demo oleh A2ZCreative.my</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        document.getElementById('openInvitation')?.addEventListener('click', () => {
+            document.getElementById('cover').classList.add('open');
+            document.querySelector('.app-container').style.display = 'block';
+        });
+    </script>
+</body>
+
+</html>

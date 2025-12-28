@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Demo Hari Jadi | A2Z Creative</title>
+    <meta name="description" content="Contoh jemputan digital untuk sambutan hari jadi">
+
+    <meta property="og:title" content="Jemputan Hari Jadi | Aisyah">
+    <meta property="og:description" content="Jom raikan hari jadi Aisyah yang ke-7!">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Fredoka+One&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/invitation.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --theme-primary: #ff69b4;
+            --theme-accent: #ffd700;
+        }
+
+        .invitation-page {
+            background: linear-gradient(180deg, #ff69b4 0%, #ff1493 100%);
+        }
+
+        .cover-section {
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+        }
+
+        .cover-names h1 {
+            font-family: 'Fredoka One', cursive;
+            color: #fff;
+            text-shadow: 3px 3px 0 #ffd700;
+        }
+
+        .inv-section {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .section-header {
+            color: #ffd700;
+        }
+
+        .verse-section {
+            display: none;
+        }
+
+        .parents-section {
+            display: none;
+        }
+
+        .names h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .age-badge {
+            font-size: 5rem;
+            background: #ffd700;
+            color: #ff1493;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-family: 'Fredoka One';
+        }
+
+        .balloon {
+            font-size: 4rem;
+            animation: float 3s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+
+<body class="invitation-page" data-theme="birthday-pink">
+    <div class="particles-container" id="particles"></div>
+
+    <section class="cover-section" id="cover">
+        <div class="door-panel door-left"></div>
+        <div class="door-panel door-right"></div>
+        <div class="cover-content">
+            <div class="cover-names">
+                <p class="cover-label">🎂 Jemputan Hari Jadi 🎂</p>
+                <h1>AISYAH</h1>
+                <p class="cover-date">AHAD • 20.04.2025</p>
+            </div>
+            <button class="open-btn" id="openInvitation">
+                <i data-lucide="door-open"></i>
+                BUKA JEMPUTAN
+            </button>
+        </div>
+    </section>
+
+    <div class="app-container">
+        <main class="invitation-container" id="mainContent">
+            <section class="inv-section hero-section" id="hero">
+                <div class="section-content">
+                    <div class="balloon">🎈</div>
+                    <p class="invite-label">Jom Raikan!</p>
+                    <div class="names">
+                        <h1>AISYAH</h1>
+                    </div>
+                    <div class="age-badge">7</div>
+                    <p style="color: #fff; font-size: 1.2rem;">Tahun!</p>
+                    <div class="calendar-container">
+                        <p class="calendar-month">APRIL 2025</p>
+                        <p class="full-date">Ahad, 20 April 2025 • 3:00 PM</p>
+                    </div>
+                    <div class="hashtag">#AisyahTurns7 🎉</div>
+                </div>
+            </section>
+
+            <section class="inv-section schedule-section" id="schedule">
+                <div class="section-content">
+                    <h2 class="section-header">🎊 Aktiviti 🎊</h2>
+                    <div class="schedule-list">
+                        <div class="schedule-item"><span class="time">03:00 PM</span><span class="activity">Ketibaan
+                                Tetamu</span></div>
+                        <div class="schedule-item"><span class="time">03:30 PM</span><span class="activity">Permainan &
+                                Aktiviti</span></div>
+                        <div class="schedule-item"><span class="time">04:30 PM</span><span class="activity">🎂 Potong
+                                Kek!</span></div>
+                        <div class="schedule-item"><span class="time">05:00 PM</span><span class="activity">Jamuan
+                                Makan</span></div>
+                        <div class="schedule-item"><span class="time">06:00 PM</span><span class="activity">Sesi Foto &
+                                Hadiah</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="inv-section venue-section" id="venue">
+                <div class="section-content">
+                    <h2 class="section-header">📍 Lokasi</h2>
+                    <p class="venue-name">RUMAH KELUARGA AHMAD</p>
+                    <p class="venue-address">No. 123, Jalan Bahagia,<br>Taman Indah, 47500 Subang Jaya</p>
+                    <div class="nav-buttons">
+                        <a href="#" class="nav-btn google"><i data-lucide="map-pin"></i> Google Maps</a>
+                        <a href="#" class="nav-btn waze"><i data-lucide="navigation"></i> Waze</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="inv-section rsvp-section" id="rsvp">
+                <div class="section-content">
+                    <h2 class="section-header">📞 Hubungi</h2>
+                    <div class="contact-list">
+                        <div class="contact-card">
+                            <p class="contact-role">Ibu / Bapa</p>
+                            <p class="contact-name">Puan Aminah</p>
+                            <a href="tel:+60123456789" class="contact-phone">012-345 6789</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="inv-section footer-section">
+                <div class="section-content">
+                    <p class="prayer-title">🎁 Datang bawa diri, hadiah tak perlu! 🎁</p>
+                    <p class="made-by">Demo oleh A2ZCreative.my</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        document.getElementById('openInvitation')?.addEventListener('click', () => {
+            document.getElementById('cover').classList.add('open');
+            document.querySelector('.app-container').style.display = 'block';
+        });
+    </script>
+</body>
+
+</html>
