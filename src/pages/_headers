@@ -1,0 +1,8 @@
+# Allow iframes for invitation pages (needed for preview)
+/inv/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self' https://a2zcreative.my
+
+/inv/preview/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self' https://a2zcreative.my

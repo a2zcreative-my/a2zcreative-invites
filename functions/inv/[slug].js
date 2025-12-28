@@ -7,8 +7,9 @@ export async function onRequest(context) {
     const staticDirs = ['preview', 'demo-perkahwinan', 'demo-korporat', 'demo-keluarga', 'demo-hari-jadi', 'demo-komuniti'];
 
     if (staticDirs.includes(slug)) {
-        // Let Cloudflare serve the actual static file
-        return context.env.ASSETS.fetch(context.request);
+        // Explicitly construct the path to the index.html
+        const staticUrl = new URL(`/inv/${slug}/index.html`, url);
+        return context.env.ASSETS.fetch(staticUrl);
     }
 
     // For dynamic slugs (actual invitations), serve the base template
