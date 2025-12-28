@@ -245,7 +245,12 @@ function updateFormFields(typeId) {
         1: {
             host1: { label: 'Nama Pengantin Lelaki', placeholder: 'AHMAD', required: true },
             host2: { show: true, label: 'Nama Pengantin Perempuan', placeholder: 'SITI', required: true, type: 'text' },
-            parents: { show: true, required: true }
+            parents: {
+                show: true,
+                required: true,
+                labels: { parent1: 'Nama Ibu Bapa (Lelaki)', parent2: 'Nama Ibu Bapa (Perempuan)' },
+                placeholders: { parent1: 'En. Abu & Pn. Aminah', parent2: 'En. Ali & Pn. Fatimah' }
+            }
         },
         2: {
             host1: { label: 'Nama Penganjur / Syarikat', placeholder: 'Tech Corp Sdn Bhd', required: true },
@@ -271,8 +276,7 @@ function updateFormFields(typeId) {
 
     // Strict validation: Throw error if invalid type
     if (!config[typeId]) {
-        console.error('Invalid event type ID:', typeId);
-        return;
+        throw new Error('Invalid event type ID: ' + typeId);
     }
 
     const settings = config[typeId];
@@ -308,18 +312,26 @@ function updateFormFields(typeId) {
 
     // --- Parents ---
     const parentsGroup = document.querySelector('[data-field-id="parents"]');
-    const parentInputs = parentsGroup ? parentsGroup.querySelectorAll('input') : [];
+    const parent1Label = document.getElementById('label-parents-1');
+    const parent1Input = document.getElementById('parentNames1');
+    const parent2Label = document.getElementById('label-parents-2');
+    const parent2Input = document.getElementById('parentNames2');
 
     if (parentsGroup) {
         if (settings.parents.show) {
             parentsGroup.classList.remove('hidden');
-            parentInputs.forEach(input => toggleRequired(input, settings.parents.required));
+            // Apply labels and placeholders
+            if (parent1Label) parent1Label.innerText = settings.parents.labels?.parent1 || '';
+            if (parent1Input) parent1Input.placeholder = settings.parents.placeholders?.parent1 || '';
+            if (parent2Label) parent2Label.innerText = settings.parents.labels?.parent2 || '';
+            if (parent2Input) parent2Input.placeholder = settings.parents.placeholders?.parent2 || '';
+            // Apply required
+            if (parent1Input) toggleRequired(parent1Input, settings.parents.required);
+            if (parent2Input) toggleRequired(parent2Input, settings.parents.required);
         } else {
             parentsGroup.classList.add('hidden');
-            parentInputs.forEach(input => {
-                input.value = ''; // Clear value
-                toggleRequired(input, false);
-            });
+            if (parent1Input) { parent1Input.value = ''; toggleRequired(parent1Input, false); }
+            if (parent2Input) { parent2Input.value = ''; toggleRequired(parent2Input, false); }
         }
     }
 }
