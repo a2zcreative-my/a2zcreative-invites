@@ -818,7 +818,7 @@ async function publishEvent() {
     collectStepData();
 
     // Generate smart slug (clean name)
-    const baseSlug = generateSlug(eventData.hostName1, eventData.hostName2);
+    const baseSlug = generateSlug(eventData.hostName1, eventData.hostName2, eventData.eventType);
     let finalSlug = baseSlug;
 
     try {
@@ -916,18 +916,31 @@ async function publishEvent() {
     }
 }
 
-function generateSlug(name1, name2) {
+function generateSlug(name1, name2, eventType) {
     const clean = (str) => (str || '').trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
 
-    // Wedding: Use First Name of Host 1 & Host 2
-    if (name2) {
+    // Helper to get first N words
+    const getWords = (str, count) => {
+        if (!str) return '';
+        return clean(str.trim().split(/\s+/).slice(0, count).join(' '));
+    };
+
+    // Wedding (Type 1): First Name 1 + First Name 2
+    // Check for type 1 or if name2 exists (legacy/fallback)
+    if (eventType == 1 || (name2 && (!eventType || eventType == 1))) {
         const n1 = name1 ? name1.trim().split(' ')[0] : '';
         const n2 = name2 ? name2.trim().split(' ')[0] : '';
         return `${clean(n1)}-${clean(n2)}`;
     }
 
-    // Corporate/Birthday: Use Full Name of Host 1 (Slugified)
-    return clean(name1);
+    // Corporate (Type 2): First 2 words (e.g. "a2z-creative")
+    if (eventType == 2) {
+        return getWords(name1, 2);
+    }
+
+    // Family (3), Birthday (4), Community (5): First 3 words
+    // e.g. "Mohd Alif Farhan" -> "mohd-alif-farhan"
+    return getWords(name1, 3);
 }
 
 function showPublishSuccess(slug) {
