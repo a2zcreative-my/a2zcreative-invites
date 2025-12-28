@@ -197,70 +197,100 @@ function initEventTypeCards() {
     });
 }
 
+// =============================================
+// Field Logic (Strict Specification)
+// =============================================
 function updateFormFields(typeId) {
-    // Configuration Mapping
+    // Configuration Object - Single Source of Truth
+    // 1: Perkahwinan, 2: Korporat, 3: Keluarga, 4: Hari Lahir, 5: Komuniti
     const config = {
-        // 1: Wedding
         1: {
-            host1: { label: 'Nama Pengantin Lelaki', placeholder: 'AHMAD' },
-            host2: { show: true, label: 'Nama Pengantin Perempuan', placeholder: 'SITI', type: 'text' },
-            parents: { show: true }
+            host1: { label: 'Nama Pengantin Lelaki', placeholder: 'AHMAD', required: true },
+            host2: { show: true, label: 'Nama Pengantin Perempuan', placeholder: 'SITI', required: true, type: 'text' },
+            parents: { show: true, required: true }
         },
-        // 2: Corporate
         2: {
-            host1: { label: 'Nama Penganjur / Syarikat', placeholder: 'Tech Corp Sdn Bhd' },
-            host2: { show: false }, // Hidden
-            parents: { show: false } // Hidden
+            host1: { label: 'Nama Penganjur / Syarikat', placeholder: 'Tech Corp Sdn Bhd', required: true },
+            host2: { show: false, required: false },
+            parents: { show: false, required: false }
         },
-        // 3: Family
         3: {
-            host1: { label: 'Nama Ketua Keluarga / Penganjur', placeholder: 'En. Razak' },
-            host2: { show: false },
-            parents: { show: false }
+            host1: { label: 'Nama Ketua Keluarga / Penganjur', placeholder: 'En. Razak', required: true },
+            host2: { show: false, required: false },
+            parents: { show: false, required: false }
         },
-        // 4: Birthday
         4: {
-            host1: { label: 'Nama Yang Dirai', placeholder: 'Adik Mia' },
-            host2: { show: true, label: 'Umur', placeholder: '12', type: 'number' },
-            parents: { show: false } // Default hidden per requirement
+            host1: { label: 'Nama Yang Dirai', placeholder: 'Adik Mia', required: true },
+            host2: { show: true, label: 'Umur', placeholder: '12', required: false, type: 'number' },
+            parents: { show: false, required: false }
         },
-        // 5: Community
         5: {
-            host1: { label: 'Nama Penganjur', placeholder: 'Persatuan Penduduk' },
-            host2: { show: false },
-            parents: { show: false }
+            host1: { label: 'Nama Penganjur / Organisasi', placeholder: 'Persatuan Penduduk', required: true },
+            host2: { show: false, required: false },
+            parents: { show: false, required: false }
         }
     };
 
-    const settings = config[typeId] || config[1]; // Default to wedding
-
-    // Update Host 1
-    document.getElementById('label-host-1').innerText = settings.host1.label;
-    document.getElementById('hostName1').placeholder = settings.host1.placeholder;
-
-    // Update Host 2
-    const host2Group = document.querySelector('[data-field-id="host-2"]');
-    const host2Input = document.getElementById('hostName2');
-
-    if (settings.host2.show) {
-        host2Group.classList.remove('hidden');
-        document.getElementById('label-host-2').innerText = settings.host2.label;
-        host2Input.placeholder = settings.host2.placeholder;
-        host2Input.type = settings.host2.type || 'text';
-    } else {
-        host2Group.classList.add('hidden');
-        host2Input.value = ''; // Clear value
+    // Strict validation: Throw error if invalid type
+    if (!config[typeId]) {
+        console.error('Invalid event type ID:', typeId);
+        return;
     }
 
-    // Update Parents Section
-    const parentsGroup = document.querySelector('[data-field-id="parents"]');
-    const parentInputs = parentsGroup.querySelectorAll('input');
+    const settings = config[typeId];
 
-    if (settings.parents.show) {
-        parentsGroup.classList.remove('hidden');
+    // --- Host 1 ---
+    const host1Label = document.getElementById('label-host-1');
+    const host1Input = document.getElementById('hostName1');
+
+    if (host1Label && host1Input) {
+        host1Label.innerText = settings.host1.label;
+        host1Input.placeholder = settings.host1.placeholder;
+        toggleRequired(host1Input, settings.host1.required);
+    }
+
+    // --- Host 2 ---
+    const host2Group = document.querySelector('[data-field-id="host-2"]');
+    const host2Label = document.getElementById('label-host-2');
+    const host2Input = document.getElementById('hostName2');
+
+    if (host2Group && host2Input) {
+        if (settings.host2.show) {
+            host2Group.classList.remove('hidden');
+            if (host2Label) host2Label.innerText = settings.host2.label;
+            host2Input.placeholder = settings.host2.placeholder || '';
+            host2Input.type = settings.host2.type || 'text';
+            toggleRequired(host2Input, settings.host2.required);
+        } else {
+            host2Group.classList.add('hidden');
+            host2Input.value = ''; // Clear value
+            toggleRequired(host2Input, false);
+        }
+    }
+
+    // --- Parents ---
+    const parentsGroup = document.querySelector('[data-field-id="parents"]');
+    const parentInputs = parentsGroup ? parentsGroup.querySelectorAll('input') : [];
+
+    if (parentsGroup) {
+        if (settings.parents.show) {
+            parentsGroup.classList.remove('hidden');
+            parentInputs.forEach(input => toggleRequired(input, settings.parents.required));
+        } else {
+            parentsGroup.classList.add('hidden');
+            parentInputs.forEach(input => {
+                input.value = ''; // Clear value
+                toggleRequired(input, false);
+            });
+        }
+    }
+}
+
+function toggleRequired(element, isRequired) {
+    if (isRequired) {
+        element.setAttribute('required', '');
     } else {
-        parentsGroup.classList.add('hidden');
-        parentInputs.forEach(input => input.value = ''); // Clear values
+        element.removeAttribute('required');
     }
 }
 
