@@ -88,14 +88,15 @@ function renderPreview(data) {
         if (coverName2) coverName2.style.display = '';
         if (coverAmpersand) coverAmpersand.style.display = '';
     } else if (isBirthday && data.hostName2) {
-        // Birthday: Name + Age display
+        // Birthday: Name + Age display (using dedicated age element)
         setText('cover-name1', (data.hostName1 || 'NAMA').toUpperCase());
-        setText('cover-name2', `${data.hostName2} TAHUN`);
-        if (coverName2) {
-            coverName2.style.display = '';
-            coverName2.style.fontSize = '1.5rem';
-        }
+        if (coverName2) coverName2.style.display = 'none';
         if (coverAmpersand) coverAmpersand.style.display = 'none';
+        const coverAge = document.getElementById('cover-age');
+        if (coverAge) {
+            coverAge.textContent = `${data.hostName2} Tahun`;
+            coverAge.style.display = '';
+        }
     } else {
         // Other event types: Full Name only
         setText('cover-name1', (data.hostName1 || 'NAMA').toUpperCase());
@@ -119,14 +120,15 @@ function renderPreview(data) {
         if (heroName2) heroName2.style.display = '';
         if (heroAmpersand) heroAmpersand.style.display = '';
     } else if (isBirthday && data.hostName2) {
-        // Birthday: Name + Age
+        // Birthday: Name + Age (using dedicated age element)
         setText('name1', (data.hostName1 || '').toUpperCase());
-        setText('name2', `${data.hostName2} TAHUN`);
-        if (heroName2) {
-            heroName2.style.display = '';
-            heroName2.style.fontSize = '1.5rem';
-        }
+        if (heroName2) heroName2.style.display = 'none';
         if (heroAmpersand) heroAmpersand.style.display = 'none';
+        const ageDisplay = document.getElementById('age-display');
+        if (ageDisplay) {
+            ageDisplay.textContent = `${data.hostName2} Tahun`;
+            ageDisplay.style.display = '';
+        }
     } else {
         // Other: Full Name only
         setText('name1', (data.hostName1 || '').toUpperCase());

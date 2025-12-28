@@ -88,16 +88,69 @@ function populateInvitation(data) {
     // Format date
     const dateInfo = formatDate(event.event_date);
 
+    // Event type detection
+    const eventType = event.event_type_id;
+    const isWedding = eventType === 1;
+    const isBirthday = eventType === 4;
+
     // Cover section
     setText('cover-label', invitation.invitation_title || 'Jemputan Istimewa');
-    setText('cover-name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || 'NAMA');
-    setText('cover-name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || 'NAMA');
+
+    // Name display logic based on event type
+    const coverAmpersand = document.querySelector('.cover-content .ampersand');
+    const coverAge = document.getElementById('cover-age');
+
+    if (isWedding) {
+        // Wedding: First Name 1 & First Name 2
+        setText('cover-name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || 'PENGANTIN');
+        setText('cover-name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || 'PENGANTIN');
+        if (coverAmpersand) coverAmpersand.style.display = '';
+    } else if (isBirthday && event.host_name_2) {
+        // Birthday: Full Name + Age
+        setText('cover-name1', event.host_name_1?.toUpperCase() || 'NAMA');
+        const coverName2El = document.getElementById('cover-name2');
+        if (coverName2El) coverName2El.style.display = 'none';
+        if (coverAmpersand) coverAmpersand.style.display = 'none';
+        if (coverAge) {
+            coverAge.textContent = `${event.host_name_2} Tahun`;
+            coverAge.style.display = '';
+        }
+    } else {
+        // Other: Full Company/Organization Name
+        setText('cover-name1', event.host_name_1?.toUpperCase() || 'NAMA');
+        const coverName2El = document.getElementById('cover-name2');
+        if (coverName2El) coverName2El.style.display = 'none';
+        if (coverAmpersand) coverAmpersand.style.display = 'none';
+    }
+
     setText('cover-date', `${dateInfo.day?.toUpperCase()} • ${event.event_date?.replace(/-/g, '.')}`);
 
-    // Hero section
+    // Hero section - same logic
     setText('invite-label', invitation.invitation_title || 'Jemputan Istimewa');
-    setText('name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || '');
-    setText('name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || '');
+
+    const heroAmpersand = document.querySelector('.hero-section .ampersand');
+    const ageDisplay = document.getElementById('age-display');
+
+    if (isWedding) {
+        setText('name1', event.host_name_1?.split(' ')[0]?.toUpperCase() || '');
+        setText('name2', event.host_name_2?.split(' ')[0]?.toUpperCase() || '');
+        if (heroAmpersand) heroAmpersand.style.display = '';
+    } else if (isBirthday && event.host_name_2) {
+        setText('name1', event.host_name_1?.toUpperCase() || '');
+        const name2El = document.getElementById('name2');
+        if (name2El) name2El.style.display = 'none';
+        if (heroAmpersand) heroAmpersand.style.display = 'none';
+        if (ageDisplay) {
+            ageDisplay.textContent = `${event.host_name_2} Tahun`;
+            ageDisplay.style.display = '';
+        }
+    } else {
+        setText('name1', event.host_name_1?.toUpperCase() || '');
+        const name2El = document.getElementById('name2');
+        if (name2El) name2El.style.display = 'none';
+        if (heroAmpersand) heroAmpersand.style.display = 'none';
+    }
+
     setText('calendar-month', dateInfo.monthYear);
     setText('full-date', dateInfo.full);
     setText('hashtag', invitation.hashtag ? `#${invitation.hashtag.replace(/^#/, '')}` : '');
@@ -124,13 +177,12 @@ function populateInvitation(data) {
         if (verseSection) verseSection.style.display = 'none';
     }
 
-    // Event Type Logic
+    // Event Type Logic (isWedding and isBirthday already declared above)
     // 1: Perkahwinan (Dual Host, Parents visible)
     // 2: Korporat (Single Host, No Parents)
     // 3: Keluarga (Single Host, No Parents)
     // 4: Hari Lahir (Single Host, No Parents - host2 is Age)
     // 5: Komuniti (Single Host, No Parents)
-    const isWedding = event.event_type_id === 1;
 
     // Parents section
     const parentsSection = document.getElementById('parents');
