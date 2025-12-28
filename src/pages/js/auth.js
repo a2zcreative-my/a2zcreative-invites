@@ -77,13 +77,32 @@ async function checkSession() {
 
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
+        const currentPath = window.location.pathname;
 
         if (session) {
-            // Already logged in, redirect to dashboard
-            window.location.href = '/create/';
+            // Only redirect if on login/register pages (not already on create or other pages)
+            if (currentPath.includes('/auth/')) {
+                window.location.href = '/create/';
+            }
+            // If already logged in and on other pages, just update UI
+            updateUserDisplay(session.user);
         }
     } catch (error) {
         console.error('Session check error:', error);
+    }
+}
+
+// Update user display in header
+function updateUserDisplay(user) {
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+
+    if (userName && user) {
+        const name = user.user_metadata?.name || user.email?.split('@')[0] || 'User';
+        userName.textContent = name;
+        if (userAvatar) {
+            userAvatar.textContent = name.substring(0, 2).toUpperCase();
+        }
     }
 }
 
