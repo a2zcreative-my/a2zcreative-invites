@@ -54,6 +54,9 @@ if (document.readyState === 'loading') {
     initAuth();
 }
 
+// Export initAuth to global scope for explicit calling
+window.initAuth = initAuth;
+
 // =============================================
 // Session Check
 // =============================================

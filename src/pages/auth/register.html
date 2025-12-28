@@ -121,9 +121,16 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="/js/auth.js?v=99"></script>
+    <script src="/js/auth.js?v=100" defer></script>
     <script>
-        lucide.createIcons();
+        // Wait for DOM and auth.js to be ready
+        document.addEventListener('DOMContentLoaded', function () {
+            lucide.createIcons();
+            // Ensure auth is initialized
+            if (typeof window.initAuth === 'function') {
+                window.initAuth();
+            }
+        });
 
         // INLINE PASSWORD TOGGLE (Guaranteed to work)
         function togglePasswordVisibility(buttonElement) {
