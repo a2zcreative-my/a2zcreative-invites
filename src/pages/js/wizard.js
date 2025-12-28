@@ -314,6 +314,12 @@ function showStep(step) {
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // If entering Step 6 (Preview), collect all data and send to preview iframe
+    if (step === 6) {
+        collectStepData();
+        sendPreviewData();
+    }
 }
 
 function updateProgressSteps() {
@@ -327,6 +333,41 @@ function updateProgressSteps() {
             el.classList.add('completed');
         }
     });
+}
+
+// Send form data to preview iframe via PostMessage
+function sendPreviewData() {
+    const iframe = document.getElementById('previewFrame');
+    if (!iframe || !iframe.contentWindow) {
+        console.warn('Preview iframe not found');
+        return;
+    }
+
+    const previewData = {
+        type: 'preview',
+        data: {
+            eventType: eventData.eventType,
+            hostName1: eventData.hostName1,
+            hostName2: eventData.hostName2,
+            parentNames1: eventData.parentNames1,
+            parentNames2: eventData.parentNames2,
+            eventDate: eventData.eventDate,
+            startTime: eventData.startTime,
+            venueName: eventData.venueName,
+            venueAddress: eventData.venueAddress,
+            mapLink: eventData.mapLink,
+            theme: eventData.theme,
+            inviteTitle: eventData.inviteTitle,
+            verseText: eventData.verseText,
+            verseRef: eventData.verseRef,
+            hashtag: eventData.hashtag,
+            schedule: eventData.schedule,
+            contacts: eventData.contacts
+        }
+    };
+
+    console.log('Sending preview data:', previewData);
+    iframe.contentWindow.postMessage(previewData, '*');
 }
 
 // =============================================
