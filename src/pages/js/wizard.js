@@ -453,19 +453,11 @@ function applyAllContext(eventType) {
     updatePreviewFrame(eventType);
 }
 
-// Update preview iframe based on event type
+// Update preview iframe - always use the PostMessage-based preview template
 function updatePreviewFrame(eventType) {
-    const previewMap = {
-        1: '/inv/demo-perkahwinan/',
-        2: '/inv/demo-korporat/',
-        3: '/inv/demo-keluarga/',
-        4: '/inv/demo-hari-jadi/',
-        5: '/inv/demo-komuniti/'
-    };
-    const iframe = document.getElementById('previewFrame');
-    if (iframe) {
-        iframe.src = previewMap[eventType] || '/inv/demo-perkahwinan/';
-    }
+    // We no longer switch to demo templates
+    // The preview at /inv/preview/ receives actual form data via PostMessage
+    // This function is kept for potential future use (e.g., preloading)
 }
 
 // =============================================
