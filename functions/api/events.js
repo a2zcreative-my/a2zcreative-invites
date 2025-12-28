@@ -126,6 +126,18 @@ export async function onRequestPost(context) {
 
     } catch (error) {
         console.error('Error creating event:', error);
+
+        // Handle unique constraint violation (likely public_slug)
+        if (error.message && error.message.includes('UNIQUE constraint failed')) {
+            return new Response(JSON.stringify({
+                error: 'Slug verified',
+                message: 'This invitation link URL is already taken. Please try again.'
+            }), {
+                status: 409,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
         return new Response(JSON.stringify({
             error: 'Failed to create event',
             details: error.message

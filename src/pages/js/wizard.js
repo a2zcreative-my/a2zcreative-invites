@@ -817,8 +817,9 @@ function collectContactsData() {
 async function publishEvent() {
     collectStepData();
 
-    // Generate slug from names
-    const slug = generateSlug(eventData.hostName1, eventData.hostName2);
+    // Generate smart slug (clean name)
+    const baseSlug = generateSlug(eventData.hostName1, eventData.hostName2);
+    let finalSlug = baseSlug;
 
     try {
         // Get auth token from Supabase session
@@ -850,55 +851,83 @@ async function publishEvent() {
             return;
         }
 
-        const response = await fetch('/api/events', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({
-                ...eventData,
-                slug
-            })
-        });
+        // Helper to create event
+        async function tryCreate(slug) {
+            const response = await fetch('/api/events', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    ...eventData,
+                    slug
+                })
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('API Error:', errorData);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('API Error:', errorData);
 
-            if (response.status === 401) {
-                alert('Sesi anda telah tamat. Sila log masuk semula.');
-                window.location.href = '/auth/login';
-                return;
+                if (response.status === 401) {
+                    alert('Sesi anda telah tamat. Sila log masuk semula.');
+                    window.location.href = '/auth/login';
+                    throw new Error('Unauthorized'); // Stop chain
+                }
+
+                const error = new Error(errorData.message || 'Failed to create event');
+                error.status = response.status;
+                throw error;
             }
 
-            throw new Error(errorData.message || 'Failed to create event');
+            return await response.json();
         }
 
-        const result = await response.json();
-        console.log('Event created:', result);
+        try {
+            // Attempt 1: Clean Name
+            const result = await tryCreate(finalSlug);
+            console.log('Event created:', result);
+            showPublishSuccess(result.slug || finalSlug);
 
-        // Show success with actual slug from server if available
-        showPublishSuccess(result.slug || slug);
+        } catch (error) {
+            if (error.status === 409) {
+                console.log('Slug taken, retrying with suffix...');
+                // Attempt 2: With Suffix
+                const randomSuffix = Math.random().toString(36).substring(2, 6);
+                finalSlug = `${baseSlug}-${randomSuffix}`;
+
+                try {
+                    const resultRetry = await tryCreate(finalSlug);
+                    console.log('Event created (retry):', resultRetry);
+                    showPublishSuccess(resultRetry.slug || finalSlug);
+                } catch (retryError) {
+                    alert('Gagal menyimpan jemputan. URL telah digunakan sepenuhnya. Sila cuba lagi.');
+                }
+            } else {
+                throw error; // Re-throw other errors
+            }
+        }
 
     } catch (error) {
         console.error('Publish error:', error);
-
-        // Show error message
-        alert('Gagal menyimpan jemputan. Sila cuba lagi.');
+        if (error.message !== 'Unauthorized') {
+            alert(error.message || 'Gagal menyimpan jemputan. Sila cuba lagi.');
+        }
     }
 }
 
 function generateSlug(name1, name2) {
-    const clean = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-    const s1 = clean(name1);
-    const s2 = clean(name2);
-    const random = Math.random().toString(36).substring(2, 6);
+    const clean = (str) => (str || '').trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
 
-    if (s2) {
-        return `${s1}-${s2}-${random}`;
+    // Wedding: Use First Name of Host 1 & Host 2
+    if (name2) {
+        const n1 = name1 ? name1.trim().split(' ')[0] : '';
+        const n2 = name2 ? name2.trim().split(' ')[0] : '';
+        return `${clean(n1)}-${clean(n2)}`;
     }
-    return `${s1}-${random}`;
+
+    // Corporate/Birthday: Use Full Name of Host 1 (Slugified)
+    return clean(name1);
 }
 
 function showPublishSuccess(slug) {
