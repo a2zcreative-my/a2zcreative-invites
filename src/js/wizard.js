@@ -163,6 +163,10 @@ function filterEventTypesByPackage() {
     const currentSelected = document.querySelector('.event-type-card.selected');
     if ((!currentSelected || currentSelected.style.display === 'none') && firstVisibleCard) {
         firstVisibleCard.click();
+    } else if (currentSelected) {
+        // Initialize fields based on initially selected card
+        const input = currentSelected.querySelector('input');
+        if (input) updateFormFields(parseInt(input.value));
     }
 }
 
@@ -182,12 +186,82 @@ function initEventTypeCards() {
             // Update data
             const input = card.querySelector('input');
             if (input) {
-                eventData.eventType = parseInt(input.value);
-                // Also update the hidden radio input to checked for form submission consistency if needed
+                const eventTypeId = parseInt(input.value);
+                eventData.eventType = eventTypeId;
                 input.checked = true;
+
+                // Trigger dynamic form updates
+                updateFormFields(eventTypeId);
             }
         });
     });
+}
+
+function updateFormFields(typeId) {
+    // Configuration Mapping
+    const config = {
+        // 1: Wedding
+        1: {
+            host1: { label: 'Nama Pengantin Lelaki', placeholder: 'AHMAD' },
+            host2: { show: true, label: 'Nama Pengantin Perempuan', placeholder: 'SITI', type: 'text' },
+            parents: { show: true }
+        },
+        // 2: Corporate
+        2: {
+            host1: { label: 'Nama Penganjur / Syarikat', placeholder: 'Tech Corp Sdn Bhd' },
+            host2: { show: false }, // Hidden
+            parents: { show: false } // Hidden
+        },
+        // 3: Family
+        3: {
+            host1: { label: 'Nama Ketua Keluarga / Penganjur', placeholder: 'En. Razak' },
+            host2: { show: false },
+            parents: { show: false }
+        },
+        // 4: Birthday
+        4: {
+            host1: { label: 'Nama Yang Dirai', placeholder: 'Adik Mia' },
+            host2: { show: true, label: 'Umur', placeholder: '12', type: 'number' },
+            parents: { show: false } // Default hidden per requirement
+        },
+        // 5: Community
+        5: {
+            host1: { label: 'Nama Penganjur', placeholder: 'Persatuan Penduduk' },
+            host2: { show: false },
+            parents: { show: false }
+        }
+    };
+
+    const settings = config[typeId] || config[1]; // Default to wedding
+
+    // Update Host 1
+    document.getElementById('label-host-1').innerText = settings.host1.label;
+    document.getElementById('hostName1').placeholder = settings.host1.placeholder;
+
+    // Update Host 2
+    const host2Group = document.querySelector('[data-field-id="host-2"]');
+    const host2Input = document.getElementById('hostName2');
+
+    if (settings.host2.show) {
+        host2Group.classList.remove('hidden');
+        document.getElementById('label-host-2').innerText = settings.host2.label;
+        host2Input.placeholder = settings.host2.placeholder;
+        host2Input.type = settings.host2.type || 'text';
+    } else {
+        host2Group.classList.add('hidden');
+        host2Input.value = ''; // Clear value
+    }
+
+    // Update Parents Section
+    const parentsGroup = document.querySelector('[data-field-id="parents"]');
+    const parentInputs = parentsGroup.querySelectorAll('input');
+
+    if (settings.parents.show) {
+        parentsGroup.classList.remove('hidden');
+    } else {
+        parentsGroup.classList.add('hidden');
+        parentInputs.forEach(input => input.value = ''); // Clear values
+    }
 }
 
 // =============================================
