@@ -821,9 +821,29 @@ async function publishEvent() {
     const slug = generateSlug(eventData.hostName1, eventData.hostName2);
 
     try {
+        // Get auth token from Supabase session
+        let authToken = null;
+        try {
+            const supabaseClient = window.A2ZAuth?.supabaseClient;
+            if (supabaseClient) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                authToken = session?.access_token;
+            }
+        } catch (e) {
+            console.log('Could not get auth token:', e);
+        }
+
+        // Build headers with auth if available
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`;
+        }
+
         const response = await fetch('/api/events', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({
                 ...eventData,
                 slug
@@ -831,19 +851,29 @@ async function publishEvent() {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to create event');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('API Error:', errorData);
+
+            if (response.status === 401) {
+                alert('Sila log masuk semula untuk menyimpan jemputan anda.');
+                window.location.href = '/auth/login';
+                return;
+            }
+
+            throw new Error(errorData.message || 'Failed to create event');
         }
 
         const result = await response.json();
+        console.log('Event created:', result);
 
-        // Show success
-        showPublishSuccess(slug);
+        // Show success with actual slug from server if available
+        showPublishSuccess(result.slug || slug);
 
     } catch (error) {
         console.error('Publish error:', error);
 
-        // For demo, show success anyway
-        showPublishSuccess(slug);
+        // Show error message instead of fake success
+        alert('Gagal menyimpan jemputan. Sila cuba lagi.');
     }
 }
 
