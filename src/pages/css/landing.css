@@ -682,4 +682,21 @@
     .pricing-grid-landing {
         grid-template-columns: 1fr;
     }
+
+    .pricing-card-landing {
+        background: rgba(10, 25, 47, 0.95);
+        /* Enforce dark background */
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .pricing-card-landing .package-name,
+    .pricing-card-landing .price-amount {
+        color: #ffffff;
+        /* Enforce white text */
+    }
+
+    .pricing-card-landing .package-desc,
+    .pricing-card-landing .price-period {
+        color: #8892b0;
+    }
 }
