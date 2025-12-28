@@ -80,15 +80,28 @@ async function checkSession() {
         const currentPath = window.location.pathname;
 
         if (session) {
-            // Only redirect if on login/register pages (not already on create or other pages)
+            // Only redirect if on login/register pages AND not already redirecting
             if (currentPath.includes('/auth/')) {
+                // Prevent redirect loop by checking flag
+                if (sessionStorage.getItem('auth_redirecting')) {
+                    console.log('Already redirecting, skipping');
+                    sessionStorage.removeItem('auth_redirecting');
+                    return;
+                }
+                sessionStorage.setItem('auth_redirecting', 'true');
                 window.location.href = '/create/';
+                return;
+            }
+            // If on create page, clear redirect flag
+            if (currentPath.includes('/create/')) {
+                sessionStorage.removeItem('auth_redirecting');
             }
             // If already logged in and on other pages, just update UI
             updateUserDisplay(session.user);
         }
     } catch (error) {
         console.error('Session check error:', error);
+        sessionStorage.removeItem('auth_redirecting');
     }
 }
 
