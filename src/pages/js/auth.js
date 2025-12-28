@@ -1,19 +1,19 @@
 /**
  * A2Z Creative - Authentication
- * Supabase Auth integration for login, register, and session management
+ * supabaseClient Auth integration for login, register, and session management
  */
 
 // =============================================
-// Supabase Configuration
+// supabaseClient Configuration
 // =============================================
-const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
+const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabaseClient.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
 
 // =============================================
 // DOM Elements (populated after DOMContentLoaded)
 // =============================================
 let DOM = {};
-let supabase = null;
+let supabaseClient = null;
 
 // =============================================
 // Initialization - Define FIRST, then export immediately
@@ -24,7 +24,7 @@ function initAuth() {
     // Initialize Supabase client (moved inside initAuth)
     try {
         if (window.supabase && window.supabase.createClient) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('Supabase client created');
         } else {
             console.warn('Supabase library not loaded');
@@ -66,10 +66,10 @@ if (document.readyState === 'loading') {
 // Session Check
 // =============================================
 async function checkSession() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
 
     try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session } } = await supabaseClient.auth.getSession();
 
         if (session) {
             // Already logged in, redirect to dashboard
@@ -154,16 +154,16 @@ function initGoogleLogin() {
         e.preventDefault();
 
         try {
-            if (!supabase) {
-                console.error('Supabase not initialized');
-                showError('Google Login requires Supabase configuration.');
+            if (!supabaseClient) {
+                console.error('supabaseClient not initialized');
+                showError('Google Login requires supabaseClient configuration.');
                 return;
             }
 
             console.log('Opening Google OAuth popup...');
 
             // Use skipBrowserRedirect to open in popup instead of redirecting
-            const { data, error } = await supabase.auth.signInWithOAuth({
+            const { data, error } = await supabaseClient.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: window.location.origin + '/create/',
@@ -189,7 +189,7 @@ function initGoogleLogin() {
                 console.log('Popup opened, waiting for authentication...');
 
                 // Listen for auth state changes
-                const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+                const { data: authListener } = supabaseClient.auth.onAuthStateChange((event, session) => {
                     console.log('Auth state changed:', event);
                     if (event === 'SIGNED_IN' && session) {
                         console.log('User signed in successfully!');
@@ -267,7 +267,7 @@ function initLoginForm() {
         }
 
         try {
-            if (!supabase) {
+            if (!supabaseClient) {
                 // Simulate login for demo
                 await simulateDelay(1000);
                 localStorage.setItem('demo_user', JSON.stringify({ email, name: 'Demo User' }));
@@ -275,7 +275,7 @@ function initLoginForm() {
                 return;
             }
 
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email,
                 password
             });
@@ -324,7 +324,7 @@ function initRegisterForm() {
         }
 
         try {
-            if (!supabase) {
+            if (!supabaseClient) {
                 // Simulate registration for demo
                 await simulateDelay(1000);
                 localStorage.setItem('demo_user', JSON.stringify({ email, name }));
@@ -332,7 +332,7 @@ function initRegisterForm() {
                 return;
             }
 
-            const { data, error } = await supabase.auth.signUp({
+            const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password,
                 options: {
@@ -365,8 +365,8 @@ function initRegisterForm() {
 // =============================================
 async function logout() {
     try {
-        if (supabase) {
-            await supabase.auth.signOut();
+        if (supabaseClient) {
+            await supabaseClient.auth.signOut();
         }
         localStorage.removeItem('demo_user'); // Crucial for clearing Admin override
         window.location.href = '/auth/login.html';
@@ -389,8 +389,8 @@ async function getCurrentUser() {
     }
 
     try {
-        if (!supabase) return null;
-        const { data: { user } } = await supabase.auth.getUser();
+        if (!supabaseClient) return null;
+        const { data: { user } } = await supabaseClient.auth.getUser();
         return user;
     } catch (error) {
         console.error('Get user error:', error);
@@ -434,5 +434,5 @@ function simulateDelay(ms) {
 window.A2ZAuth = {
     logout,
     getCurrentUser,
-    supabase
+    supabaseClient
 };
