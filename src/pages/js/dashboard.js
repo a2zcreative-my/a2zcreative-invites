@@ -16,14 +16,14 @@ const CONFIG = {
 // =============================================
 let guests = [];
 let rsvpChart = null;
-let DOM = {}; // Will be populated after DOMContentLoaded
+let DASH = {}; // Will be populated after DOMContentLoaded
 
 // =============================================
 // Initialization
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
     // Capture DOM elements AFTER DOM is loaded
-    DOM = {
+    DASH = {
         // Stats
         statEvents: document.getElementById('statEvents'),
         statGuests: document.getElementById('statGuests'),
@@ -65,8 +65,8 @@ async function loadUserInfo() {
         const user = await window.A2ZAuth?.getCurrentUser();
         if (user) {
             const name = user.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-            DOM.userName.textContent = name;
-            DOM.userAvatar.textContent = getInitials(name);
+            DASH.userName.textContent = name;
+            DASH.userAvatar.textContent = getInitials(name);
         }
     } catch (e) {
         console.log('Could not load user info');
@@ -89,14 +89,14 @@ async function logout() {
 // Sidebar (Mobile)
 // =============================================
 function initSidebar() {
-    DOM.menuToggle?.addEventListener('click', () => {
-        DOM.sidebar?.classList.toggle('open');
-        DOM.sidebarOverlay?.classList.toggle('open');
+    DASH.menuToggle?.addEventListener('click', () => {
+        DASH.sidebar?.classList.toggle('open');
+        DASH.sidebarOverlay?.classList.toggle('open');
     });
 
-    DOM.sidebarOverlay?.addEventListener('click', () => {
-        DOM.sidebar?.classList.remove('open');
-        DOM.sidebarOverlay?.classList.remove('open');
+    DASH.sidebarOverlay?.addEventListener('click', () => {
+        DASH.sidebar?.classList.remove('open');
+        DASH.sidebarOverlay?.classList.remove('open');
     });
 }
 
@@ -109,16 +109,16 @@ async function loadDashboardData() {
         const statsResponse = await fetch(`${CONFIG.API_BASE}/checkin?event_id=${CONFIG.EVENT_ID}`);
         if (statsResponse.ok) {
             const data = await statsResponse.json();
-            DOM.statGuests.textContent = data.stats.totalGuests || 0;
-            DOM.statConfirmed.textContent = data.stats.checkedInGuests || 0;
-            DOM.guestCount.textContent = data.stats.totalGuests || 0;
+            DASH.statGuests.textContent = data.stats.totalGuests || 0;
+            DASH.statConfirmed.textContent = data.stats.checkedInGuests || 0;
+            DASH.guestCount.textContent = data.stats.totalGuests || 0;
         }
 
         // Load invitation view count
         const invResponse = await fetch(`${CONFIG.API_BASE}/invitation/aiman-rafhanah`);
         if (invResponse.ok) {
             const invData = await invResponse.json();
-            DOM.statViews.textContent = invData.invitation?.view_count || 0;
+            DASH.statViews.textContent = invData.invitation?.view_count || 0;
         }
 
         // Load guests
@@ -166,17 +166,17 @@ function getDemoGuests() {
 }
 
 function renderGuestTable(guestList) {
-    if (!DOM.guestTableBody) return;
+    if (!DASH.guestTableBody) return;
 
     if (guestList.length === 0) {
-        DOM.guestTableBody.innerHTML = '';
-        DOM.emptyState.style.display = 'block';
+        DASH.guestTableBody.innerHTML = '';
+        DASH.emptyState.style.display = 'block';
         return;
     }
 
-    DOM.emptyState.style.display = 'none';
+    DASH.emptyState.style.display = 'none';
 
-    DOM.guestTableBody.innerHTML = guestList.map(guest => `
+    DASH.guestTableBody.innerHTML = guestList.map(guest => `
         <tr>
             <td>
                 <div class="guest-name">${guest.name}</div>
@@ -212,13 +212,13 @@ function getStatusBadge(status) {
 // Filters
 // =============================================
 function initFilters() {
-    DOM.searchGuests?.addEventListener('input', filterGuests);
-    DOM.filterStatus?.addEventListener('change', filterGuests);
+    DASH.searchGuests?.addEventListener('input', filterGuests);
+    DASH.filterStatus?.addEventListener('change', filterGuests);
 }
 
 function filterGuests() {
-    const searchTerm = DOM.searchGuests?.value.toLowerCase() || '';
-    const statusFilter = DOM.filterStatus?.value || '';
+    const searchTerm = DASH.searchGuests?.value.toLowerCase() || '';
+    const statusFilter = DASH.filterStatus?.value || '';
 
     const filtered = guests.filter(guest => {
         const matchesSearch = guest.name.toLowerCase().includes(searchTerm) ||
