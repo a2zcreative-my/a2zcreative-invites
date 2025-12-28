@@ -105,6 +105,88 @@ const EVENT_CONTEXT = {
 };
 
 // =============================================
+// Step 2 Field Configuration
+// =============================================
+const STEP2_CONFIG = {
+    1: { // Perkahwinan
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Pengantin Lelaki',
+            placeholder: 'Contoh: Ahmad Bin Ali'
+        },
+        host2: {
+            visible: true,
+            required: true,
+            label: 'Nama Pengantin Perempuan',
+            placeholder: 'Contoh: Siti Binti Abu'
+        },
+        parents1: {
+            visible: true,
+            required: true,
+            label: 'Nama Bapa Pengantin',
+            placeholder: 'Contoh: En. Ali Bin Hassan'
+        },
+        parents2: {
+            visible: true,
+            required: true,
+            label: 'Nama Ibu Pengantin',
+            placeholder: 'Contoh: Pn. Aminah Binti Osman'
+        }
+    },
+    2: { // Korporat
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Penganjur / Syarikat',
+            placeholder: 'Contoh: ABC Corporation Sdn Bhd'
+        },
+        host2: { visible: false },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    },
+    3: { // Keluarga
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Ketua Keluarga / Penganjur',
+            placeholder: 'Contoh: Keluarga Hassan'
+        },
+        host2: { visible: false },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    },
+    4: { // Hari Lahir
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Yang Dirai',
+            placeholder: 'Contoh: Aisyah'
+        },
+        host2: {
+            visible: true,
+            required: false,
+            label: 'Umur',
+            placeholder: 'Contoh: 25',
+            type: 'number'
+        },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    },
+    5: { // Komuniti
+        host1: {
+            visible: true,
+            required: true,
+            label: 'Nama Penganjur / Organisasi',
+            placeholder: 'Contoh: Jawatankuasa Surau Al-Ikhlas'
+        },
+        host2: { visible: false },
+        parents1: { visible: false },
+        parents2: { visible: false }
+    }
+};
+
+// =============================================
 // Initialization
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -314,10 +396,54 @@ function initEventTypeCards() {
 // Context Application Functions
 // =============================================
 function applyAllContext(eventType) {
-    updateFormFields(eventType);
+    applyStep2Config(eventType);
     applyThemeContext(eventType);
     applyScheduleContext(eventType);
     applyContactContext(eventType);
+}
+
+// =============================================
+// Step 2 Config Application
+// =============================================
+function applyStep2Config(eventType) {
+    const cfg = STEP2_CONFIG[eventType];
+    if (!cfg) {
+        throw new Error('Invalid event type for Step 2: ' + eventType);
+    }
+
+    applyFieldConfig('host1', cfg.host1);
+    applyFieldConfig('host2', cfg.host2);
+    applyFieldConfig('parents1', cfg.parents1);
+    applyFieldConfig('parents2', cfg.parents2);
+}
+
+function applyFieldConfig(fieldKey, rules) {
+    const wrapper = document.querySelector(`[data-field="${fieldKey}"]`);
+    if (!wrapper) return;
+
+    const input = wrapper.querySelector('input');
+    const label = wrapper.querySelector('label');
+
+    if (!rules || rules.visible === false) {
+        wrapper.classList.add('hidden');
+        if (input) {
+            input.value = '';
+            input.removeAttribute('required');
+        }
+        return;
+    }
+
+    wrapper.classList.remove('hidden');
+    if (label) label.textContent = rules.label || '';
+    if (input) {
+        input.placeholder = rules.placeholder || '';
+        input.type = rules.type || 'text';
+        if (rules.required) {
+            input.setAttribute('required', 'required');
+        } else {
+            input.removeAttribute('required');
+        }
+    }
 }
 
 function applyThemeContext(eventType) {
