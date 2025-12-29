@@ -109,32 +109,8 @@
         lucide.createIcons();
 
         // RELIABLE ADMIN LOGIN OVERRIDE
-        // This script ensures that even if other scripts fail, the admin can log in.
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('loginForm');
-            if (form) {
-                form.addEventListener('submit', (e) => {
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
-
-                    // Check specifically for Admin
-                    if (email === 'admin@a2zcreative.my' && password === 'Admin@2025') {
-                        e.preventDefault();
-                        e.stopImmediatePropagation(); // Stop other listeners
-
-                        // Save directly to localStorage
-                        localStorage.setItem('demo_user', JSON.stringify({
-                            email: email,
-                            name: 'Super Admin',
-                            role: 'super_admin'
-                        }));
-
-                        // Force Redirect
-                        window.location.replace('/admin/');
-                    }
-                }, true); // Use capture phase
-            }
-        });
+        // REMOVED: Insecure hardcoded credentials.
+        // Use standard server-driven auth powered by auth.js
 
         // INLINE PASSWORD TOGGLE (Guaranteed to work)
         function togglePasswordVisibility(buttonElement) {
