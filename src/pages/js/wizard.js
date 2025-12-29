@@ -9,6 +9,17 @@
 let currentStep = 1;
 const totalSteps = 6;
 
+// Handle back button - step 1 goes to landing, others go to previous step
+function handleBackButton() {
+    if (currentStep === 1) {
+        // Go to landing page (pricing) when on step 1
+        window.location.href = '/';
+    } else {
+        // Go to previous step
+        goToStep(currentStep - 1);
+    }
+}
+
 const eventData = {
     eventType: 1,
     hostName1: '',
@@ -416,23 +427,29 @@ async function filterEventTypesByPackage() {
         const eventValue = parseInt(input.value);
         const isAllowed = allowedTypes.includes(eventValue);
 
+        // Reset card styles first
+        card.style.opacity = '';
+        card.style.cursor = '';
+        card.classList.remove('locked');
+        const existingOverlay = card.querySelector('.lock-overlay');
+        if (existingOverlay) existingOverlay.remove();
+
         if (isAllowed) {
             // Show as available
             card.style.display = 'flex';
-            card.classList.remove('locked');
-            // Remove lock overlay if exists
-            const lockOverlay = card.querySelector('.lock-overlay');
-            if (lockOverlay) lockOverlay.remove();
             if (!firstVisibleCard) firstVisibleCard = card;
         } else {
-            // Show as locked
-            card.style.display = 'flex';
-            card.classList.add('locked');
-            card.style.opacity = '0.5';
-            card.style.cursor = 'not-allowed';
+            // For Bisnes package, HIDE non-allowed types completely
+            if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
+                card.style.display = 'none';
+            } else {
+                // For Premium/Free, show with lock overlay
+                card.style.display = 'flex';
+                card.classList.add('locked');
+                card.style.opacity = '0.5';
+                card.style.cursor = 'not-allowed';
 
-            // Add lock overlay if not exists
-            if (!card.querySelector('.lock-overlay')) {
+                // Add lock overlay
                 const overlay = document.createElement('div');
                 overlay.className = 'lock-overlay';
                 overlay.innerHTML = '🔒 Naik Taraf';
