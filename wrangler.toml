@@ -8,6 +8,30 @@ binding = "DB"
 database_name = "invites-db-prod"
 database_id = "51caac18-287a-4094-87da-51c56621755c"
 
-# Environment Variables (set in Cloudflare Dashboard for production)
+# Environment Variables (set via Cloudflare Dashboard > Settings > Environment Variables)
+# NOTE: These are for development only. Production values must be set in Cloudflare Dashboard.
 [vars]
 ENVIRONMENT = "development"
+
+# =============================================
+# REQUIRED SECRETS (set via `npx wrangler secret put <NAME>`)
+# =============================================
+# SUPABASE_URL = "https://your-project.supabase.co"
+# SUPABASE_ANON_KEY = "your-supabase-anon-key"
+# BILLPLZ_SECRET = "your-billplz-signature-key"
+# ADMIN_PASSWORD = "your-admin-api-password"
+
+# =============================================
+# PLACEHOLDER VALUES TO UPDATE BEFORE LAUNCH
+# =============================================
+# In src/js/wizard.js line 1267:
+#   DUITNOW_ID = '0123456789' -> Your actual DuitNow phone number
+#   DUITNOW_NAME = 'A2Z CREATIVE' -> Your registered name
+#
+# In src/js/wizard.js line ~1240 (manual payment):
+#   Bank: Maybank -> Your actual bank
+#   Account: 1234-5678-9012 -> Your actual account number
+#   Name: A2Z CREATIVE SDN BHD -> Your actual registered name
+#
+# In functions/api/payment.js line 147:
+#   60123456789 -> Your actual WhatsApp number

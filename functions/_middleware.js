@@ -4,7 +4,10 @@
  */
 
 import { getCurrentUser } from './lib/session.js';
+import { initSupabaseAuth } from './lib/auth.js';
 
+// Flag to track if Supabase auth is initialized
+let supabaseInitialized = false;
 // Route protection configuration
 const PROTECTED_ROUTES = {
     // Routes that require super_admin role
@@ -83,6 +86,11 @@ export async function onRequest(context) {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // Initialize Supabase auth with env vars (once)
+    if (!supabaseInitialized && env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
+        initSupabaseAuth(env);
+        supabaseInitialized = true;
+    }
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
         return new Response(null, {

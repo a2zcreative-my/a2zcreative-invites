@@ -1,17 +1,33 @@
 /**
- * Supabase Auth Helper for Cloudflare Workers
+ * Supabase Auth Helper for Cloudflare Workers (Legacy)
+ * NOTE: This is legacy auth. Main auth now uses D1 sessions.
  * Verifies JWT tokens and extracts user info
  */
 
-const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
+// Credentials now passed from env, not hardcoded
+let _supabaseUrl = null;
+let _supabaseAnonKey = null;
 
 /**
- * Verify Supabase JWT and return user info
+ * Initialize Supabase credentials from environment
+ * @param {Object} env - Environment variables
+ */
+export function initSupabaseAuth(env) {
+    _supabaseUrl = env.SUPABASE_URL;
+    _supabaseAnonKey = env.SUPABASE_ANON_KEY;
+}
+
+/**
+ * Verify Supabase JWT and return user info (Legacy - use D1 sessions instead)
  * @param {Request} request - The incoming request
  * @returns {Object|null} User info or null if not authenticated
  */
 export async function getAuthUser(request) {
+    // Skip if Supabase not configured
+    if (!_supabaseUrl || !_supabaseAnonKey) {
+        return null;
+    }
+
     const authHeader = request.headers.get('Authorization');
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -22,15 +38,14 @@ export async function getAuthUser(request) {
 
     try {
         // Call Supabase to verify token and get user
-        const response = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        const response = await fetch(`${_supabaseUrl}/auth/v1/user`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'apikey': SUPABASE_ANON_KEY
+                'apikey': _supabaseAnonKey
             }
         });
 
         if (!response.ok) {
-            console.log('Auth verification failed:', response.status);
             return null;
         }
 
@@ -41,7 +56,7 @@ export async function getAuthUser(request) {
             name: user.user_metadata?.name || user.email?.split('@')[0] || 'User'
         };
     } catch (error) {
-        console.error('Auth error:', error);
+        console.error('Legacy auth error:', error);
         return null;
     }
 }
