@@ -32,7 +32,7 @@
 }
 
 .auth-logo p {
-    color: #8892b0;
+    color: #a8b2d1;
     font-size: 0.875rem;
     margin-top: 0.5rem;
 }
@@ -125,7 +125,7 @@
 }
 
 .auth-divider span {
-    color: #8892b0;
+    color: #a8b2d1;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -147,7 +147,7 @@
 .form-group label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #8892b0;
+    color: #a8b2d1;
 }
 
 .form-group input {
@@ -260,7 +260,7 @@
 .auth-footer {
     text-align: center;
     margin-top: 1.5rem;
-    color: #8892b0;
+    color: #a8b2d1;
     font-size: 0.875rem;
 }
 
@@ -326,6 +326,16 @@
 }
 
 /* Responsive */
+@media (max-width: 768px) {
+    .auth-container {
+        max-width: 380px;
+    }
+
+    .auth-card {
+        padding: 1.75rem;
+    }
+}
+
 @media (max-width: 480px) {
     .auth-card {
         padding: 1.5rem;

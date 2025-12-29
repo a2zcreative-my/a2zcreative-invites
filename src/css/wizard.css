@@ -185,7 +185,7 @@
 }
 
 .section-desc {
-    color: #8892b0;
+    color: #a8b2d1;
     margin: 0 0 2rem 0;
 }
 
@@ -264,7 +264,7 @@
 .form-group label {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #8892b0;
+    color: #a8b2d1;
 }
 
 .form-group input,
@@ -618,7 +618,7 @@
 }
 
 .publish-success p {
-    color: #8892b0;
+    color: #a8b2d1;
     margin: 0 0 2rem 0;
 }
 
@@ -685,4 +685,34 @@
 
 .share-btn.email {
     background: #8892b0;
+}
+
+/* Mobile progress steps */
+@media (max-width: 600px) {
+    .progress-steps {
+        gap: 0.25rem;
+    }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .step-label {
+        font-size: 0.625rem;
+        max-width: 50px;
+    }
+
+    .progress-steps::before {
+        top: 16px;
+        left: 20px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 400px) {
+    .step-label {
+        display: none;
+    }
 }

@@ -70,7 +70,7 @@
     padding: 0.75rem 1rem;
     margin: 0.25rem 0.75rem;
     border-radius: 0.5rem;
-    color: #8892b0;
+    color: #a8b2d1;
     text-decoration: none;
     transition: all 0.2s;
 }
@@ -143,7 +143,7 @@
 
 .user-role {
     font-size: 0.75rem;
-    color: #8892b0;
+    color: #a8b2d1;
 }
 
 .logout-btn {
@@ -283,7 +283,7 @@
 
 .stat-label {
     font-size: 0.875rem;
-    color: #8892b0;
+    color: #a8b2d1;
 }
 
 /* Quick Actions */
@@ -592,9 +592,14 @@
         max-width: 100%;
     }
 
-    .data-table th:nth-child(n+4),
-    .data-table td:nth-child(n+4) {
-        display: none;
+    /* Mobile table - scrollable instead of hidden */
+    .section-card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        min-width: 500px;
     }
 
     .section-card {

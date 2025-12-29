@@ -31,7 +31,7 @@
 
 .pricing-header p {
     font-size: 1.125rem;
-    color: #8892b0;
+    color: #a8b2d1;
     margin: 0;
 }
 
@@ -258,7 +258,7 @@
 }
 
 .cross-icon {
-    color: #5a6a8a;
+    color: #6b7a9a;
 }
 
 /* Payment Methods */
@@ -306,7 +306,7 @@
 }
 
 .faq-list {
-    max-width: 700px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
@@ -335,7 +335,7 @@
 
 .faq-answer {
     padding: 0 1.25rem 1rem;
-    color: #8892b0;
+    color: #a8b2d1;
     font-size: 0.9375rem;
     line-height: 1.6;
     display: none;
@@ -359,5 +359,15 @@
 
     .price-amount {
         font-size: 2.5rem;
+    }
+
+    /* Mobile table scroll */
+    .comparison-section {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .comparison-table {
+        min-width: 600px;
     }
 }
