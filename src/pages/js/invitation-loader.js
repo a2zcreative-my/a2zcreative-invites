@@ -81,8 +81,15 @@ function populateInvitation(data) {
 
     // Apply theme from settings
     if (settings?.theme_name) {
-        document.body.dataset.theme = settings.theme_name;
-        console.log('Applied theme:', settings.theme_name);
+        // Theme must be applied to .invitation-page element (body) for CSS selectors to work
+        const invitationPage = document.querySelector('.invitation-page');
+        if (invitationPage) {
+            invitationPage.dataset.theme = settings.theme_name;
+            console.log('Applied theme:', settings.theme_name);
+        } else {
+            document.body.dataset.theme = settings.theme_name;
+            console.log('Applied theme to body:', settings.theme_name);
+        }
     }
 
     // Format date
@@ -253,15 +260,35 @@ function populateInvitation(data) {
     setText('venue-name', event.venue_name?.toUpperCase() || 'LOKASI MAJLIS');
     setHtml('venue-address', event.venue_address?.replace(/\n/g, '<br>') || '');
 
-    // Map
-    if (event.map_embed_url) {
-        const iframe = document.getElementById('map-iframe');
-        if (iframe) iframe.src = event.map_embed_url;
-    } else if (event.map_link) {
-        // Extract coordinates from Google Maps link and create embed
-        const mapContainer = document.getElementById('map-container');
-        if (mapContainer) {
-            mapContainer.innerHTML = '<p class="text-muted">Tekan butang di bawah untuk navigasi</p>';
+    // Map - Generate embed URL from map_link or venue address
+    const mapIframe = document.getElementById('map-iframe');
+    const mapContainer = document.getElementById('map-container');
+
+    if (mapIframe) {
+        if (event.map_embed_url) {
+            // Use provided embed URL directly
+            mapIframe.src = event.map_embed_url;
+        } else if (event.map_link) {
+            // Try to extract coordinates from Google Maps link
+            const coordsMatch = event.map_link.match(/@(-?[\d.]+),(-?[\d.]+)/);
+            if (coordsMatch) {
+                // Create embed URL from coordinates
+                const lat = coordsMatch[1];
+                const lng = coordsMatch[2];
+                mapIframe.src = `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3000!2d${lng}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2smy!4v1700000000000`;
+            } else if (event.venue_address) {
+                // Use venue address search
+                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(event.venue_name + ' ' + event.venue_address)}`;
+            } else {
+                // Fallback - hide iframe
+                if (mapContainer) mapContainer.style.display = 'none';
+            }
+        } else if (event.venue_address) {
+            // Use venue address search
+            mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(event.venue_name + ' ' + event.venue_address)}`;
+        } else {
+            // No map data - hide container
+            if (mapContainer) mapContainer.style.display = 'none';
         }
     }
 
@@ -297,8 +324,9 @@ function populateInvitation(data) {
         `).join('');
     }
 
-    // Wishes
+    // Wishes/Messages section
     const wishesContainer = document.getElementById('wishesContainer');
+    const wishesSection = document.querySelector('.wishes-section');
     if (wishesContainer && messages && messages.length > 0) {
         wishesContainer.innerHTML = messages.map(m => `
             <div class="wish-card">
@@ -306,7 +334,41 @@ function populateInvitation(data) {
                 <p class="wish-message">${m.message}</p>
             </div>
         `).join('');
+    } else {
+        // Hide wishes section if no messages
+        if (wishesSection) wishesSection.style.display = 'none';
     }
+
+    // Event-type specific prayer title and text
+    const prayerTitle = document.querySelector('.prayer-title');
+    const prayerText = document.getElementById('prayer-text');
+
+    const PRAYER_CONFIG = {
+        1: { // Wedding
+            title: 'Doa Buat Pengantin',
+            text: 'Ya Allah, berkatilah majlis perkahwinan ini, limpahkanlah rahmat-Mu kepada kedua mempelai ini. Kurniakanlah mereka zuriat yang soleh dan solehah serta kekalkanlah jodoh mereka hingga ke syurga. Amin.'
+        },
+        4: { // Birthday
+            title: 'Doa Hari Lahir',
+            text: 'Ya Allah, panjangkanlah umur yang penuh dengan keberkatan. Limpahkanlah kesihatan yang baik dan kurniakanlah kebahagiaaan dalam kehidupan serta rezeki yang melimpah. Amin.'
+        },
+        2: { // Corporate
+            title: 'Ucapan Terima Kasih',
+            text: 'Terima kasih di atas kesudian hadir ke majlis ini. Semoga segala urusan anda dipermudahkan dan diberkati selalu.'
+        },
+        3: { // Family
+            title: 'Doa Kesejahteraan Keluarga',
+            text: 'Ya Allah, berkatilah perhimpunan keluarga ini. Eratkan silaturrahim di antara kami dan kurniakanlah kebahagiaaan dalam keluarga. Amin.'
+        },
+        5: { // Community
+            title: 'Ucapan Terima Kasih',
+            text: 'Terima kasih di atas penyertaan dan sokongan anda. Semoga program ini memberi manfaat kepada semua.'
+        }
+    };
+
+    const prayerConfig = PRAYER_CONFIG[eventType] || PRAYER_CONFIG[1];
+    if (prayerTitle) prayerTitle.textContent = prayerConfig.title;
+    if (prayerText) prayerText.textContent = prayerConfig.text;
 
     // Store event ID for RSVP form
     window.currentEventId = event.id;

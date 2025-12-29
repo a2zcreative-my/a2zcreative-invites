@@ -60,9 +60,14 @@ function setHtml(id, html) {
 function renderPreview(data) {
     console.log('Rendering preview with data:', data);
 
-    // Apply theme
+    // Apply theme to .invitation-page element for CSS selectors to work
     if (data.theme) {
-        document.body.dataset.theme = data.theme;
+        const invitationPage = document.querySelector('.invitation-page');
+        if (invitationPage) {
+            invitationPage.dataset.theme = data.theme;
+        } else {
+            document.body.dataset.theme = data.theme;
+        }
     }
 
     // Format date
