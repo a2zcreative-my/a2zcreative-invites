@@ -231,6 +231,12 @@ async function handleVerifyPayment(request, env) {
             UPDATE events SET status = 'paid' WHERE id = ?
         `).bind(order.event_id).run();
 
+        // Update user role to 'admin' (paid client) if currently NULL
+        await env.DB.prepare(`
+            UPDATE users SET role = 'admin' 
+            WHERE id = ? AND (role IS NULL OR role = '')
+        `).bind(order.user_id).run();
+
         // Log audit
         await logAudit(env, 'payment_verified', {
             eventId: order.event_id,
@@ -303,6 +309,12 @@ async function handleBillplzWebhook(request, env) {
         await env.DB.prepare(`
             UPDATE events SET status = 'paid' WHERE id = ?
         `).bind(order.event_id).run();
+
+        // Update user role to 'admin' (paid client) if currently NULL
+        await env.DB.prepare(`
+            UPDATE users SET role = 'admin' 
+            WHERE id = ? AND (role IS NULL OR role = '')
+        `).bind(order.user_id).run();
 
         // Log audit
         await logAudit(env, 'payment_verified', {
