@@ -61,39 +61,24 @@ export async function onRequestPost(context) {
 
         if (!user) {
             // Create new user in D1 from OAuth data
+            // Note: Only using columns that exist in schema
             const name = supabaseUser.user_metadata?.full_name ||
                 supabaseUser.user_metadata?.name ||
                 supabaseUser.email.split('@')[0];
 
-            const result = await db.prepare(`
-                INSERT INTO users (email, name, password_hash, role, provider, provider_id, avatar_url, created_at)
-                VALUES (?, ?, NULL, 'admin', 'google', ?, ?, CURRENT_TIMESTAMP)
+            await db.prepare(`
+                INSERT INTO users (email, name, password_hash, role, created_at)
+                VALUES (?, ?, NULL, 'admin', CURRENT_TIMESTAMP)
             `).bind(
                 supabaseUser.email,
-                name,
-                supabaseUser.id,
-                supabaseUser.user_metadata?.avatar_url || null
+                name
             ).run();
 
             user = await db.prepare(
                 "SELECT * FROM users WHERE email = ?"
             ).bind(supabaseUser.email).first();
-        } else {
-            // Update existing user with provider info if not set
-            if (!user.provider) {
-                await db.prepare(`
-                    UPDATE users SET 
-                        provider = 'google',
-                        provider_id = ?,
-                        avatar_url = COALESCE(avatar_url, ?)
-                    WHERE id = ?
-                `).bind(
-                    supabaseUser.id,
-                    supabaseUser.user_metadata?.avatar_url || null,
-                    user.id
-                ).run();
-            }
         }
+        // Note: We don't update existing users with provider info since those columns don't exist
 
         // Create D1 session
         const session = await createSession(db, user.id);
@@ -132,7 +117,7 @@ export async function onRequestPost(context) {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                avatar_url: user.avatar_url || supabaseUser.user_metadata?.avatar_url
+                avatar_url: supabaseUser.user_metadata?.avatar_url || null
             }
         }), {
             status: 200,
