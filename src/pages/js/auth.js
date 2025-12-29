@@ -57,6 +57,13 @@
     // =============================================
     async function checkSession() {
         try {
+            // Only redirect from auth pages (login/register)
+            // Don't redirect from other pages like /create/ or /pricing/
+            const currentPath = window.location.pathname;
+            const isAuthPage = currentPath.startsWith('/auth/');
+
+            if (!isAuthPage) return; // Skip redirect logic on non-auth pages
+
             // Check server session via API
             const response = await fetch('/api/auth/session', {
                 credentials: 'include'
@@ -69,7 +76,7 @@
                 }
             }
         } catch (error) {
-            console.log('Session check:', error.message);
+            // Silently fail
         }
     }
 
