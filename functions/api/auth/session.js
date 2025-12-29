@@ -21,31 +21,15 @@ export async function onRequestGet(context) {
         }
 
         // Determine redirect based on role
-        let redirect = '/dashboard/';
+        let redirect = '/pricing/';  // Default for NULL/unpaid users
 
         if (user.role === 'super_admin') {
             redirect = '/admin/';
-        } else if (user.role === 'admin') {
-            // Check subscription status
-            const activeSubscription = await db.prepare(`
-                SELECT ea.* FROM event_access ea
-                JOIN events e ON ea.event_id = e.id
-                WHERE e.created_by = ? 
-                AND ea.paid_at IS NOT NULL 
-                AND (ea.expires_at IS NULL OR ea.expires_at > CURRENT_TIMESTAMP)
-                LIMIT 1
-            `).bind(user.id).first();
-
-            if (!activeSubscription) {
-                const hasEvents = await db.prepare(
-                    "SELECT id FROM events WHERE created_by = ? LIMIT 1"
-                ).bind(user.id).first();
-
-                if (!hasEvents) {
-                    redirect = '/pricing/';
-                }
-            }
+        } else if (user.role === 'admin' || user.role === 'event_admin') {
+            // Paid users go to dashboard
+            redirect = '/dashboard/';
         }
+        // NULL role stays at /pricing/
 
         return new Response(JSON.stringify({
             authenticated: true,

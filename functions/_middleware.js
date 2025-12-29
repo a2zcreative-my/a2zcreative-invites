@@ -17,6 +17,7 @@ const PROTECTED_ROUTES = {
     ],
     // Routes that require admin (paid client) role
     admin: [
+        '/dashboard/',
         '/checkin/',
         '/api/events',
         '/api/guests',
@@ -25,9 +26,8 @@ const PROTECTED_ROUTES = {
     ],
     // Routes that require any authenticated user (including unpaid)
     authenticated: [
-        '/dashboard/',
         '/pricing/',
-        '/create/'  // Users can create events before paying
+        '/create/'
     ]
 };
 
