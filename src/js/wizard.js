@@ -906,3 +906,471 @@ function shareEmail() {
     const body = encodeURIComponent(`Anda dijemput ke majlis kami!\n\n${link}`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
 }
+
+// =============================================
+// Slug Availability Check
+// =============================================
+let slugCheckTimeout = null;
+let currentSlug = '';
+let slugAvailable = false;
+
+function checkSlugAvailability(value) {
+    // Clear previous timeout
+    if (slugCheckTimeout) {
+        clearTimeout(slugCheckTimeout);
+    }
+
+    const statusEl = document.getElementById('slugStatus');
+    const messageEl = document.getElementById('slugMessage');
+    const suggestionsEl = document.getElementById('slugSuggestions');
+
+    // Clean the input
+    const slug = value.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+
+    // Update input if different
+    const input = document.getElementById('customSlug');
+    if (input.value !== slug) {
+        input.value = slug;
+    }
+
+    currentSlug = slug;
+
+    if (!slug || slug.length < 3) {
+        statusEl.textContent = '';
+        messageEl.textContent = slug.length > 0 ? 'Minimum 3 aksara' : '';
+        suggestionsEl.style.display = 'none';
+        slugAvailable = false;
+        return;
+    }
+
+    // Show loading
+    statusEl.textContent = '⏳';
+    messageEl.textContent = 'Menyemak ketersediaan...';
+    suggestionsEl.style.display = 'none';
+
+    // Debounce the API call
+    slugCheckTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch(`/api/slug/check?slug=${encodeURIComponent(slug)}`);
+            const data = await response.json();
+
+            if (slug !== currentSlug) return; // Stale response
+
+            if (data.available) {
+                statusEl.textContent = '✅';
+                messageEl.textContent = 'URL ini tersedia!';
+                messageEl.style.color = '#4ade80';
+                slugAvailable = true;
+            } else {
+                statusEl.textContent = '❌';
+                messageEl.textContent = data.error || 'URL ini sudah digunakan';
+                messageEl.style.color = '#f87171';
+                slugAvailable = false;
+
+                // Show suggestions
+                if (data.suggestions && data.suggestions.length > 0) {
+                    suggestionsEl.innerHTML = '<span style="font-size: 0.85rem; color: var(--text-secondary);">Cadangan: </span>';
+                    data.suggestions.forEach(sug => {
+                        const btn = document.createElement('button');
+                        btn.textContent = sug;
+                        btn.style.cssText = 'margin-left: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(212,175,55,0.2); border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; color: #d4af37; cursor: pointer; font-size: 0.8rem;';
+                        btn.onclick = () => {
+                            input.value = sug;
+                            checkSlugAvailability(sug);
+                        };
+                        suggestionsEl.appendChild(btn);
+                    });
+                    suggestionsEl.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Slug check error:', error);
+            statusEl.textContent = '⚠️';
+            messageEl.textContent = 'Gagal menyemak. Sila cuba lagi.';
+            messageEl.style.color = '#fbbf24';
+            slugAvailable = false;
+        }
+    }, 500);
+}
+
+// =============================================
+// Package Detection & Button Visibility
+// =============================================
+const PACKAGE_INFO = {
+    free: { name: 'Percuma', price: 0, priceDisplay: 'RM0' },
+    basic: { name: 'Asas', price: 4900, priceDisplay: 'RM49' },
+    premium: { name: 'Premium', price: 9900, priceDisplay: 'RM99' },
+    business: { name: 'Bisnes', price: 19900, priceDisplay: 'RM199' }
+};
+
+let selectedPackage = 'premium'; // Default
+
+function initPackageFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pkg = urlParams.get('package')?.toLowerCase() || 'premium';
+    selectedPackage = PACKAGE_INFO[pkg] ? pkg : 'premium';
+    updatePackageBanner();
+    updatePublishButtons();
+}
+
+function updatePackageBanner() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+    const nameEl = document.getElementById('packageName');
+    const priceEl = document.getElementById('packagePrice');
+    const noteEl = document.getElementById('packageNote');
+    const bannerEl = document.getElementById('packageBanner');
+
+    if (nameEl) nameEl.textContent = pkg.name;
+    if (priceEl) priceEl.textContent = pkg.priceDisplay;
+
+    if (selectedPackage === 'free') {
+        if (noteEl) noteEl.textContent = 'Jemputan akan mempunyai watermark A2Z Creative';
+        if (bannerEl) bannerEl.style.background = 'linear-gradient(135deg, rgba(74,222,128,0.1), rgba(74,222,128,0.05))';
+        if (bannerEl) bannerEl.style.borderColor = 'rgba(74,222,128,0.3)';
+        if (nameEl) nameEl.style.color = '#4ade80';
+    } else {
+        if (noteEl) noteEl.textContent = 'Pembayaran diperlukan untuk menerbitkan';
+    }
+}
+
+function updatePublishButtons() {
+    const freeBtn = document.getElementById('btnPublishFree');
+    const paidBtn = document.getElementById('btnPublishPaid');
+
+    if (selectedPackage === 'free') {
+        if (freeBtn) freeBtn.style.display = 'flex';
+        if (paidBtn) paidBtn.style.display = 'none';
+    } else {
+        if (freeBtn) freeBtn.style.display = 'none';
+        if (paidBtn) paidBtn.style.display = 'flex';
+    }
+}
+
+// Auto-generate default slug when reaching Step 6
+function generateDefaultSlug() {
+    const host1 = eventData.hostName1 || '';
+    const host2 = eventData.hostName2 || '';
+
+    if (host1 && host2) {
+        const slug = `${host1}-${host2}`.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .substring(0, 40);
+
+        const input = document.getElementById('customSlug');
+        if (input && !input.value) {
+            input.value = slug;
+            checkSlugAvailability(slug);
+        }
+    }
+}
+
+// =============================================
+// Free Package Publish
+// =============================================
+async function publishFreeEvent() {
+    if (!slugAvailable) {
+        alert('Sila pilih URL yang tersedia sebelum menerbitkan.');
+        return;
+    }
+
+    const slug = document.getElementById('customSlug').value;
+
+    // Collect all event data
+    collectStepData();
+    eventData.slug = slug;
+    eventData.package = 'free';
+    eventData.hasWatermark = true;
+
+    try {
+        const response = await fetch('/api/events/publish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showPublishSuccess(slug);
+        } else {
+            alert(data.error || 'Gagal menerbitkan jemputan');
+        }
+    } catch (error) {
+        console.error('Publish error:', error);
+        alert('Ralat berlaku. Sila cuba lagi.');
+    }
+}
+
+// =============================================
+// Payment Modal for Paid Packages
+// =============================================
+function openPaymentModal() {
+    if (!slugAvailable) {
+        alert('Sila pilih URL yang tersedia sebelum menerbitkan.');
+        return;
+    }
+
+    // Collect all event data
+    collectStepData();
+    eventData.slug = document.getElementById('customSlug').value;
+    eventData.package = selectedPackage;
+
+    // Store event data for after payment
+    sessionStorage.setItem('pendingEventData', JSON.stringify(eventData));
+
+    // Show payment modal
+    showPaymentOptions();
+}
+
+function showPaymentOptions() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'paymentModal';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem;';
+
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: var(--text-primary);">Pilih Kaedah Pembayaran</h3>
+                    <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
+                </div>
+                <p style="margin: 0.5rem 0 0; color: var(--text-secondary);">Pakej ${pkg.name} - ${pkg.priceDisplay}</p>
+            </div>
+            
+            <div style="padding: 1.5rem;">
+                <!-- Manual Bank Transfer -->
+                <div class="payment-option" onclick="selectPaymentMethod('manual')" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background: rgba(212,175,55,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="building-2" style="color: #d4af37;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">Pindahan Bank</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Manual verification (1-24 jam)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DuitNow QR -->
+                <div class="payment-option" onclick="selectPaymentMethod('duitnow')" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background: rgba(74,222,128,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="qr-code" style="color: #4ade80;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">DuitNow QR</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Imbas & bayar segera</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FPX (Coming Soon) -->
+                <div class="payment-option" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; opacity: 0.5; cursor: not-allowed;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background: rgba(96,165,250,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="credit-card" style="color: #60a5fa;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">FPX Online Banking</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Akan datang</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    lucide.createIcons();
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    if (modal) modal.remove();
+}
+
+function selectPaymentMethod(method) {
+    closePaymentModal();
+
+    if (method === 'manual') {
+        showManualPaymentInstructions();
+    } else if (method === 'duitnow') {
+        showDuitNowQR();
+    }
+}
+
+function showManualPaymentInstructions() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+
+    const modal = document.createElement('div');
+    modal.id = 'paymentModal';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem;';
+
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: var(--text-primary);">Pindahan Bank</h3>
+                    <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
+                </div>
+            </div>
+            
+            <div style="padding: 1.5rem;">
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.85rem;">Amaun</p>
+                    <p style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #d4af37;">${pkg.priceDisplay}</p>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.85rem;">Bank</p>
+                    <p style="margin: 0 0 0.5rem; color: var(--text-primary);">Maybank</p>
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.85rem;">No. Akaun</p>
+                    <p style="margin: 0 0 0.5rem; color: var(--text-primary); font-family: monospace;">1234-5678-9012</p>
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.85rem;">Nama</p>
+                    <p style="margin: 0; color: var(--text-primary);">A2Z CREATIVE SDN BHD</p>
+                </div>
+                
+                <div style="background: rgba(212,175,55,0.1); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid rgba(212,175,55,0.3);">
+                    <p style="margin: 0; color: #d4af37; font-size: 0.9rem;">
+                        <strong>Penting:</strong> Sila masukkan email anda sebagai rujukan pembayaran.
+                    </p>
+                </div>
+                
+                <button onclick="submitManualPayment()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #d4af37, #c49b2c); border: none; border-radius: 12px; color: #000; font-weight: 600; cursor: pointer; font-size: 1rem;">
+                    Saya Sudah Bayar
+                </button>
+                
+                <p style="margin-top: 1rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+                    Jemputan akan aktif selepas pengesahan pembayaran (1-24 jam)
+                </p>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function showDuitNowQR() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+
+    const modal = document.createElement('div');
+    modal.id = 'paymentModal';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem;';
+
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: var(--text-primary);">DuitNow QR</h3>
+                    <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
+                </div>
+            </div>
+            
+            <div style="padding: 1.5rem; text-align: center;">
+                <div style="background: #fff; padding: 1rem; border-radius: 12px; display: inline-block; margin-bottom: 1rem;">
+                    <div style="width: 200px; height: 200px; background: #eee; display: flex; align-items: center; justify-content: center; color: #666;">
+                        QR Code Coming Soon
+                    </div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.85rem;">Amaun</p>
+                    <p style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #4ade80;">${pkg.priceDisplay}</p>
+                </div>
+                
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                    Imbas kod QR ini menggunakan aplikasi bank anda
+                </p>
+                
+                <button onclick="checkPaymentStatus()" style="width: 100%; margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, #4ade80, #22c55e); border: none; border-radius: 12px; color: #000; font-weight: 600; cursor: pointer; font-size: 1rem;">
+                    Saya Sudah Bayar
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+async function submitManualPayment() {
+    // Create payment order and notify admin
+    try {
+        const eventData = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
+
+        const response = await fetch('/api/payment/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                eventData,
+                packageId: selectedPackage,
+                paymentMethod: 'manual'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success || data.orderRef) {
+            closePaymentModal();
+            showPendingPaymentScreen(data.orderRef);
+        } else {
+            alert(data.error || 'Gagal membuat pesanan pembayaran');
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Ralat berlaku. Sila cuba lagi.');
+    }
+}
+
+function showPendingPaymentScreen(orderRef) {
+    document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+
+    const successEl = document.getElementById('stepSuccess');
+    successEl.innerHTML = `
+        <div class="publish-success">
+            <div class="success-icon" style="background: rgba(251,191,36,0.2); color: #fbbf24;">
+                <i data-lucide="clock"></i>
+            </div>
+            <h2>Menunggu Pengesahan Pembayaran</h2>
+            <p>Rujukan pesanan: <strong>${orderRef}</strong></p>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+                Jemputan anda akan aktif selepas pembayaran disahkan.<br>
+                Kami akan menghubungi anda melalui email.
+            </p>
+            <a href="/dashboard/" class="nav-btn primary" style="margin-top: 2rem; display: inline-flex; text-decoration: none;">
+                <i data-lucide="layout-dashboard"></i>
+                Ke Dashboard
+            </a>
+        </div>
+    `;
+    successEl.classList.add('active');
+    lucide.createIcons();
+}
+
+function checkPaymentStatus() {
+    // TODO: Poll payment status
+    submitManualPayment();
+}
+
+// Initialize package on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initPackageFromUrl();
+});
+
+// Generate default slug when entering Step 6
+const originalShowStep = showStep;
+showStep = function (step) {
+    originalShowStep(step);
+    if (step === 6) {
+        generateDefaultSlug();
+        updatePackageBanner();
+        updatePublishButtons();
+    }
+};

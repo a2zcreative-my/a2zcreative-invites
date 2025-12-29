@@ -39,7 +39,8 @@ const PUBLIC_ROUTES = [
     '/api/messages/',
     '/api/invitation/',
     '/api/checkin',
-    '/api/templates'
+    '/api/templates',
+    '/api/slug/'
 ];
 
 /**

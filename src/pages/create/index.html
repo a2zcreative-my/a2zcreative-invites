@@ -323,7 +323,27 @@
         <!-- Step 6: Preview & Publish -->
         <div class="wizard-step" id="step6">
             <h2 class="section-title">Pratonton & Terbit</h2>
-            <p class="section-desc">Semak jemputan anda sebelum menerbitkan.</p>
+            <p class="section-desc">Semak jemputan anda dan tetapkan URL khas sebelum menerbitkan.</p>
+
+            <!-- Custom URL Slug Input -->
+            <div class="slug-input-section" style="margin-bottom: 2rem;">
+                <label for="customSlug"
+                    style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-primary);">
+                    URL Jemputan Anda
+                </label>
+                <div class="slug-input-wrapper"
+                    style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">a2zcreative.my/inv/</span>
+                    <input type="text" id="customSlug" name="customSlug" placeholder="nama-majlis-anda"
+                        style="flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 1rem; outline: none;"
+                        oninput="checkSlugAvailability(this.value)">
+                    <span id="slugStatus" style="font-size: 1.2rem;"></span>
+                </div>
+                <p id="slugMessage" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);"></p>
+                <div id="slugSuggestions" style="margin-top: 0.5rem; display: none;">
+                    <span style="font-size: 0.85rem; color: var(--text-secondary);">Cadangan: </span>
+                </div>
+            </div>
 
             <div class="preview-panel">
                 <div class="preview-header">
@@ -344,14 +364,38 @@
                 </div>
             </div>
 
-            <div class="wizard-nav">
+            <!-- Package Info Banner -->
+            <div id="packageBanner" class="package-banner"
+                style="margin-top: 1.5rem; padding: 1rem; border-radius: 12px; background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.05)); border: 1px solid rgba(212,175,55,0.3);">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <span id="packageName" style="font-weight: 600; color: #d4af37;">Premium</span>
+                        <span style="color: var(--text-secondary);"> - </span>
+                        <span id="packagePrice" style="color: var(--text-primary);">RM99</span>
+                    </div>
+                    <div id="packageNote" style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Pembayaran diperlukan untuk menerbitkan
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-nav" style="margin-top: 1.5rem;">
                 <button class="nav-btn secondary" onclick="prevStep()">
                     <i data-lucide="arrow-left"></i>
                     Sebelumnya
                 </button>
-                <button class="nav-btn success" onclick="publishEvent()">
+
+                <!-- Free package: Direct publish -->
+                <button class="nav-btn success" id="btnPublishFree" onclick="publishFreeEvent()" style="display: none;">
                     <i data-lucide="rocket"></i>
-                    Terbitkan Jemputan
+                    Terbitkan (Percuma)
+                </button>
+
+                <!-- Paid package: Payment required -->
+                <button class="nav-btn success" id="btnPublishPaid" onclick="openPaymentModal()">
+                    <i data-lucide="credit-card"></i>
+                    Bayar & Terbitkan
                 </button>
             </div>
         </div>

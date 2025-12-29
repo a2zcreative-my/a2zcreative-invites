@@ -1,0 +1,132 @@
+/**
+ * Slug Availability API
+ * GET /api/slug/check?slug=xxx - Check if slug is available
+ */
+
+export async function onRequestGet(context) {
+    const { request, env } = context;
+    const url = new URL(request.url);
+    const slug = url.searchParams.get('slug');
+
+    if (!slug) {
+        return new Response(JSON.stringify({
+            error: 'Slug is required'
+        }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // Validate slug format (lowercase, alphanumeric, hyphens only)
+    const slugRegex = /^[a-z0-9-]+$/;
+    if (!slugRegex.test(slug)) {
+        return new Response(JSON.stringify({
+            available: false,
+            error: 'Slug hanya boleh mengandungi huruf kecil, nombor dan tanda sempang (-)',
+            suggestion: generateSlugSuggestion(slug)
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // Check minimum length
+    if (slug.length < 3) {
+        return new Response(JSON.stringify({
+            available: false,
+            error: 'Slug mesti sekurang-kurangnya 3 aksara'
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // Check maximum length
+    if (slug.length > 50) {
+        return new Response(JSON.stringify({
+            available: false,
+            error: 'Slug tidak boleh melebihi 50 aksara'
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    try {
+        // Check if slug exists in events table
+        const existing = await env.DB.prepare(`
+            SELECT id FROM events WHERE slug = ?
+        `).bind(slug).first();
+
+        if (existing) {
+            // Generate alternative suggestions
+            const suggestions = await generateAlternativeSlugs(env.DB, slug);
+
+            return new Response(JSON.stringify({
+                available: false,
+                error: 'Slug ini sudah digunakan',
+                suggestions
+            }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        return new Response(JSON.stringify({
+            available: true,
+            slug
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+    } catch (error) {
+        console.error('Slug check error:', error);
+        return new Response(JSON.stringify({
+            error: 'Failed to check slug availability'
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
+
+/**
+ * Generate a clean slug from input
+ */
+function generateSlugSuggestion(input) {
+    return input
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
+}
+
+/**
+ * Generate alternative slug suggestions
+ */
+async function generateAlternativeSlugs(db, baseSlug) {
+    const suggestions = [];
+    const suffixes = ['2024', '2025', 'my', 'official'];
+
+    for (const suffix of suffixes) {
+        const candidate = `${baseSlug}-${suffix}`;
+        const exists = await db.prepare(`
+            SELECT id FROM events WHERE slug = ?
+        `).bind(candidate).first();
+
+        if (!exists) {
+            suggestions.push(candidate);
+            if (suggestions.length >= 3) break;
+        }
+    }
+
+    // Add random suffix if needed
+    if (suggestions.length < 3) {
+        const random = Math.random().toString(36).substring(2, 6);
+        suggestions.push(`${baseSlug}-${random}`);
+    }
+
+    return suggestions;
+}
