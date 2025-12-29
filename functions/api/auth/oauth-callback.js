@@ -24,10 +24,11 @@ export async function onRequestPost(context) {
 
         // Verify the token with Supabase and get user info
         const supabaseUrl = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
+        const supabaseAnonKey = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
         const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
             headers: {
                 'Authorization': `Bearer ${access_token}`,
-                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6eGpzZHRrb2Frc2NtZXV0aGx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM1MDI1NzIsImV4cCI6MjA0OTA3ODU3Mn0.9QkFiGW1x0Gi8Mx-2t6tBqCbqMwqB4aGdlBXXKpxNNE'
+                'apikey': supabaseAnonKey
             }
         });
 
