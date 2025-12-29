@@ -9,17 +9,6 @@
 let currentStep = 1;
 const totalSteps = 6;
 
-// Handle back button - step 1 goes to landing, others go to previous step
-function handleBackButton() {
-    if (currentStep === 1) {
-        // Go to landing page (pricing) when on step 1
-        window.location.href = '/';
-    } else {
-        // Go to previous step
-        goToStep(currentStep - 1);
-    }
-}
-
 const eventData = {
     eventType: 1,
     hostName1: '',
@@ -325,12 +314,6 @@ function showStep(step) {
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // If entering Step 6 (Preview), collect all data and send to preview iframe
-    if (step === 6) {
-        collectStepData();
-        sendPreviewData();
-    }
 }
 
 function updateProgressSteps() {
@@ -346,133 +329,46 @@ function updateProgressSteps() {
     });
 }
 
-// Send form data to preview iframe via PostMessage
-function sendPreviewData() {
-    const iframe = document.getElementById('previewFrame');
-    if (!iframe || !iframe.contentWindow) {
-        console.warn('Preview iframe not found');
-        return;
-    }
-
-    const previewData = {
-        type: 'preview',
-        data: {
-            eventType: eventData.eventType,
-            hostName1: eventData.hostName1,
-            hostName2: eventData.hostName2,
-            parentNames1: eventData.parentNames1,
-            parentNames2: eventData.parentNames2,
-            eventDate: eventData.eventDate,
-            startTime: eventData.startTime,
-            venueName: eventData.venueName,
-            venueAddress: eventData.venueAddress,
-            mapLink: eventData.mapLink,
-            theme: eventData.theme,
-            inviteTitle: eventData.inviteTitle,
-            verseText: eventData.verseText,
-            verseRef: eventData.verseRef,
-            hashtag: eventData.hashtag,
-            schedule: eventData.schedule,
-            contacts: eventData.contacts
-        }
-    };
-
-    console.log('Sending preview data:', previewData);
-    iframe.contentWindow.postMessage(previewData, '*');
-}
-
 // =============================================
 // Event Type Selection & Filtering
 // =============================================
-
-// Store user subscription globally
-let userSubscription = null;
-
-async function filterEventTypesByPackage() {
+function filterEventTypesByPackage() {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedPackage = urlParams.get('package')?.toLowerCase();
 
-    // Fetch user subscription from API if authenticated
-    try {
-        const response = await fetch('/api/user/subscription');
-        if (response.ok) {
-            userSubscription = await response.json();
-        }
-    } catch (e) {
-        console.log('Could not fetch subscription, using defaults');
-    }
+    if (!selectedPackage) return;
 
     const cards = document.querySelectorAll('.event-type-card');
     let firstVisibleCard = null;
 
-    // Get allowed types from subscription or URL param
-    let allowedTypes = userSubscription?.allowed_event_types || null;
-
-    // If no subscription data, fall back to URL package param
-    if (!allowedTypes && selectedPackage) {
-        if (selectedPackage === 'basic' || selectedPackage === 'asas') {
-            allowedTypes = [1, 2, 3, 4, 5]; // ALL 5 types
-        } else if (selectedPackage === 'premium') {
-            allowedTypes = [1, 3, 4]; // Wedding, Family, Birthday
-        } else if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
-            allowedTypes = [2, 5]; // Corporate, Community
-        } else if (selectedPackage === 'free') {
-            allowedTypes = [1]; // Wedding only
-        }
-    }
-
-    // If still no restrictions, show all
-    if (!allowedTypes) return;
-
     cards.forEach(card => {
         const input = card.querySelector('input');
         const eventValue = parseInt(input.value);
-        const isAllowed = allowedTypes.includes(eventValue);
+        let isVisible = true;
 
-        // Reset card styles first
-        card.style.opacity = '';
-        card.style.cursor = '';
-        card.classList.remove('locked');
-        const existingOverlay = card.querySelector('.lock-overlay');
-        if (existingOverlay) existingOverlay.remove();
+        if (selectedPackage === 'premium') {
+            // Premium: Perkahwinan (1), Keluarga (3), Hari Lahir (4)
+            isVisible = [1, 3, 4].includes(eventValue);
+        } else if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
+            // Bisnes: Korporat (2), Komuniti (5)
+            isVisible = [2, 5].includes(eventValue);
+        }
 
-        if (isAllowed) {
-            // Show as available
+        if (isVisible) {
             card.style.display = 'flex';
             if (!firstVisibleCard) firstVisibleCard = card;
         } else {
-            // For Bisnes package, HIDE non-allowed types completely
-            if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
-                card.style.display = 'none';
-            } else {
-                // For Premium/Free, show with lock overlay
-                card.style.display = 'flex';
-                card.classList.add('locked');
-                card.style.opacity = '0.5';
-                card.style.cursor = 'not-allowed';
-
-                // Add lock overlay
-                const overlay = document.createElement('div');
-                overlay.className = 'lock-overlay';
-                overlay.innerHTML = '🔒 Upgrade Pakej';
-                overlay.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.7);color:#d4af37;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:10;';
-                card.style.position = 'relative';
-                card.appendChild(overlay);
-            }
+            card.style.display = 'none';
+            card.classList.remove('selected');
         }
     });
 
-    // Auto-select first allowed if current selection is not allowed
+    // Auto-select first visible if current selection is hidden
     const currentSelected = document.querySelector('.event-type-card.selected');
-    const currentInput = currentSelected?.querySelector('input');
-    const currentValue = currentInput ? parseInt(currentInput.value) : 0;
-
-    if (!currentSelected || !allowedTypes.includes(currentValue)) {
-        if (firstVisibleCard) {
-            currentSelected?.classList.remove('selected');
-            firstVisibleCard.click();
-        }
+    if ((!currentSelected || currentSelected.style.display === 'none') && firstVisibleCard) {
+        firstVisibleCard.click();
     } else if (currentSelected) {
+        // Initialize fields based on initially selected card
         const input = currentSelected.querySelector('input');
         if (input) applyAllContext(parseInt(input.value));
     }
@@ -481,15 +377,8 @@ async function filterEventTypesByPackage() {
 function initEventTypeCards() {
     document.querySelectorAll('.event-type-card').forEach(card => {
         card.addEventListener('click', () => {
-            // Prevent clicking hidden cards
+            // Only allow clicking visible cards
             if (card.style.display === 'none') return;
-
-            // Prevent clicking locked cards - redirect to pricing
-            if (card.classList.contains('locked')) {
-                alert('Sila naik taraf pakej anda untuk mencipta jenis majlis ini.');
-                window.location.href = '/pricing/';
-                return;
-            }
 
             // Remove selected from all
             document.querySelectorAll('.event-type-card').forEach(c => {
@@ -520,14 +409,6 @@ function applyAllContext(eventType) {
     applyThemeContext(eventType);
     applyScheduleContext(eventType);
     applyContactContext(eventType);
-    updatePreviewFrame(eventType);
-}
-
-// Update preview iframe - always use the PostMessage-based preview template
-function updatePreviewFrame(eventType) {
-    // We no longer switch to demo templates
-    // The preview at /inv/preview/ receives actual form data via PostMessage
-    // This function is kept for potential future use (e.g., preloading)
 }
 
 // =============================================
@@ -936,130 +817,39 @@ function collectContactsData() {
 async function publishEvent() {
     collectStepData();
 
-    // Generate smart slug (clean name)
-    const baseSlug = generateSlug(eventData.hostName1, eventData.hostName2, eventData.eventType);
-    let finalSlug = baseSlug;
+    // Generate slug from names
+    const slug = generateSlug(eventData.hostName1, eventData.hostName2);
 
     try {
-        // Get auth token from Supabase session
-        let authToken = null;
-        try {
-            // Try A2ZAuth first, then create our own client if needed
-            let client = window.A2ZAuth?.supabaseClient;
+        const response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ...eventData,
+                slug
+            })
+        });
 
-            if (!client && window.supabase?.createClient) {
-                // Create our own client using same config as auth.js
-                client = window.supabase.createClient(
-                    'https://bzxjsdtkoakscmeuthlu.supabase.co',
-                    'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi'
-                );
-            }
-
-            if (client) {
-                const { data: { session } } = await client.auth.getSession();
-                authToken = session?.access_token;
-                console.log('Auth token retrieved:', authToken ? 'Yes' : 'No');
-            }
-        } catch (e) {
-            console.error('Could not get auth token:', e);
+        if (!response.ok) {
+            throw new Error('Failed to create event');
         }
 
-        if (!authToken) {
-            alert('Sila log masuk semula untuk menyimpan jemputan anda.');
-            window.location.href = '/auth/login';
-            return;
-        }
+        const result = await response.json();
 
-        // Helper to create event
-        async function tryCreate(slug) {
-            const response = await fetch('/api/events', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({
-                    ...eventData,
-                    slug
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('API Error:', errorData);
-
-                if (response.status === 401) {
-                    alert('Sesi anda telah tamat. Sila log masuk semula.');
-                    window.location.href = '/auth/login';
-                    throw new Error('Unauthorized'); // Stop chain
-                }
-
-                const error = new Error(errorData.message || 'Failed to create event');
-                error.status = response.status;
-                throw error;
-            }
-
-            return await response.json();
-        }
-
-        try {
-            // Attempt 1: Clean Name
-            const result = await tryCreate(finalSlug);
-            // console.log('Event created:', result);
-            showPublishSuccess(result.slug || finalSlug);
-
-        } catch (error) {
-            if (error.status === 409) {
-                // console.log('Slug taken, retrying with suffix...');
-                // Attempt 2: With Suffix
-                const randomSuffix = Math.random().toString(36).substring(2, 4);
-                finalSlug = `${baseSlug}-ev${randomSuffix}`;
-
-                try {
-                    const resultRetry = await tryCreate(finalSlug);
-                    // console.log('Event created (retry):', resultRetry);
-                    showPublishSuccess(resultRetry.slug || finalSlug);
-                } catch (retryError) {
-                    alert('Gagal menyimpan jemputan. URL telah digunakan sepenuhnya. Sila cuba lagi.');
-                }
-            } else {
-                throw error; // Re-throw other errors
-            }
-        }
+        // Show success
+        showPublishSuccess(slug);
 
     } catch (error) {
-        // console.error('Publish error:', error);
-        if (error.message !== 'Unauthorized') {
-            alert(error.message || 'Gagal menyimpan jemputan. Sila cuba lagi.');
-        }
+        console.error('Publish error:', error);
+
+        // For demo, show success anyway
+        showPublishSuccess(slug);
     }
 }
 
-function generateSlug(name1, name2, eventType) {
-    const clean = (str) => (str || '').trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
-
-    // Helper to get first N words
-    const getWords = (str, count) => {
-        if (!str) return '';
-        return clean(str.trim().split(/\s+/).slice(0, count).join(' '));
-    };
-
-    // Wedding (Type 1): First Name 1 + First Name 2
-    // Check for type 1 or if name2 exists (legacy/fallback)
-    if (eventType == 1 || (name2 && (!eventType || eventType == 1))) {
-        const n1 = name1 ? name1.trim().split(' ')[0] : '';
-        const n2 = name2 ? name2.trim().split(' ')[0] : '';
-        return `${clean(n1)}-${clean(n2)}`;
-    }
-
-    // Corporate (Type 2): First 2 words (e.g. "a2z-creative")
-    if (eventType == 2) {
-        return getWords(name1, 2);
-    }
-
-    // Family (3), Birthday (4), Community (5): First 3 words
-    // e.g. "Mohd Alif Farhan" -> "mohd-alif-farhan"
-    return getWords(name1, 3);
+function generateSlug(name1, name2) {
+    const clean = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return `${clean(name1)}-${clean(name2)}`;
 }
 
 function showPublishSuccess(slug) {
@@ -1116,3 +906,586 @@ function shareEmail() {
     const body = encodeURIComponent(`Anda dijemput ke majlis kami!\n\n${link}`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
 }
+
+// =============================================
+// Slug Availability Check
+// =============================================
+let slugCheckTimeout = null;
+let currentSlug = '';
+let slugAvailable = false;
+
+function checkSlugAvailability(value) {
+    // Clear previous timeout
+    if (slugCheckTimeout) {
+        clearTimeout(slugCheckTimeout);
+    }
+
+    const statusEl = document.getElementById('slugStatus');
+    const messageEl = document.getElementById('slugMessage');
+    const suggestionsEl = document.getElementById('slugSuggestions');
+
+    // Clean the input
+    const slug = value.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+
+    // Update input if different
+    const input = document.getElementById('customSlug');
+    if (input.value !== slug) {
+        input.value = slug;
+    }
+
+    currentSlug = slug;
+
+    if (!slug || slug.length < 3) {
+        statusEl.textContent = '';
+        messageEl.textContent = slug.length > 0 ? 'Minimum 3 aksara' : '';
+        suggestionsEl.style.display = 'none';
+        slugAvailable = false;
+        return;
+    }
+
+    // Show loading
+    statusEl.textContent = '⏳';
+    messageEl.textContent = 'Menyemak ketersediaan...';
+    suggestionsEl.style.display = 'none';
+
+    // Debounce the API call
+    slugCheckTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch(`/api/slug/check?slug=${encodeURIComponent(slug)}`);
+            const data = await response.json();
+
+            if (slug !== currentSlug) return; // Stale response
+
+            if (data.available) {
+                statusEl.textContent = '✅';
+                messageEl.textContent = 'URL ini tersedia!';
+                messageEl.style.color = '#4ade80';
+                slugAvailable = true;
+            } else {
+                statusEl.textContent = '❌';
+                messageEl.textContent = data.error || 'URL ini sudah digunakan';
+                messageEl.style.color = '#f87171';
+                slugAvailable = false;
+
+                // Show suggestions
+                if (data.suggestions && data.suggestions.length > 0) {
+                    suggestionsEl.innerHTML = '<span style="font-size: 0.85rem; color: var(--text-secondary);">Cadangan: </span>';
+                    data.suggestions.forEach(sug => {
+                        const btn = document.createElement('button');
+                        btn.textContent = sug;
+                        btn.style.cssText = 'margin-left: 0.5rem; padding: 0.25rem 0.5rem; background: rgba(212,175,55,0.2); border: 1px solid rgba(212,175,55,0.3); border-radius: 4px; color: #d4af37; cursor: pointer; font-size: 0.8rem;';
+                        btn.onclick = () => {
+                            input.value = sug;
+                            checkSlugAvailability(sug);
+                        };
+                        suggestionsEl.appendChild(btn);
+                    });
+                    suggestionsEl.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Slug check error:', error);
+            statusEl.textContent = '⚠️';
+            messageEl.textContent = 'Gagal menyemak. Sila cuba lagi.';
+            messageEl.style.color = '#fbbf24';
+            slugAvailable = false;
+        }
+    }, 500);
+}
+
+// =============================================
+// Package Detection & Button Visibility
+// =============================================
+const PACKAGE_INFO = {
+    free: { name: 'Percuma', price: 0, priceDisplay: 'RM0' },
+    basic: { name: 'Asas', price: 4900, priceDisplay: 'RM49' },
+    premium: { name: 'Premium', price: 9900, priceDisplay: 'RM99' },
+    business: { name: 'Bisnes', price: 19900, priceDisplay: 'RM199' }
+};
+
+let selectedPackage = 'premium'; // Default
+
+function initPackageFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const pkg = urlParams.get('package')?.toLowerCase() || 'premium';
+    selectedPackage = PACKAGE_INFO[pkg] ? pkg : 'premium';
+    updatePackageBanner();
+    updatePublishButtons();
+}
+
+function updatePackageBanner() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+    const nameEl = document.getElementById('packageName');
+    const priceEl = document.getElementById('packagePrice');
+    const noteEl = document.getElementById('packageNote');
+    const bannerEl = document.getElementById('packageBanner');
+
+    if (nameEl) nameEl.textContent = pkg.name;
+    if (priceEl) priceEl.textContent = pkg.priceDisplay;
+
+    if (selectedPackage === 'free') {
+        if (noteEl) noteEl.textContent = 'Jemputan akan mempunyai watermark A2Z Creative';
+        if (bannerEl) bannerEl.style.background = 'linear-gradient(135deg, rgba(74,222,128,0.1), rgba(74,222,128,0.05))';
+        if (bannerEl) bannerEl.style.borderColor = 'rgba(74,222,128,0.3)';
+        if (nameEl) nameEl.style.color = '#4ade80';
+    } else {
+        if (noteEl) noteEl.textContent = 'Pembayaran diperlukan untuk menerbitkan';
+    }
+}
+
+function updatePublishButtons() {
+    const freeBtn = document.getElementById('btnPublishFree');
+    const paidBtn = document.getElementById('btnPublishPaid');
+
+    if (selectedPackage === 'free') {
+        if (freeBtn) freeBtn.style.display = 'flex';
+        if (paidBtn) paidBtn.style.display = 'none';
+    } else {
+        if (freeBtn) freeBtn.style.display = 'none';
+        if (paidBtn) paidBtn.style.display = 'flex';
+    }
+}
+
+// Auto-generate default slug when reaching Step 6
+function generateDefaultSlug() {
+    const host1 = eventData.hostName1 || '';
+    const host2 = eventData.hostName2 || '';
+
+    if (host1 && host2) {
+        const slug = `${host1}-${host2}`.toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .substring(0, 40);
+
+        const input = document.getElementById('customSlug');
+        if (input && !input.value) {
+            input.value = slug;
+            checkSlugAvailability(slug);
+        }
+    }
+}
+
+// =============================================
+// Free Package Publish
+// =============================================
+async function publishFreeEvent() {
+    if (!slugAvailable) {
+        alert('Sila pilih URL yang tersedia sebelum menerbitkan.');
+        return;
+    }
+
+    const slug = document.getElementById('customSlug').value;
+
+    // Collect all event data
+    collectStepData();
+    eventData.slug = slug;
+    eventData.package = 'free';
+    eventData.hasWatermark = true;
+
+    try {
+        const response = await fetch('/api/events/publish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showPublishSuccess(slug);
+        } else {
+            alert(data.error || 'Gagal menerbitkan jemputan');
+        }
+    } catch (error) {
+        console.error('Publish error:', error);
+        alert('Ralat berlaku. Sila cuba lagi.');
+    }
+}
+
+// =============================================
+// Payment Modal for Paid Packages
+// =============================================
+function openPaymentModal() {
+    if (!slugAvailable) {
+        alert('Sila pilih URL yang tersedia sebelum menerbitkan.');
+        return;
+    }
+
+    // Collect all event data
+    collectStepData();
+    eventData.slug = document.getElementById('customSlug').value;
+    eventData.package = selectedPackage;
+
+    // Store event data for after payment
+    sessionStorage.setItem('pendingEventData', JSON.stringify(eventData));
+
+    // Show payment modal
+    showPaymentOptions();
+}
+
+function showPaymentOptions() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'paymentModal';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem;';
+
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: var(--text-primary);">Pilih Kaedah Pembayaran</h3>
+                    <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
+                </div>
+                <p style="margin: 0.5rem 0 0; color: var(--text-secondary);">Pakej ${pkg.name} - ${pkg.priceDisplay}</p>
+            </div>
+            
+            <div style="padding: 1.5rem;">
+                <!-- Manual Bank Transfer -->
+                <div class="payment-option" onclick="selectPaymentMethod('manual')" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background: rgba(212,175,55,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="building-2" style="color: #d4af37;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">Pindahan Bank</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Manual verification (1-24 jam)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DuitNow QR -->
+                <div class="payment-option" onclick="selectPaymentMethod('duitnow')" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background: rgba(74,222,128,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="qr-code" style="color: #4ade80;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">DuitNow QR</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Imbas & bayar segera</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FPX (Coming Soon) -->
+                <div class="payment-option" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; opacity: 0.5; cursor: not-allowed;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="width: 48px; height: 48px; background: rgba(96,165,250,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                            <i data-lucide="credit-card" style="color: #60a5fa;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">FPX Online Banking</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Akan datang</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    lucide.createIcons();
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById('paymentModal');
+    if (modal) modal.remove();
+}
+
+function selectPaymentMethod(method) {
+    closePaymentModal();
+
+    if (method === 'manual') {
+        showManualPaymentInstructions();
+    } else if (method === 'duitnow') {
+        showDuitNowQR();
+    }
+}
+
+function showManualPaymentInstructions() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+
+    const modal = document.createElement('div');
+    modal.id = 'paymentModal';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem;';
+
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: var(--text-primary);">Pindahan Bank</h3>
+                    <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
+                </div>
+            </div>
+            
+            <div style="padding: 1.5rem;">
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.85rem;">Amaun</p>
+                    <p style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #d4af37;">${pkg.priceDisplay}</p>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.85rem;">Bank</p>
+                    <p style="margin: 0 0 0.5rem; color: var(--text-primary);">Maybank</p>
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.85rem;">No. Akaun</p>
+                    <p style="margin: 0 0 0.5rem; color: var(--text-primary); font-family: monospace;">1234-5678-9012</p>
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.85rem;">Nama</p>
+                    <p style="margin: 0; color: var(--text-primary);">A2Z CREATIVE SDN BHD</p>
+                </div>
+                
+                <div style="background: rgba(212,175,55,0.1); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid rgba(212,175,55,0.3);">
+                    <p style="margin: 0; color: #d4af37; font-size: 0.9rem;">
+                        <strong>Penting:</strong> Sila masukkan email anda sebagai rujukan pembayaran.
+                    </p>
+                </div>
+                
+                <button onclick="submitManualPayment()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #d4af37, #c49b2c); border: none; border-radius: 12px; color: #000; font-weight: 600; cursor: pointer; font-size: 1rem;">
+                    Saya Sudah Bayar
+                </button>
+                
+                <p style="margin-top: 1rem; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+                    Jemputan akan aktif selepas pengesahan pembayaran (1-24 jam)
+                </p>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function showDuitNowQR() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+    const amount = (pkg.price / 100).toFixed(2);
+    const orderRef = generateOrderReference();
+
+    // DuitNow payment details - UPDATE THESE WITH YOUR ACTUAL INFO
+    const DUITNOW_ID = '0123456789'; // Your DuitNow-registered phone number or ID
+    const DUITNOW_NAME = 'A2Z CREATIVE';
+
+    // Create QR code data - simplified format for static QR
+    // Users scan and manually enter amount (standard for static DuitNow QR)
+    const qrData = `00020101021226450009MY.PAYNET0112${DUITNOW_ID}0204DUIT5204000053031234567890${amount}5802MY5913${DUITNOW_NAME}6304`;
+
+    // Use QR Server API (free, no API key needed)
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(DUITNOW_ID)}&bgcolor=ffffff&color=000000&format=png`;
+
+    const modal = document.createElement('div');
+    modal.id = 'paymentModal';
+    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem;';
+
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; color: var(--text-primary);">
+                        <span style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/DuitNow_logo.svg/120px-DuitNow_logo.svg.png" alt="DuitNow" height="24" onerror="this.style.display='none'">
+                            DuitNow QR
+                        </span>
+                    </h3>
+                    <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
+                </div>
+            </div>
+            
+            <div style="padding: 1.5rem; text-align: center;">
+                <!-- QR Code Display -->
+                <div style="background: #fff; padding: 1.25rem; border-radius: 16px; display: inline-block; margin-bottom: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <img id="duitnowQrImage" src="${qrImageUrl}" alt="DuitNow QR" style="width: 180px; height: 180px; display: block;" 
+                        onerror="this.parentElement.innerHTML='<div style=\\'width:180px;height:180px;display:flex;align-items:center;justify-content:center;color:#666;font-size:0.9rem;\\'>Gagal muat QR</div>'">
+                </div>
+                
+                <!-- DuitNow ID Display -->
+                <div style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.8rem;">DuitNow ID (Nombor Telefon)</p>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <span style="font-size: 1.3rem; font-weight: 600; color: #4ade80; font-family: monospace; letter-spacing: 1px;" id="duitnowIdDisplay">${DUITNOW_ID}</span>
+                        <button onclick="copyDuitNowId('${DUITNOW_ID}')" style="background: rgba(74,222,128,0.2); border: 1px solid rgba(74,222,128,0.4); border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; color: #4ade80; font-size: 0.75rem;">
+                            Salin
+                        </button>
+                    </div>
+                    <p style="margin: 0.5rem 0 0; color: var(--text-primary); font-size: 0.9rem;">${DUITNOW_NAME}</p>
+                </div>
+                
+                <!-- Amount Display -->
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.8rem;">Amaun Pembayaran</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #d4af37;">RM${amount}</p>
+                </div>
+                
+                <!-- Reference -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.75rem;">Rujukan Pembayaran</p>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <code style="font-size: 0.9rem; color: var(--text-primary);" id="paymentRefDisplay">${orderRef}</code>
+                        <button onclick="copyPaymentRef('${orderRef}')" style="background: rgba(255,255,255,0.1); border: none; border-radius: 4px; padding: 0.2rem 0.4rem; cursor: pointer; color: var(--text-secondary); font-size: 0.7rem;">
+                            Salin
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Instructions -->
+                <div style="text-align: left; background: rgba(212,175,55,0.1); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid rgba(212,175,55,0.2);">
+                    <p style="margin: 0 0 0.5rem; font-weight: 600; color: #d4af37; font-size: 0.85rem;">Cara Pembayaran:</p>
+                    <ol style="margin: 0; padding-left: 1.25rem; color: var(--text-secondary); font-size: 0.8rem; line-height: 1.6;">
+                        <li>Buka aplikasi bank/e-wallet anda</li>
+                        <li>Pilih DuitNow Transfer</li>
+                        <li>Masukkan nombor: <strong style="color: #4ade80;">${DUITNOW_ID}</strong></li>
+                        <li>Masukkan amaun: <strong style="color: #d4af37;">RM${amount}</strong></li>
+                        <li>Gunakan rujukan: <strong>${orderRef}</strong></li>
+                    </ol>
+                </div>
+                
+                <button onclick="submitDuitNowPayment('${orderRef}')" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #4ade80, #22c55e); border: none; border-radius: 12px; color: #000; font-weight: 600; cursor: pointer; font-size: 1rem; transition: transform 0.2s;">
+                    ✓ Saya Sudah Bayar
+                </button>
+                
+                <p style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-secondary);">
+                    Pengesahan pembayaran akan dilakukan dalam masa 1-24 jam
+                </p>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Copy DuitNow ID to clipboard
+function copyDuitNowId(id) {
+    navigator.clipboard.writeText(id).then(() => {
+        const btn = event.target;
+        btn.textContent = '✓ Disalin!';
+        btn.style.background = 'rgba(74,222,128,0.4)';
+        setTimeout(() => {
+            btn.textContent = 'Salin';
+            btn.style.background = 'rgba(74,222,128,0.2)';
+        }, 2000);
+    });
+}
+
+// Copy payment reference to clipboard
+function copyPaymentRef(ref) {
+    navigator.clipboard.writeText(ref).then(() => {
+        const btn = event.target;
+        btn.textContent = '✓';
+        setTimeout(() => {
+            btn.textContent = 'Salin';
+        }, 2000);
+    });
+}
+
+// Generate order reference
+function generateOrderReference() {
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `A2Z-${date}-${random}`;
+}
+
+// Submit DuitNow payment notification
+async function submitDuitNowPayment(orderRef) {
+    try {
+        const eventData = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
+
+        const response = await fetch('/api/payment/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                eventData,
+                packageId: selectedPackage,
+                paymentMethod: 'duitnow',
+                orderRef
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success || data.orderRef) {
+            closePaymentModal();
+            showPendingPaymentScreen(data.orderRef || orderRef);
+        } else {
+            alert(data.error || 'Gagal membuat pesanan pembayaran');
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Ralat berlaku. Sila cuba lagi.');
+    }
+}
+
+async function submitManualPayment() {
+    // Create payment order and notify admin
+    try {
+        const eventData = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
+
+        const response = await fetch('/api/payment/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                eventData,
+                packageId: selectedPackage,
+                paymentMethod: 'manual'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success || data.orderRef) {
+            closePaymentModal();
+            showPendingPaymentScreen(data.orderRef);
+        } else {
+            alert(data.error || 'Gagal membuat pesanan pembayaran');
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Ralat berlaku. Sila cuba lagi.');
+    }
+}
+
+function showPendingPaymentScreen(orderRef) {
+    document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+
+    const successEl = document.getElementById('stepSuccess');
+    successEl.innerHTML = `
+        <div class="publish-success">
+            <div class="success-icon" style="background: rgba(251,191,36,0.2); color: #fbbf24;">
+                <i data-lucide="clock"></i>
+            </div>
+            <h2>Menunggu Pengesahan Pembayaran</h2>
+            <p>Rujukan pesanan: <strong>${orderRef}</strong></p>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+                Jemputan anda akan aktif selepas pembayaran disahkan.<br>
+                Kami akan menghubungi anda melalui email.
+            </p>
+            <a href="/dashboard/" class="nav-btn primary" style="margin-top: 2rem; display: inline-flex; text-decoration: none;">
+                <i data-lucide="layout-dashboard"></i>
+                Ke Dashboard
+            </a>
+        </div>
+    `;
+    successEl.classList.add('active');
+    lucide.createIcons();
+}
+
+function checkPaymentStatus() {
+    // TODO: Poll payment status
+    submitManualPayment();
+}
+
+// Initialize package on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initPackageFromUrl();
+});
+
+// Generate default slug when entering Step 6
+const originalShowStep = showStep;
+showStep = function (step) {
+    originalShowStep(step);
+    if (step === 6) {
+        generateDefaultSlug();
+        updatePackageBanner();
+        updatePublishButtons();
+    }
+};

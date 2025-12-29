@@ -16,40 +16,41 @@ const CONFIG = {
 // =============================================
 let guests = [];
 let rsvpChart = null;
-let DASH = {}; // Will be populated after DOMContentLoaded
+
+// =============================================
+// DOM Elements
+// =============================================
+const DOM = {
+    // Stats
+    statEvents: document.getElementById('statEvents'),
+    statGuests: document.getElementById('statGuests'),
+    statConfirmed: document.getElementById('statConfirmed'),
+    statViews: document.getElementById('statViews'),
+    guestCount: document.getElementById('guestCount'),
+
+    // User
+    userName: document.getElementById('userName'),
+    userAvatar: document.getElementById('userAvatar'),
+
+    // Guest Table
+    guestTableBody: document.getElementById('guestTableBody'),
+    searchGuests: document.getElementById('searchGuests'),
+    filterStatus: document.getElementById('filterStatus'),
+    emptyState: document.getElementById('emptyState'),
+
+    // Sidebar
+    sidebar: document.getElementById('sidebar'),
+    sidebarOverlay: document.getElementById('sidebarOverlay'),
+    menuToggle: document.getElementById('menuToggle'),
+
+    // Event Selector
+    eventSelector: document.getElementById('eventSelector')
+};
 
 // =============================================
 // Initialization
 // =============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Capture DOM elements AFTER DOM is loaded
-    DASH = {
-        // Stats
-        statEvents: document.getElementById('statEvents'),
-        statGuests: document.getElementById('statGuests'),
-        statConfirmed: document.getElementById('statConfirmed'),
-        statViews: document.getElementById('statViews'),
-        guestCount: document.getElementById('guestCount'),
-
-        // User
-        userName: document.getElementById('userName'),
-        userAvatar: document.getElementById('userAvatar'),
-
-        // Guest Table
-        guestTableBody: document.getElementById('guestTableBody'),
-        searchGuests: document.getElementById('searchGuests'),
-        filterStatus: document.getElementById('filterStatus'),
-        emptyState: document.getElementById('emptyState'),
-
-        // Sidebar
-        sidebar: document.getElementById('sidebar'),
-        sidebarOverlay: document.getElementById('sidebarOverlay'),
-        menuToggle: document.getElementById('menuToggle'),
-
-        // Event Selector
-        eventSelector: document.getElementById('eventSelector')
-    };
-
     loadUserInfo();
     initSidebar();
     initFilters();
@@ -65,8 +66,8 @@ async function loadUserInfo() {
         const user = await window.A2ZAuth?.getCurrentUser();
         if (user) {
             const name = user.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-            DASH.userName.textContent = name;
-            DASH.userAvatar.textContent = getInitials(name);
+            DOM.userName.textContent = name;
+            DOM.userAvatar.textContent = getInitials(name);
         }
     } catch (e) {
         console.log('Could not load user info');
@@ -89,14 +90,14 @@ async function logout() {
 // Sidebar (Mobile)
 // =============================================
 function initSidebar() {
-    DASH.menuToggle?.addEventListener('click', () => {
-        DASH.sidebar?.classList.toggle('open');
-        DASH.sidebarOverlay?.classList.toggle('open');
+    DOM.menuToggle?.addEventListener('click', () => {
+        DOM.sidebar?.classList.toggle('open');
+        DOM.sidebarOverlay?.classList.toggle('open');
     });
 
-    DASH.sidebarOverlay?.addEventListener('click', () => {
-        DASH.sidebar?.classList.remove('open');
-        DASH.sidebarOverlay?.classList.remove('open');
+    DOM.sidebarOverlay?.addEventListener('click', () => {
+        DOM.sidebar?.classList.remove('open');
+        DOM.sidebarOverlay?.classList.remove('open');
     });
 }
 
@@ -109,16 +110,16 @@ async function loadDashboardData() {
         const statsResponse = await fetch(`${CONFIG.API_BASE}/checkin?event_id=${CONFIG.EVENT_ID}`);
         if (statsResponse.ok) {
             const data = await statsResponse.json();
-            DASH.statGuests.textContent = data.stats.totalGuests || 0;
-            DASH.statConfirmed.textContent = data.stats.checkedInGuests || 0;
-            DASH.guestCount.textContent = data.stats.totalGuests || 0;
+            DOM.statGuests.textContent = data.stats.totalGuests || 0;
+            DOM.statConfirmed.textContent = data.stats.checkedInGuests || 0;
+            DOM.guestCount.textContent = data.stats.totalGuests || 0;
         }
 
         // Load invitation view count
         const invResponse = await fetch(`${CONFIG.API_BASE}/invitation/aiman-rafhanah`);
         if (invResponse.ok) {
             const invData = await invResponse.json();
-            DASH.statViews.textContent = invData.invitation?.view_count || 0;
+            DOM.statViews.textContent = invData.invitation?.view_count || 0;
         }
 
         // Load guests
@@ -166,17 +167,17 @@ function getDemoGuests() {
 }
 
 function renderGuestTable(guestList) {
-    if (!DASH.guestTableBody) return;
+    if (!DOM.guestTableBody) return;
 
     if (guestList.length === 0) {
-        DASH.guestTableBody.innerHTML = '';
-        DASH.emptyState.style.display = 'block';
+        DOM.guestTableBody.innerHTML = '';
+        DOM.emptyState.style.display = 'block';
         return;
     }
 
-    DASH.emptyState.style.display = 'none';
+    DOM.emptyState.style.display = 'none';
 
-    DASH.guestTableBody.innerHTML = guestList.map(guest => `
+    DOM.guestTableBody.innerHTML = guestList.map(guest => `
         <tr>
             <td>
                 <div class="guest-name">${guest.name}</div>
@@ -212,13 +213,13 @@ function getStatusBadge(status) {
 // Filters
 // =============================================
 function initFilters() {
-    DASH.searchGuests?.addEventListener('input', filterGuests);
-    DASH.filterStatus?.addEventListener('change', filterGuests);
+    DOM.searchGuests?.addEventListener('input', filterGuests);
+    DOM.filterStatus?.addEventListener('change', filterGuests);
 }
 
 function filterGuests() {
-    const searchTerm = DASH.searchGuests?.value.toLowerCase() || '';
-    const statusFilter = DASH.filterStatus?.value || '';
+    const searchTerm = DOM.searchGuests?.value.toLowerCase() || '';
+    const statusFilter = DOM.filterStatus?.value || '';
 
     const filtered = guests.filter(guest => {
         const matchesSearch = guest.name.toLowerCase().includes(searchTerm) ||

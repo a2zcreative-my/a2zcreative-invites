@@ -13,18 +13,9 @@ const CONFIG = {
 };
 
 function getSlugFromUrl() {
-    // Check query parameter first (?slug=xxx)
-    const urlParams = new URLSearchParams(window.location.search);
-    const querySlug = urlParams.get('slug');
-    if (querySlug) return querySlug;
-
-    // Check pathname (/inv/xxx)
     const path = window.location.pathname;
-    const match = path.match(/\/inv\/([^\/\.]+)/);
-    if (match && match[1] !== 'index') return match[1];
-
-    // Default to demo data
-    return 'aiman-rafhanah';
+    const match = path.match(/\/inv\/([^\/]+)/);
+    return match ? match[1] : 'demo';
 }
 
 // =============================================

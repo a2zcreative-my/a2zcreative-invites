@@ -14,7 +14,7 @@ database_id = "51caac18-287a-4094-87da-51c56621755c"
 ENVIRONMENT = "development"
 
 # =============================================
-# REQUIRED SECRETS (set via `npx wrangler secret put <NAME>`)
+# REQUIRED SECRETS (set via `npx wrangler pages secret put <NAME>`)
 # =============================================
 # SUPABASE_URL = "https://your-project.supabase.co"
 # SUPABASE_ANON_KEY = "your-supabase-anon-key"
