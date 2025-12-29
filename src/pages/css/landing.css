@@ -522,9 +522,9 @@
 
 .pricing-grid-landing {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-6);
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -713,5 +713,21 @@
         align-items: flex-start;
         padding-top: 70px;
         /* Safe zone below navbar */
+    }
+}
+
+/* Tablet - 2x2 grid */
+@media (max-width: 1024px) {
+    .pricing-grid-landing {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 700px;
+    }
+}
+
+/* Mobile - single column */
+@media (max-width: 600px) {
+    .pricing-grid-landing {
+        grid-template-columns: 1fr;
+        max-width: 400px;
     }
 }
