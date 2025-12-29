@@ -1005,19 +1005,19 @@ async function publishEvent() {
         try {
             // Attempt 1: Clean Name
             const result = await tryCreate(finalSlug);
-            console.log('Event created:', result);
+            // console.log('Event created:', result);
             showPublishSuccess(result.slug || finalSlug);
 
         } catch (error) {
             if (error.status === 409) {
-                console.log('Slug taken, retrying with suffix...');
+                // console.log('Slug taken, retrying with suffix...');
                 // Attempt 2: With Suffix
                 const randomSuffix = Math.random().toString(36).substring(2, 4);
                 finalSlug = `${baseSlug}-ev${randomSuffix}`;
 
                 try {
                     const resultRetry = await tryCreate(finalSlug);
-                    console.log('Event created (retry):', resultRetry);
+                    // console.log('Event created (retry):', resultRetry);
                     showPublishSuccess(resultRetry.slug || finalSlug);
                 } catch (retryError) {
                     alert('Gagal menyimpan jemputan. URL telah digunakan sepenuhnya. Sila cuba lagi.');
@@ -1028,7 +1028,7 @@ async function publishEvent() {
         }
 
     } catch (error) {
-        console.error('Publish error:', error);
+        // console.error('Publish error:', error);
         if (error.message !== 'Unauthorized') {
             alert(error.message || 'Gagal menyimpan jemputan. Sila cuba lagi.');
         }

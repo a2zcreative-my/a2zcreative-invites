@@ -93,10 +93,11 @@ export async function onRequest(context) {
     }
     // Handle CORS preflight
     if (request.method === 'OPTIONS') {
+        const allowOrigin = getAllowedOrigin(request, env);
         return new Response(null, {
             status: 204,
             headers: {
-                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Origin': allowOrigin,
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
                 'Access-Control-Max-Age': '86400'
@@ -166,7 +167,7 @@ async function processRequest(context) {
         const newResponse = new Response(response.body, response);
 
         // Add security headers
-        newResponse.headers.set('Access-Control-Allow-Origin', '*');
+        newResponse.headers.set('Access-Control-Allow-Origin', getAllowedOrigin(request, env));
         newResponse.headers.set('X-Content-Type-Options', 'nosniff');
         newResponse.headers.set('X-Frame-Options', 'DENY');
         newResponse.headers.set('X-XSS-Protection', '1; mode=block');
@@ -237,11 +238,35 @@ function redirectToLogin(request) {
 }
 
 /**
- * Redirect to appropriate dashboard based on role
- */
+* Redirect to appropriate dashboard based on role
+*/
 function redirectToDashboard(user) {
     if (user.role === 'super_admin') {
         return Response.redirect('/admin/', 302);
     }
     return Response.redirect('/dashboard/', 302);
+}
+
+/**
+* Determine allowed CORS origin
+*/
+function getAllowedOrigin(request, env) {
+    const origin = request.headers.get('Origin');
+    const allowedDomains = [
+        'https://a2zcreative.my',
+        'https://www.a2zcreative.my'
+    ];
+
+    // Allow localhost in development
+    if (env.ENVIRONMENT === 'development' && origin && (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1'))) {
+        return origin;
+    }
+
+    // Check if origin is allowed
+    if (origin && allowedDomains.includes(origin)) {
+        return origin;
+    }
+
+    // Default to main domain if no origin or not allowed
+    return 'https://a2zcreative.my';
 }
