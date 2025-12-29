@@ -1,3 +1,10 @@
+import { verifyPassword, hashPassword, isHashedPassword } from '../../lib/password-utils.js';
+import { createSession, createSessionCookie } from '../../lib/session.js';
+
+/**
+ * Login API Handler
+ * Authenticates user and returns server-driven redirect
+ */
 export async function onRequestPost(context) {
     const { request, env } = context;
     const db = env.DB;
@@ -6,35 +13,114 @@ export async function onRequestPost(context) {
         const { email, password } = await request.json();
 
         if (!email || !password) {
-            return new Response(JSON.stringify({ error: "Missing credentials" }), { status: 400 });
+            return new Response(JSON.stringify({
+                success: false,
+                error: "Emel dan kata laluan diperlukan"
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         // Query user from D1
-        // Note: hashing is recommended in production, but for this specific request 
-        // we are matching the plain text stored in seed.sql
-        const user = await db.prepare("SELECT * FROM users WHERE email = ?").bind(email).first();
+        const user = await db.prepare(
+            "SELECT id, name, email, password_hash, role FROM users WHERE email = ?"
+        ).bind(email).first();
 
         if (!user) {
-            return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
+            return new Response(JSON.stringify({
+                success: false,
+                error: "Emel atau kata laluan tidak sah"
+            }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
-        // Check password (simple comparison for now as requested)
-        // In prod: await bcrypt.compare(password, user.password_hash)
-        if (user.password_hash !== password) {
-            return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
+        // Verify password using secure comparison
+        const passwordValid = await verifyPassword(password, user.password_hash);
+
+        if (!passwordValid) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: "Emel atau kata laluan tidak sah"
+            }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
-        // Success - return user info (excluding password)
-        const { password_hash, ...safeUser } = user;
+        // If password was plaintext, upgrade to hashed (migration)
+        if (!isHashedPassword(user.password_hash)) {
+            const newHash = await hashPassword(password);
+            await db.prepare(
+                "UPDATE users SET password_hash = ? WHERE id = ?"
+            ).bind(newHash, user.id).run();
+        }
 
+        // Create session
+        const session = await createSession(db, user.id);
+
+        // Determine redirect based on role and subscription status
+        let redirect = '/dashboard/';
+
+        if (user.role === 'super_admin') {
+            redirect = '/admin/';
+        } else if (user.role === 'admin' || user.role === 'event_admin') {
+            // Both 'admin' and legacy 'event_admin' are treated as paid clients
+            // Check if user has an active subscription/payment
+            const activeSubscription = await db.prepare(`
+                SELECT ea.* FROM event_access ea
+                JOIN events e ON ea.event_id = e.id
+                WHERE e.created_by = ? 
+                AND ea.paid_at IS NOT NULL 
+                AND (ea.expires_at IS NULL OR ea.expires_at > CURRENT_TIMESTAMP)
+                LIMIT 1
+            `).bind(user.id).first();
+
+            if (!activeSubscription) {
+                // Check if user has any events at all
+                const hasEvents = await db.prepare(
+                    "SELECT id FROM events WHERE created_by = ? LIMIT 1"
+                ).bind(user.id).first();
+
+                if (!hasEvents) {
+                    // New user with no events - go to pricing
+                    redirect = '/pricing/';
+                }
+            }
+        }
+
+        // Prepare safe user object (never include password)
+        const safeUser = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        };
+
+        // Return success with session cookie
         return new Response(JSON.stringify({
-            user: safeUser,
-            token: "d1_session_" + Date.now() // Mock token for client-side storage
+            success: true,
+            redirect: redirect,
+            role: user.role,
+            user: safeUser
         }), {
-            headers: { "Content-Type": "application/json" }
+            status: 200,
+            headers: {
+                'Content-Type': 'application/json',
+                'Set-Cookie': createSessionCookie(session.token, session.expiresAt)
+            }
         });
 
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+        console.error('Login error:', error);
+        return new Response(JSON.stringify({
+            success: false,
+            error: "Ralat pelayan. Sila cuba lagi."
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
 }

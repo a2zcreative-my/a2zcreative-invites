@@ -1,26 +1,24 @@
 /**
  * A2Z Creative - Authentication
- * Supabase Auth integration for login, register, and session management
+ * Secure authentication with session cookies and server-driven redirects
  */
 
 // =============================================
-// Supabase Configuration
+// Supabase Configuration (Optional - for Google OAuth)
 // =============================================
-// These will be replaced with actual values from env vars
 const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
 
-// Initialize Supabase client
 let supabase;
 
 try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabase = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 } catch (e) {
-    console.warn('Supabase not configured. Auth will be simulated.');
+    console.warn('Supabase not configured. Google OAuth will be unavailable.');
 }
 
 // =============================================
-// DOM Elements (populated after DOMContentLoaded)
+// DOM Elements
 // =============================================
 let DOM = {};
 
@@ -28,7 +26,6 @@ let DOM = {};
 // Initialization
 // =============================================
 function initAuth() {
-    // Get DOM elements after page is loaded
     DOM = {
         loginForm: document.getElementById('loginForm'),
         registerForm: document.getElementById('registerForm'),
@@ -46,11 +43,9 @@ function initAuth() {
     checkSession();
 }
 
-// Handle both scenarios: script loads before OR after DOMContentLoaded
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAuth);
 } else {
-    // DOM is already ready (interactive or complete)
     initAuth();
 }
 
@@ -58,114 +53,75 @@ if (document.readyState === 'loading') {
 // Session Check
 // =============================================
 async function checkSession() {
-    if (!supabase) return;
-
     try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Check server session via API
+        const response = await fetch('/api/auth/session', {
+            credentials: 'include'
+        });
 
-        if (session) {
-            // Already logged in, redirect to dashboard
-            window.location.href = '/create/';
+        if (response.ok) {
+            const data = await response.json();
+            if (data.authenticated && data.redirect) {
+                window.location.href = data.redirect;
+            }
         }
     } catch (error) {
-        console.error('Session check error:', error);
+        console.log('Session check:', error.message);
     }
 }
 
 // =============================================
 // Password Toggle
 // =============================================
-// =============================================
-// Password Toggle (Global Function for Inline Click)
-// =============================================
 function togglePasswordVisibility(buttonElement) {
     if (!buttonElement) return;
 
-    // Find the input relative to the button (sibling)
     const wrapper = buttonElement.closest('.password-wrapper');
-    const input = wrapper.querySelector('input');
+    const input = wrapper?.querySelector('input');
 
     if (!input) return;
 
-    // Toggle type
     const isCurrentlyPassword = input.type === 'password';
     input.type = isCurrentlyPassword ? 'text' : 'password';
 
-    // Direct SVG Icons (Reliable)
     const eyeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
 
     const eyeOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-off"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>`;
 
-    // Logic:
-    // If it *was* password, we made it text. Now we want to show "Hide" icon (Eye Off).
-    // If it *was* text, we made it password. Now we want to show "Show" icon (Eye).
-
-    // Note: The variable isCurrentlyPassword captures the state BEFORE the toggle.
-    // So if isCurrentlyPassword is true (it was dots), we successfully changed it to text.
-    // Therefore we should show the "Hide" icon.
-
-    // HOWEVER, the user might be confused. Let's try to be extremely explicit.
-
-    // Previous Code: buttonElement.innerHTML = isCurrentlyPassword ? eyeOffIcon : eyeIcon;
-    // If isCurrentlyPassword (true) -> eyeOffIcon (Slash).
-    // This is correct standard behavior (Show -> Click -> Text shows -> Icon becomes Cross).
-
-    // If the user says "it is not function" and shows dots + eye icon...
-    // That means `input.type` is still `password`.
-    // Why? Maybe the button inside the form is triggering a submit or refresh?
-    // I added type="button".
-
-    // Let's add console logs to debug in production console if needed
-    console.log("Toggling password. Old type:", isCurrentlyPassword ? 'password' : 'text');
-
     buttonElement.innerHTML = isCurrentlyPassword ? eyeOffIcon : eyeIcon;
 }
 
-// Ensure it's globally available
 window.togglePasswordVisibility = togglePasswordVisibility;
 
 function initPasswordToggle() {
-    // Legacy support or fallback if needed, but primary is now inline
-    // Keeping this empty or removing it from init flow
+    // Handled by inline onclick
 }
 
 // =============================================
 // Google Login
 // =============================================
 function initGoogleLogin() {
-    console.log('initGoogleLogin called');
-    console.log('googleLogin element:', DOM.googleLogin);
-
-    if (!DOM.googleLogin) {
-        console.error('Google login button not found!');
-        return;
-    }
+    if (!DOM.googleLogin) return;
 
     DOM.googleLogin.addEventListener('click', async (e) => {
-        console.log('Google button clicked!');
         e.preventDefault();
 
+        if (!supabase) {
+            showError('Google Login memerlukan konfigurasi Supabase.');
+            return;
+        }
+
         try {
-            if (!supabase) {
-                console.error('Supabase not initialized');
-                showError('Google Login requires Supabase configuration.');
-                return;
-            }
-
-            console.log('Opening Google OAuth popup...');
-
-            // Use skipBrowserRedirect to open in popup instead of redirecting
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: window.location.origin + '/create/',
+                    redirectTo: window.location.origin + '/dashboard/',
                     skipBrowserRedirect: true
                 }
             });
 
             if (error) throw error;
 
-            // Open the OAuth URL in a popup window
             if (data?.url) {
                 const width = 500;
                 const height = 600;
@@ -178,19 +134,10 @@ function initGoogleLogin() {
                     `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
                 );
 
-                console.log('Popup opened, waiting for authentication...');
-
-                // Listen for auth state changes
-                const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-                    console.log('Auth state changed:', event);
+                supabase.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' && session) {
-                        console.log('User signed in successfully!');
-                        // Close popup if still open
-                        if (popup && !popup.closed) {
-                            popup.close();
-                        }
-                        // Redirect to dashboard
-                        window.location.href = '/create/';
+                        if (popup && !popup.closed) popup.close();
+                        window.location.href = '/dashboard/';
                     }
                 });
             }
@@ -199,12 +146,10 @@ function initGoogleLogin() {
             showError('Gagal menyambung ke Google. Sila cuba sebentar lagi.');
         }
     });
-
-    console.log('Google login event listener attached');
 }
 
 // =============================================
-// Login Form
+// Login Form - Server-Driven Redirect
 // =============================================
 function initLoginForm() {
     DOM.loginForm?.addEventListener('submit', async (e) => {
@@ -213,72 +158,43 @@ function initLoginForm() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        setLoading(true);
-        hideError();
-
-        // D1 Auth Check (Priority)
-        let d1Success = false;
-        try {
-            console.log("Attempting D1 Auth...");
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('demo_user', JSON.stringify(data.user)); // Store user info
-
-                if (data.user.role === 'super_admin') {
-                    window.location.href = '/admin/';
-                } else {
-                    window.location.href = '/create/';
-                }
-                d1Success = true; // Mark D1 as successful
-                return;
-            } else {
-                console.warn("D1 Auth rejected:", response.status, response.statusText);
-            }
-        } catch (err) {
-            console.error("D1 Auth error, falling back:", err);
-        }
-
-        // FAILSAFE: If D1 failed, check hardcoded admin credentials
-        // This ensures the user can get in if D1 is misbehaving
-        if (!d1Success && email === 'admin@a2zcreative.my' && password === 'Admin@2025') {
-            console.log("Failsafe Admin Login triggered");
-            localStorage.setItem('demo_user', JSON.stringify({
-                email,
-                name: 'Super Admin',
-                role: 'super_admin'
-            }));
-
-            window.location.href = '/admin/';
+        if (!email || !password) {
+            showError('Sila masukkan emel dan kata laluan.');
             return;
         }
 
-        try {
-            if (!supabase) {
-                // Simulate login for demo
-                await simulateDelay(1000);
-                localStorage.setItem('demo_user', JSON.stringify({ email, name: 'Demo User' }));
-                window.location.href = '/create/';
-                return;
-            }
+        setLoading(true);
+        hideError();
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Important for cookies
+                body: JSON.stringify({ email, password })
             });
 
-            if (error) throw error;
+            const data = await response.json();
 
-            // Redirect to dashboard
-            window.location.href = '/create/';
+            if (response.ok && data.success) {
+                // Store minimal user info for UI display only
+                // Session cookie handles actual auth
+                if (data.user) {
+                    localStorage.setItem('a2z_user', JSON.stringify({
+                        name: data.user.name,
+                        email: data.user.email,
+                        role: data.user.role
+                    }));
+                }
 
+                // Use server-provided redirect
+                window.location.href = data.redirect || '/dashboard/';
+            } else {
+                showError(data.error || 'Log masuk gagal. Sila cuba lagi.');
+            }
         } catch (error) {
-            showError(error.message || 'Log masuk gagal. Sila cuba lagi.');
+            console.error('Login error:', error);
+            showError('Ralat rangkaian. Sila semak sambungan internet anda.');
         } finally {
             setLoading(false);
         }
@@ -296,19 +212,17 @@ function initRegisterForm() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-        const terms = document.getElementById('terms').checked;
+        const terms = document.getElementById('terms')?.checked;
 
         setLoading(true);
         hideError();
 
-        // Validate passwords match
         if (password !== confirmPassword) {
             showError('Kata laluan tidak sepadan.');
             setLoading(false);
             return;
         }
 
-        // Validate terms
         if (!terms) {
             showError('Sila bersetuju dengan Terma Perkhidmatan.');
             setLoading(false);
@@ -316,36 +230,27 @@ function initRegisterForm() {
         }
 
         try {
-            if (!supabase) {
-                // Simulate registration for demo
-                await simulateDelay(1000);
-                localStorage.setItem('demo_user', JSON.stringify({ email, name }));
-                window.location.href = '/create/';
-                return;
-            }
-
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: {
-                        name
-                    }
-                }
+            // Register via D1 API
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ name, email, password })
             });
 
-            if (error) throw error;
+            const data = await response.json();
 
-            // Show success message
-            showError('Akaun berjaya didaftar! Sila semak emel untuk pengesahan.');
-
-            // Redirect after delay
-            setTimeout(() => {
-                window.location.href = '/auth/login.html';
-            }, 2000);
-
+            if (response.ok && data.success) {
+                showError('Akaun berjaya didaftar! Mengalihkan...');
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/auth/login.html';
+                }, 1500);
+            } else {
+                showError(data.error || 'Pendaftaran gagal. Sila cuba lagi.');
+            }
         } catch (error) {
-            showError(error.message || 'Pendaftaran gagal. Sila cuba lagi.');
+            console.error('Register error:', error);
+            showError('Ralat rangkaian. Sila semak sambungan internet anda.');
         } finally {
             setLoading(false);
         }
@@ -353,41 +258,70 @@ function initRegisterForm() {
 }
 
 // =============================================
-// Logout Function (can be called from other pages)
+// Logout Function
 // =============================================
 async function logout() {
     try {
+        // Clear server session
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        // Clear Supabase session if exists
         if (supabase) {
             await supabase.auth.signOut();
         }
-        localStorage.removeItem('demo_user'); // Crucial for clearing Admin override
+
+        // Clear local storage
+        localStorage.removeItem('a2z_user');
+        localStorage.removeItem('demo_user'); // Legacy cleanup
+
         window.location.href = '/auth/login.html';
     } catch (error) {
         console.error('Logout error:', error);
         // Force redirect even on error
+        localStorage.removeItem('a2z_user');
         localStorage.removeItem('demo_user');
         window.location.href = '/auth/login.html';
     }
 }
 
 // =============================================
-// Get Current User (can be called from other pages)
+// Get Current User
 // =============================================
 async function getCurrentUser() {
-    // Check local storage first (Priority for Super Admin bypass)
-    const localUser = localStorage.getItem('demo_user');
+    // Check local storage first (for UI display)
+    const localUser = localStorage.getItem('a2z_user');
     if (localUser) {
-        return JSON.parse(localUser);
+        try {
+            return JSON.parse(localUser);
+        } catch (e) {
+            localStorage.removeItem('a2z_user');
+        }
     }
 
-    try {
-        if (!supabase) return null;
-        const { data: { user } } = await supabase.auth.getUser();
-        return user;
-    } catch (error) {
-        console.error('Get user error:', error);
-        return null;
+    // Legacy support
+    const legacyUser = localStorage.getItem('demo_user');
+    if (legacyUser) {
+        try {
+            return JSON.parse(legacyUser);
+        } catch (e) {
+            localStorage.removeItem('demo_user');
+        }
     }
+
+    // Check Supabase session
+    if (supabase) {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            return user;
+        } catch (error) {
+            console.error('Get user error:', error);
+        }
+    }
+
+    return null;
 }
 
 // =============================================
@@ -418,11 +352,9 @@ function setLoading(loading) {
     }
 }
 
-function simulateDelay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
+// =============================================
 // Export for use in other scripts
+// =============================================
 window.A2ZAuth = {
     logout,
     getCurrentUser,

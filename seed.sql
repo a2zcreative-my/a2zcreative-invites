@@ -3,12 +3,15 @@
 -- =============================================
 
 -- Create a demo user
+-- NOTE: Password 'Admin@2025' will be auto-hashed on first login
 INSERT OR IGNORE INTO users (id, name, email, password_hash, role) VALUES 
-    (1, 'Demo Admin', 'demo@a2zcreative.my', NULL, 'event_admin'),
+    (1, 'Demo Admin', 'demo@a2zcreative.my', NULL, 'admin'),
     (999, 'Super Admin', 'admin@a2zcreative.my', 'Admin@2025', 'super_admin');
 
 -- Force update to ensure password is set (in case row existed)
+-- Password will be automatically hashed on first successful login
 UPDATE users SET password_hash = 'Admin@2025' WHERE email = 'admin@a2zcreative.my';
+
 
 -- Create a demo event (Wedding)
 INSERT OR IGNORE INTO events (

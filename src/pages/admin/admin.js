@@ -8,9 +8,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Update user info in sidebar
-    document.getElementById('userName').textContent = user.email?.split('@')[0] || 'Super Admin';
-    document.getElementById('userAvatar').textContent = (user.email?.[0] || 'S').toUpperCase();
+    // Update user info in sidebar - display name properly
+    const displayName = user.name || user.email?.split('@')[0] || 'Super Admin';
+    document.getElementById('userName').textContent = displayName;
+    document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
 
     // Show login time
     const loginTime = new Date().toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });

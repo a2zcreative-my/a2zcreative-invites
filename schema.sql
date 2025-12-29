@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT,
-    role TEXT DEFAULT 'event_admin' CHECK(role IN ('super_admin', 'event_admin')),
+    role TEXT DEFAULT 'admin' CHECK(role IN ('super_admin', 'admin')),
     company_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -275,3 +275,18 @@ CREATE INDEX IF NOT EXISTS idx_guests_event ON guests(event_id);
 CREATE INDEX IF NOT EXISTS idx_invitations_slug ON invitations(public_slug);
 CREATE INDEX IF NOT EXISTS idx_rsvps_event ON rsvps(event_id);
 CREATE INDEX IF NOT EXISTS idx_messages_event ON guest_messages(event_id);
+
+-- =============================================
+-- Sessions table for server-side auth
+-- =============================================
+CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);

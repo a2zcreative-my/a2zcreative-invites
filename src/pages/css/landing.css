@@ -731,3 +731,30 @@
         max-width: 400px;
     }
 }
+
+/* Mobile - Event Types Grid (Jenis Majlis) */
+@media (max-width: 480px) {
+    .event-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-4);
+    }
+
+    .event-card {
+        padding: var(--space-4);
+        min-height: 120px;
+        /* Touch-friendly */
+    }
+
+    .event-icon {
+        font-size: 2rem;
+        margin-bottom: var(--space-2);
+    }
+
+    .event-name {
+        font-size: var(--text-base);
+    }
+
+    .event-desc {
+        font-size: var(--text-xs);
+    }
+}

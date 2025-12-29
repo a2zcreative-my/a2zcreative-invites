@@ -307,6 +307,10 @@
 .payment-methods {
     margin-top: 3rem;
     text-align: center;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1rem;
 }
 
 .payment-methods h3 {
@@ -317,15 +321,18 @@
 }
 
 .payment-icons {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     justify-content: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .payment-icon {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
     background: rgba(255, 255, 255, 0.03);
