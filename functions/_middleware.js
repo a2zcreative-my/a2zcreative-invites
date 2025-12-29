@@ -34,6 +34,7 @@ const PUBLIC_ROUTES = [
     '/api/auth/logout',
     '/api/auth/register',
     '/api/auth/session',
+    '/api/auth/oauth-callback',
     '/api/rsvp',
     '/api/messages/',
     '/api/invitation/',

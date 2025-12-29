@@ -125,11 +125,41 @@ export async function isAdmin(db, userId) {
 
 /**
  * Authentication middleware helper - returns error response or null
+ * Supports both D1 session cookies (new) and Supabase JWT (legacy)
  * @param {Request} request - Incoming request
  * @param {D1Database} db - D1 database
  * @returns {Object} { user, userId, errorResponse }
  */
 export async function requireAuth(request, db) {
+    // First, try D1 session cookie (new auth system)
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const cookies = parseCookies(cookieHeader);
+    const sessionToken = cookies['a2z_session'];
+
+    if (sessionToken) {
+        // Import validateSession from session.js to avoid circular deps
+        const sessionResult = await db.prepare(`
+            SELECT s.*, u.id as user_id, u.name, u.email, u.role
+            FROM sessions s
+            JOIN users u ON s.user_id = u.id
+            WHERE s.token = ? AND s.expires_at > CURRENT_TIMESTAMP
+        `).bind(sessionToken).first();
+
+        if (sessionResult) {
+            return {
+                user: {
+                    id: sessionResult.user_id,
+                    name: sessionResult.name,
+                    email: sessionResult.email,
+                    role: sessionResult.role
+                },
+                userId: sessionResult.user_id,
+                errorResponse: null
+            };
+        }
+    }
+
+    // Fall back to Supabase JWT (legacy auth)
     const authUser = await getAuthUser(request);
 
     if (!authUser) {
@@ -148,6 +178,25 @@ export async function requireAuth(request, db) {
 
     const userId = await syncUserToD1(db, authUser);
     return { user: authUser, userId, errorResponse: null };
+}
+
+/**
+ * Parse cookies from Cookie header
+ * @param {string} cookieHeader - Cookie header string
+ * @returns {object} Parsed cookies
+ */
+function parseCookies(cookieHeader) {
+    const cookies = {};
+    if (!cookieHeader) return cookies;
+
+    cookieHeader.split(';').forEach(cookie => {
+        const [name, ...rest] = cookie.split('=');
+        if (name && rest.length) {
+            cookies[name.trim()] = rest.join('=').trim();
+        }
+    });
+
+    return cookies;
 }
 
 /**
