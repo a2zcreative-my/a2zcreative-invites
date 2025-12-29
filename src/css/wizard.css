@@ -9,6 +9,11 @@
     color: #ffffff;
 }
 
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
 /* Header */
 .wizard-header {
     display: flex;
@@ -182,6 +187,7 @@
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0 0 0.5rem 0;
+    color: #d4af37;
 }
 
 .section-desc {
@@ -205,6 +211,10 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .event-type-card:hover {
@@ -245,7 +255,12 @@
     gap: 1rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+    .event-type-card {
+        flex-direction: column !important;
+        padding: 1rem;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
     }
@@ -685,34 +700,4 @@
 
 .share-btn.email {
     background: #8892b0;
-}
-
-/* Mobile progress steps */
-@media (max-width: 600px) {
-    .progress-steps {
-        gap: 0.25rem;
-    }
-
-    .step-number {
-        width: 32px;
-        height: 32px;
-        font-size: 0.75rem;
-    }
-
-    .step-label {
-        font-size: 0.625rem;
-        max-width: 50px;
-    }
-
-    .progress-steps::before {
-        top: 16px;
-        left: 20px;
-        right: 20px;
-    }
-}
-
-@media (max-width: 400px) {
-    .step-label {
-        display: none;
-    }
 }
