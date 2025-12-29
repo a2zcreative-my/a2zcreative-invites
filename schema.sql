@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT,
-    role TEXT DEFAULT 'admin' CHECK(role IN ('super_admin', 'admin')),
+    role TEXT DEFAULT NULL CHECK(role IS NULL OR role IN ('super_admin', 'admin', 'event_admin')),
     company_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

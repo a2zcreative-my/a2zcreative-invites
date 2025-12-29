@@ -61,14 +61,14 @@ export async function onRequestPost(context) {
 
         if (!user) {
             // Create new user in D1 from OAuth data
-            // Note: Only using columns that exist in schema
+            // Role is NULL until they pay for a package
             const name = supabaseUser.user_metadata?.full_name ||
                 supabaseUser.user_metadata?.name ||
                 supabaseUser.email.split('@')[0];
 
             await db.prepare(`
                 INSERT INTO users (email, name, password_hash, role, created_at)
-                VALUES (?, ?, NULL, 'admin', CURRENT_TIMESTAMP)
+                VALUES (?, ?, NULL, NULL, CURRENT_TIMESTAMP)
             `).bind(
                 supabaseUser.email,
                 name
