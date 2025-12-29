@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memproses Log Masuk... | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/auth.css?v=2">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .callback-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .callback-logo {
+            margin-bottom: 2rem;
+        }
+
+        .callback-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(212, 175, 55, 0.2);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .callback-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .callback-message {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+        }
+
+        .callback-error {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: #f87171;
+            display: none;
+        }
+
+        .callback-error.visible {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="auth-page">
+    <div class="callback-container">
+        <!-- Logo -->
+        <div class="callback-logo">
+            <a href="/"><img src="/logo.png" alt="A2Z Creative" height="48"></a>
+        </div>
+
+        <!-- Card -->
+        <div class="callback-card">
+            <div class="spinner" id="spinner"></div>
+            <h2 class="callback-title">Memproses Log Masuk</h2>
+            <p class="callback-message" id="statusMessage">Sila tunggu sebentar...</p>
+            <div class="callback-error" id="errorMessage"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/auth.js?v=101"></script>
+    <script>
+        // Handle OAuth callback on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusMessage = document.getElementById('statusMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const spinner = document.getElementById('spinner');
+
+            try {
+                // Wait a moment for Supabase to process the hash
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                statusMessage.textContent = 'Menyegerakkan akaun...';
+
+                // Call the callback handler from auth.js
+                const redirect = await window.handleOAuthCallback();
+
+                if (redirect) {
+                    statusMessage.textContent = 'Berjaya! Mengalihkan...';
+                    setTimeout(() => {
+                        window.location.href = redirect;
+                    }, 500);
+                } else {
+                    throw new Error('Gagal menyegerakkan akaun');
+                }
+            } catch (error) {
+                console.error('Callback error:', error);
+                spinner.style.display = 'none';
+                statusMessage.textContent = 'Ralat berlaku';
+                errorMessage.textContent = error.message || 'Sila cuba log masuk semula.';
+                errorMessage.classList.add('visible');
+
+                // Redirect back to login after a delay
+                setTimeout(() => {
+                    window.location.href = '/auth/login.html';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+
+</html>

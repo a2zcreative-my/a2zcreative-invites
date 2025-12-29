@@ -102,7 +102,7 @@
     }
 
     // =============================================
-    // Google Login
+    // Google Login - Redirect Flow (more reliable than popup)
     // =============================================
     function initGoogleLogin() {
         if (!DOM.googleLogin) return;
@@ -116,72 +116,71 @@
             }
 
             try {
+                // Use redirect flow instead of popup (more reliable, no COOP issues)
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: window.location.origin + '/auth/login.html',
-                        skipBrowserRedirect: true
+                        redirectTo: window.location.origin + '/auth/callback.html'
                     }
                 });
 
                 if (error) throw error;
+                // Browser will redirect to Google, then back to /auth/callback.html
 
-                if (data?.url) {
-                    const width = 500;
-                    const height = 600;
-                    const left = window.screenX + (window.outerWidth - width) / 2;
-                    const top = window.screenY + (window.outerHeight - height) / 2;
-
-                    const popup = window.open(
-                        data.url,
-                        'google-login',
-                        `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
-                    );
-
-                    // Listen for auth state change
-                    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                        if (event === 'SIGNED_IN' && session) {
-                            if (popup && !popup.closed) popup.close();
-
-                            // Sync to D1 and create session cookie
-                            try {
-                                const syncResponse = await fetch('/api/auth/oauth-callback', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    credentials: 'include',
-                                    body: JSON.stringify({ access_token: session.access_token })
-                                });
-
-                                const syncData = await syncResponse.json();
-
-                                if (syncResponse.ok && syncData.success) {
-                                    // Store user info for UI display
-                                    localStorage.setItem('a2z_user', JSON.stringify({
-                                        name: syncData.user.name,
-                                        email: syncData.user.email,
-                                        role: syncData.user.role,
-                                        avatar_url: syncData.user.avatar_url
-                                    }));
-
-                                    // Use server-provided redirect
-                                    window.location.href = syncData.redirect || '/dashboard/';
-                                } else {
-                                    console.error('D1 sync failed:', syncData.error);
-                                    showError('Gagal menyegerakkan akaun. Sila cuba lagi.');
-                                }
-                            } catch (syncError) {
-                                console.error('Sync error:', syncError);
-                                showError('Ralat rangkaian semasa menyegerakkan akaun.');
-                            }
-                        }
-                    });
-                }
             } catch (error) {
                 console.error('Google login error:', error);
                 showError('Gagal menyambung ke Google. Sila cuba sebentar lagi.');
             }
         });
     }
+
+    // =============================================
+    // Handle OAuth Callback (called from callback page)
+    // =============================================
+    async function handleOAuthCallback() {
+        if (!supabaseClient) return null;
+
+        try {
+            // Get session from URL hash (Supabase puts tokens there after OAuth)
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+            if (error) throw error;
+
+            if (session?.access_token) {
+                // Sync to D1 and create session cookie
+                const syncResponse = await fetch('/api/auth/oauth-callback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ access_token: session.access_token })
+                });
+
+                const syncData = await syncResponse.json();
+
+                if (syncResponse.ok && syncData.success) {
+                    // Store user info for UI display
+                    localStorage.setItem('a2z_user', JSON.stringify({
+                        name: syncData.user.name,
+                        email: syncData.user.email,
+                        role: syncData.user.role,
+                        avatar_url: syncData.user.avatar_url
+                    }));
+
+                    return syncData.redirect || '/pricing/';
+                } else {
+                    console.error('D1 sync failed:', syncData.error);
+                    return null;
+                }
+            }
+        } catch (error) {
+            console.error('OAuth callback error:', error);
+        }
+
+        return null;
+    }
+
+    // Export callback handler
+    window.handleOAuthCallback = handleOAuthCallback;
 
     // =============================================
     // Login Form - Server-Driven Redirect
