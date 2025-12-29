@@ -44,9 +44,10 @@
                         <i data-lucide="layout-dashboard"></i>
                         Dashboard
                     </a>
-                    <a href="/create/" class="nav-item">
-                        <i data-lucide="plus-circle"></i>
-                        Cipta Jemputan
+                    <a href="/pricing/" class="nav-item buy-package-btn"
+                        style="background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.1)); border: 1px solid rgba(212,175,55,0.3); color: #d4af37;">
+                        <i data-lucide="shopping-cart"></i>
+                        Beli Pakej Baru
                     </a>
                 </div>
 
@@ -176,6 +177,41 @@
                         </div>
                         <div class="action-label">Eksport Data</div>
                     </a>
+                </div>
+
+                <!-- Active Projects Section -->
+                <div class="section-card" id="projectsSection">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i data-lucide="folder"></i>
+                            Projek Aktif
+                        </h2>
+                        <a href="/pricing/" class="section-btn"
+                            style="background: linear-gradient(135deg, #d4af37, #c49b2c); color: #000; border: none;">
+                            <i data-lucide="plus"></i>
+                            Tambah Projek
+                        </a>
+                    </div>
+
+                    <div class="projects-grid" id="projectsGrid">
+                        <!-- Projects will be loaded dynamically -->
+                        <div class="empty-state" id="emptyProjects">
+                            <div style="text-align: center; padding: 3rem;">
+                                <div
+                                    style="width: 64px; height: 64px; margin: 0 auto 1rem; background: rgba(212,175,55,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i data-lucide="folder-plus" style="width: 32px; height: 32px; color: #d4af37;"></i>
+                                </div>
+                                <h3 style="margin: 0 0 0.5rem; color: var(--text-primary);">Tiada Projek Lagi</h3>
+                                <p style="margin: 0 0 1.5rem; color: var(--text-secondary);">Cipta jemputan digital
+                                    pertama anda!</p>
+                                <a href="/pricing/" class="action-btn"
+                                    style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #d4af37, #c49b2c); border-radius: 8px; color: #000; font-weight: 600; text-decoration: none;">
+                                    <i data-lucide="shopping-cart" style="width: 18px; height: 18px;"></i>
+                                    Pilih Pakej
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Guest List Section -->
