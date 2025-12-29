@@ -44,6 +44,55 @@ export async function onRequestPost(context) {
         // Sync user to D1 and get their ID
         const userId = await syncUserToD1(env.DB, authUser);
 
+        // ===== PACKAGE ACCESS CONTROL =====
+        // Get user's subscription info
+        const user = await env.DB.prepare(`
+            SELECT active_package_id, events_remaining 
+            FROM users WHERE id = ?
+        `).bind(userId).first();
+
+        const packageId = user?.active_package_id || 'free';
+        const eventsRemaining = user?.events_remaining ?? 1;
+
+        // Package to allowed event types mapping
+        const PACKAGE_EVENT_TYPES = {
+            'free': [1],           // Wedding only
+            'basic': [1, 3, 4],    // Wedding, Family, Birthday
+            'premium': [1, 3, 4],  // Wedding, Family, Birthday
+            'business': [2, 5]     // Corporate, Community
+        };
+
+        const eventTypeId = parseInt(data.eventType) || 1;
+        const allowedTypes = PACKAGE_EVENT_TYPES[packageId] || [1];
+
+        // Check if event type is allowed for this package
+        if (!allowedTypes.includes(eventTypeId)) {
+            return new Response(JSON.stringify({
+                error: 'Package restriction',
+                message: 'Sila naik taraf pakej anda untuk mencipta jenis majlis ini.',
+                upgrade_required: true,
+                current_package: packageId,
+                required_package: eventTypeId === 2 || eventTypeId === 5 ? 'business' : 'premium'
+            }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Check if user has events remaining
+        if (eventsRemaining <= 0) {
+            return new Response(JSON.stringify({
+                error: 'Limit exceeded',
+                message: 'Anda telah mencapai had jemputan. Sila naik taraf pakej.',
+                upgrade_required: true,
+                current_package: packageId
+            }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        // ===== END ACCESS CONTROL =====
+
         // Create event
         const eventResult = await env.DB.prepare(`
             INSERT INTO events (
@@ -113,6 +162,12 @@ export async function onRequestPost(context) {
                 `).bind(eventId, contact.role, contact.name, contact.phone, whatsapp).run();
             }
         }
+
+        // Decrement user's events_remaining
+        await env.DB.prepare(`
+            UPDATE users SET events_remaining = events_remaining - 1 
+            WHERE id = ? AND events_remaining > 0
+        `).bind(userId).run();
 
         return new Response(JSON.stringify({
             success: true,

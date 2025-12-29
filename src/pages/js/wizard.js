@@ -373,43 +373,87 @@ function sendPreviewData() {
 // =============================================
 // Event Type Selection & Filtering
 // =============================================
-function filterEventTypesByPackage() {
+
+// Store user subscription globally
+let userSubscription = null;
+
+async function filterEventTypesByPackage() {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedPackage = urlParams.get('package')?.toLowerCase();
 
-    if (!selectedPackage) return;
+    // Fetch user subscription from API if authenticated
+    try {
+        const response = await fetch('/api/user/subscription');
+        if (response.ok) {
+            userSubscription = await response.json();
+        }
+    } catch (e) {
+        console.log('Could not fetch subscription, using defaults');
+    }
 
     const cards = document.querySelectorAll('.event-type-card');
     let firstVisibleCard = null;
 
+    // Get allowed types from subscription or URL param
+    let allowedTypes = userSubscription?.allowed_event_types || null;
+
+    // If no subscription data, fall back to URL package param
+    if (!allowedTypes && selectedPackage) {
+        if (selectedPackage === 'premium') {
+            allowedTypes = [1, 3, 4]; // Wedding, Family, Birthday
+        } else if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
+            allowedTypes = [2, 5]; // Corporate, Community
+        } else if (selectedPackage === 'free') {
+            allowedTypes = [1]; // Wedding only
+        }
+    }
+
+    // If still no restrictions, show all
+    if (!allowedTypes) return;
+
     cards.forEach(card => {
         const input = card.querySelector('input');
         const eventValue = parseInt(input.value);
-        let isVisible = true;
+        const isAllowed = allowedTypes.includes(eventValue);
 
-        if (selectedPackage === 'premium') {
-            // Premium: Perkahwinan (1), Keluarga (3), Hari Lahir (4)
-            isVisible = [1, 3, 4].includes(eventValue);
-        } else if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
-            // Bisnes: Korporat (2), Komuniti (5)
-            isVisible = [2, 5].includes(eventValue);
-        }
-
-        if (isVisible) {
+        if (isAllowed) {
+            // Show as available
             card.style.display = 'flex';
+            card.classList.remove('locked');
+            // Remove lock overlay if exists
+            const lockOverlay = card.querySelector('.lock-overlay');
+            if (lockOverlay) lockOverlay.remove();
             if (!firstVisibleCard) firstVisibleCard = card;
         } else {
-            card.style.display = 'none';
-            card.classList.remove('selected');
+            // Show as locked
+            card.style.display = 'flex';
+            card.classList.add('locked');
+            card.style.opacity = '0.5';
+            card.style.cursor = 'not-allowed';
+
+            // Add lock overlay if not exists
+            if (!card.querySelector('.lock-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'lock-overlay';
+                overlay.innerHTML = '🔒 Naik Taraf';
+                overlay.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.7);color:#d4af37;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:10;';
+                card.style.position = 'relative';
+                card.appendChild(overlay);
+            }
         }
     });
 
-    // Auto-select first visible if current selection is hidden
+    // Auto-select first allowed if current selection is not allowed
     const currentSelected = document.querySelector('.event-type-card.selected');
-    if ((!currentSelected || currentSelected.style.display === 'none') && firstVisibleCard) {
-        firstVisibleCard.click();
+    const currentInput = currentSelected?.querySelector('input');
+    const currentValue = currentInput ? parseInt(currentInput.value) : 0;
+
+    if (!currentSelected || !allowedTypes.includes(currentValue)) {
+        if (firstVisibleCard) {
+            currentSelected?.classList.remove('selected');
+            firstVisibleCard.click();
+        }
     } else if (currentSelected) {
-        // Initialize fields based on initially selected card
         const input = currentSelected.querySelector('input');
         if (input) applyAllContext(parseInt(input.value));
     }
@@ -418,8 +462,15 @@ function filterEventTypesByPackage() {
 function initEventTypeCards() {
     document.querySelectorAll('.event-type-card').forEach(card => {
         card.addEventListener('click', () => {
-            // Only allow clicking visible cards
+            // Prevent clicking hidden cards
             if (card.style.display === 'none') return;
+
+            // Prevent clicking locked cards - redirect to pricing
+            if (card.classList.contains('locked')) {
+                alert('Sila naik taraf pakej anda untuk mencipta jenis majlis ini.');
+                window.location.href = '/pricing/';
+                return;
+            }
 
             // Remove selected from all
             document.querySelectorAll('.event-type-card').forEach(c => {
