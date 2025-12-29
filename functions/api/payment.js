@@ -6,6 +6,7 @@
  */
 
 import { upgradeAccess, logAudit } from '../lib/access-control.js';
+import { requireAuth } from '../lib/auth.js';
 
 // Generate unique order reference
 function generateOrderRef() {
@@ -56,7 +57,15 @@ async function handleCreatePayment(request, env) {
         });
     }
 
-    const { eventId, packageId, paymentMethod, userId = 1 } = data;
+    const { eventId, packageId, paymentMethod, userId } = data;
+
+    // Validate required fields
+    if (!userId) {
+        return new Response(JSON.stringify({ error: 'userId required' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     // Validate package
     const pkg = PACKAGES[packageId];
@@ -177,6 +186,17 @@ async function handleCreatePayment(request, env) {
 }
 
 async function handleVerifyPayment(request, env) {
+    // Verify admin access
+    const { user, errorResponse } = await requireAuth(request, env.DB);
+    if (errorResponse) return errorResponse;
+
+    if (user.role !== 'super_admin') {
+        return new Response(JSON.stringify({ error: 'Unauthorized: Admin access required' }), {
+            status: 403,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
     let data;
     try {
         data = await request.json();
@@ -269,11 +289,56 @@ async function handleVerifyPayment(request, env) {
 }
 
 async function handleBillplzWebhook(request, env) {
-    // Parse form data from Billplz webhook
-    const formData = await request.formData();
-    const billId = formData.get('id');
-    const paid = formData.get('paid') === 'true';
-    const paidAt = formData.get('paid_at');
+    // 1. Signature Verification
+    const signature = request.headers.get('X-Signature');
+    if (!signature) {
+        return new Response('Missing X-Signature header', { status: 401 });
+    }
+
+    if (!env.BILLPLZ_SECRET) {
+        console.error('BILLPLZ_SECRET not configured');
+        return new Response('Server Error', { status: 500 });
+    }
+
+    const rawBody = await request.text();
+
+    try {
+        const encoder = new TextEncoder();
+        const key = await crypto.subtle.importKey(
+            'raw',
+            encoder.encode(env.BILLPLZ_SECRET),
+            { name: 'HMAC', hash: 'SHA-256' },
+            false,
+            ['verify']
+        );
+
+        // Convert hex signature to Uint8Array safely
+        if (!signature.match(/^[0-9a-fA-F]+$/)) {
+            throw new Error('Invalid signature format');
+        }
+        const signatureBytes = new Uint8Array(signature.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+        const isValid = await crypto.subtle.verify(
+            'HMAC',
+            key,
+            signatureBytes,
+            encoder.encode(rawBody)
+        );
+
+        if (!isValid) {
+            console.error('Webhook signature verification failed');
+            return new Response('Invalid Signature', { status: 401 });
+        }
+    } catch (error) {
+        console.error('Signature verification error:', error);
+        return new Response('Signature Error', { status: 400 });
+    }
+
+    // 2. Parse Data
+    const params = new URLSearchParams(rawBody);
+    const billId = params.get('id');
+    const paid = params.get('paid') === 'true';
+    const paidAt = params.get('paid_at');
 
     if (!billId || !paid) {
         return new Response('Invalid webhook', { status: 400 });
