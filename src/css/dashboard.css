@@ -197,6 +197,7 @@
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
+    color: #d4af37;
 }
 
 .event-selector {
@@ -354,6 +355,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    color: #d4af37;
 }
 
 .section-actions {
