@@ -21,7 +21,7 @@ export async function onRequestGet(context) {
         }
 
         // Determine redirect based on role
-        let redirect = '/pricing/';  // Default for NULL/unpaid users
+        let redirect = '/pricing/';  // Default for 'user' role
 
         if (user.role === 'super_admin') {
             redirect = '/admin/';
@@ -29,7 +29,7 @@ export async function onRequestGet(context) {
             // Paid users go to dashboard
             redirect = '/dashboard/';
         }
-        // NULL role stays at /pricing/
+        // 'user' role stays at /pricing/
 
         return new Response(JSON.stringify({
             authenticated: true,

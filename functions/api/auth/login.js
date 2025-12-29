@@ -61,35 +61,16 @@ export async function onRequestPost(context) {
         // Create session
         const session = await createSession(db, user.id);
 
-        // Determine redirect based on role and subscription status
-        let redirect = '/dashboard/';
+        // Determine redirect based on role
+        let redirect = '/pricing/';  // Default for 'user' role
 
         if (user.role === 'super_admin') {
             redirect = '/admin/';
         } else if (user.role === 'admin' || user.role === 'event_admin') {
-            // Both 'admin' and legacy 'event_admin' are treated as paid clients
-            // Check if user has an active subscription/payment
-            const activeSubscription = await db.prepare(`
-                SELECT ea.* FROM event_access ea
-                JOIN events e ON ea.event_id = e.id
-                WHERE e.created_by = ? 
-                AND ea.paid_at IS NOT NULL 
-                AND (ea.expires_at IS NULL OR ea.expires_at > CURRENT_TIMESTAMP)
-                LIMIT 1
-            `).bind(user.id).first();
-
-            if (!activeSubscription) {
-                // Check if user has any events at all
-                const hasEvents = await db.prepare(
-                    "SELECT id FROM events WHERE created_by = ? LIMIT 1"
-                ).bind(user.id).first();
-
-                if (!hasEvents) {
-                    // New user with no events - go to pricing
-                    redirect = '/pricing/';
-                }
-            }
+            // Paid users go to dashboard
+            redirect = '/dashboard/';
         }
+        // 'user' role stays at /pricing/
 
         // Prepare safe user object (never include password)
         const safeUser = {
