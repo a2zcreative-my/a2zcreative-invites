@@ -119,7 +119,7 @@
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: window.location.origin + '/dashboard/',
+                        redirectTo: window.location.origin + '/auth/login.html',
                         skipBrowserRedirect: true
                     }
                 });
@@ -138,10 +138,41 @@
                         `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
                     );
 
-                    supabaseClient.auth.onAuthStateChange((event, session) => {
+                    // Listen for auth state change
+                    supabaseClient.auth.onAuthStateChange(async (event, session) => {
                         if (event === 'SIGNED_IN' && session) {
                             if (popup && !popup.closed) popup.close();
-                            window.location.href = '/dashboard/';
+
+                            // Sync to D1 and create session cookie
+                            try {
+                                const syncResponse = await fetch('/api/auth/oauth-callback', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    credentials: 'include',
+                                    body: JSON.stringify({ access_token: session.access_token })
+                                });
+
+                                const syncData = await syncResponse.json();
+
+                                if (syncResponse.ok && syncData.success) {
+                                    // Store user info for UI display
+                                    localStorage.setItem('a2z_user', JSON.stringify({
+                                        name: syncData.user.name,
+                                        email: syncData.user.email,
+                                        role: syncData.user.role,
+                                        avatar_url: syncData.user.avatar_url
+                                    }));
+
+                                    // Use server-provided redirect
+                                    window.location.href = syncData.redirect || '/dashboard/';
+                                } else {
+                                    console.error('D1 sync failed:', syncData.error);
+                                    showError('Gagal menyegerakkan akaun. Sila cuba lagi.');
+                                }
+                            } catch (syncError) {
+                                console.error('Sync error:', syncError);
+                                showError('Ralat rangkaian semasa menyegerakkan akaun.');
+                            }
                         }
                     });
                 }
