@@ -73,11 +73,17 @@ if (document.readyState === 'loading') {
 // Session Check
 // =============================================
 async function checkSession() {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+        // No Supabase client - show demo mode for free trial
+        showGuestMode();
+        return;
+    }
 
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         const currentPath = window.location.pathname;
+        const urlParams = new URLSearchParams(window.location.search);
+        const packageParam = urlParams.get('package');
 
         if (session) {
             // Only redirect if on login/register pages AND not already redirecting
@@ -98,10 +104,41 @@ async function checkSession() {
             }
             // If already logged in and on other pages, just update UI
             updateUserDisplay(session.user);
+        } else {
+            // Not authenticated
+            // Allow free trial without login
+            if (packageParam === 'free') {
+                showGuestMode();
+            } else if (currentPath.includes('/create/') && packageParam && packageParam !== 'free') {
+                // Paid packages require login
+                alert('Sila log masuk untuk menggunakan pakej ini.');
+                window.location.href = '/auth/login.html?redirect=' + encodeURIComponent(window.location.href);
+            } else {
+                showGuestMode();
+            }
         }
     } catch (error) {
         console.error('Session check error:', error);
         sessionStorage.removeItem('auth_redirecting');
+        showGuestMode();
+    }
+}
+
+// Show guest/demo mode for free trial
+function showGuestMode() {
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+    const urlParams = new URLSearchParams(window.location.search);
+    const packageParam = urlParams.get('package');
+
+    if (userName) {
+        if (packageParam === 'free') {
+            userName.textContent = 'Demo User';
+            if (userAvatar) userAvatar.textContent = 'DU';
+        } else {
+            userName.textContent = 'Log Masuk';
+            if (userAvatar) userAvatar.textContent = '👤';
+        }
     }
 }
 

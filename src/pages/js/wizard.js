@@ -410,7 +410,9 @@ async function filterEventTypesByPackage() {
 
     // If no subscription data, fall back to URL package param
     if (!allowedTypes && selectedPackage) {
-        if (selectedPackage === 'premium') {
+        if (selectedPackage === 'basic' || selectedPackage === 'asas') {
+            allowedTypes = [1, 2, 3, 4, 5]; // ALL 5 types
+        } else if (selectedPackage === 'premium') {
             allowedTypes = [1, 3, 4]; // Wedding, Family, Birthday
         } else if (selectedPackage === 'bisnes' || selectedPackage === 'business') {
             allowedTypes = [2, 5]; // Corporate, Community
@@ -452,7 +454,7 @@ async function filterEventTypesByPackage() {
                 // Add lock overlay
                 const overlay = document.createElement('div');
                 overlay.className = 'lock-overlay';
-                overlay.innerHTML = '🔒 Naik Taraf';
+                overlay.innerHTML = '🔒 Upgrade Pakej';
                 overlay.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.7);color:#d4af37;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:10;';
                 card.style.position = 'relative';
                 card.appendChild(overlay);

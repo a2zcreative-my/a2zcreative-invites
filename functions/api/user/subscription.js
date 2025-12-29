@@ -7,10 +7,10 @@ import { getAuthUser, syncUserToD1 } from '../../lib/auth.js';
 
 // Package to event type mapping
 const PACKAGE_EVENT_TYPES = {
-    'free': [1],           // Wedding only (1 free event)
-    'basic': [1, 3, 4],    // Wedding, Family, Birthday
-    'premium': [1, 3, 4],  // Wedding, Family, Birthday (more events)
-    'business': [2, 5]     // Corporate, Community
+    'free': [1],              // Wedding only (1 free event)
+    'basic': [1, 2, 3, 4, 5], // ALL 5 types
+    'premium': [1, 3, 4],     // Wedding, Family, Birthday
+    'business': [2, 5]        // Corporate, Community
 };
 
 // Package limits

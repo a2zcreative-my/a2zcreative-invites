@@ -56,10 +56,10 @@ export async function onRequestPost(context) {
 
         // Package to allowed event types mapping
         const PACKAGE_EVENT_TYPES = {
-            'free': [1],           // Wedding only
-            'basic': [1, 3, 4],    // Wedding, Family, Birthday
-            'premium': [1, 3, 4],  // Wedding, Family, Birthday
-            'business': [2, 5]     // Corporate, Community
+            'free': [1],              // Wedding only
+            'basic': [1, 2, 3, 4, 5], // ALL 5 types
+            'premium': [1, 3, 4],     // Wedding, Family, Birthday
+            'business': [2, 5]        // Corporate, Community
         };
 
         const eventTypeId = parseInt(data.eventType) || 1;
