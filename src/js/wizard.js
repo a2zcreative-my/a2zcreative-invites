@@ -1260,44 +1260,159 @@ function showManualPaymentInstructions() {
 
 function showDuitNowQR() {
     const pkg = PACKAGE_INFO[selectedPackage];
+    const amount = (pkg.price / 100).toFixed(2);
+    const orderRef = generateOrderReference();
+
+    // DuitNow payment details - UPDATE THESE WITH YOUR ACTUAL INFO
+    const DUITNOW_ID = '0123456789'; // Your DuitNow-registered phone number or ID
+    const DUITNOW_NAME = 'A2Z CREATIVE';
+
+    // Create QR code data - simplified format for static QR
+    // Users scan and manually enter amount (standard for static DuitNow QR)
+    const qrData = `00020101021226450009MY.PAYNET0112${DUITNOW_ID}0204DUIT5204000053031234567890${amount}5802MY5913${DUITNOW_NAME}6304`;
+
+    // Use QR Server API (free, no API key needed)
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(DUITNOW_ID)}&bgcolor=ffffff&color=000000&format=png`;
 
     const modal = document.createElement('div');
     modal.id = 'paymentModal';
     modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem;';
 
     modal.innerHTML = `
-        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 400px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
             <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h3 style="margin: 0; color: var(--text-primary);">DuitNow QR</h3>
+                    <h3 style="margin: 0; color: var(--text-primary);">
+                        <span style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/DuitNow_logo.svg/120px-DuitNow_logo.svg.png" alt="DuitNow" height="24" onerror="this.style.display='none'">
+                            DuitNow QR
+                        </span>
+                    </h3>
                     <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
                 </div>
             </div>
             
             <div style="padding: 1.5rem; text-align: center;">
-                <div style="background: #fff; padding: 1rem; border-radius: 12px; display: inline-block; margin-bottom: 1rem;">
-                    <div style="width: 200px; height: 200px; background: #eee; display: flex; align-items: center; justify-content: center; color: #666;">
-                        QR Code Coming Soon
+                <!-- QR Code Display -->
+                <div style="background: #fff; padding: 1.25rem; border-radius: 16px; display: inline-block; margin-bottom: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <img id="duitnowQrImage" src="${qrImageUrl}" alt="DuitNow QR" style="width: 180px; height: 180px; display: block;" 
+                        onerror="this.parentElement.innerHTML='<div style=\\'width:180px;height:180px;display:flex;align-items:center;justify-content:center;color:#666;font-size:0.9rem;\\'>Gagal muat QR</div>'">
+                </div>
+                
+                <!-- DuitNow ID Display -->
+                <div style="background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.8rem;">DuitNow ID (Nombor Telefon)</p>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                        <span style="font-size: 1.3rem; font-weight: 600; color: #4ade80; font-family: monospace; letter-spacing: 1px;" id="duitnowIdDisplay">${DUITNOW_ID}</span>
+                        <button onclick="copyDuitNowId('${DUITNOW_ID}')" style="background: rgba(74,222,128,0.2); border: 1px solid rgba(74,222,128,0.4); border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; color: #4ade80; font-size: 0.75rem;">
+                            Salin
+                        </button>
+                    </div>
+                    <p style="margin: 0.5rem 0 0; color: var(--text-primary); font-size: 0.9rem;">${DUITNOW_NAME}</p>
+                </div>
+                
+                <!-- Amount Display -->
+                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.8rem;">Amaun Pembayaran</p>
+                    <p style="margin: 0; font-size: 2rem; font-weight: 700; color: #d4af37;">RM${amount}</p>
+                </div>
+                
+                <!-- Reference -->
+                <div style="background: rgba(255,255,255,0.03); border-radius: 8px; padding: 0.75rem; margin-bottom: 1rem;">
+                    <p style="margin: 0 0 0.25rem; color: var(--text-secondary); font-size: 0.75rem;">Rujukan Pembayaran</p>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <code style="font-size: 0.9rem; color: var(--text-primary);" id="paymentRefDisplay">${orderRef}</code>
+                        <button onclick="copyPaymentRef('${orderRef}')" style="background: rgba(255,255,255,0.1); border: none; border-radius: 4px; padding: 0.2rem 0.4rem; cursor: pointer; color: var(--text-secondary); font-size: 0.7rem;">
+                            Salin
+                        </button>
                     </div>
                 </div>
                 
-                <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-                    <p style="margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.85rem;">Amaun</p>
-                    <p style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #4ade80;">${pkg.priceDisplay}</p>
+                <!-- Instructions -->
+                <div style="text-align: left; background: rgba(212,175,55,0.1); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border: 1px solid rgba(212,175,55,0.2);">
+                    <p style="margin: 0 0 0.5rem; font-weight: 600; color: #d4af37; font-size: 0.85rem;">Cara Pembayaran:</p>
+                    <ol style="margin: 0; padding-left: 1.25rem; color: var(--text-secondary); font-size: 0.8rem; line-height: 1.6;">
+                        <li>Buka aplikasi bank/e-wallet anda</li>
+                        <li>Pilih DuitNow Transfer</li>
+                        <li>Masukkan nombor: <strong style="color: #4ade80;">${DUITNOW_ID}</strong></li>
+                        <li>Masukkan amaun: <strong style="color: #d4af37;">RM${amount}</strong></li>
+                        <li>Gunakan rujukan: <strong>${orderRef}</strong></li>
+                    </ol>
                 </div>
                 
-                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
-                    Imbas kod QR ini menggunakan aplikasi bank anda
-                </p>
-                
-                <button onclick="checkPaymentStatus()" style="width: 100%; margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, #4ade80, #22c55e); border: none; border-radius: 12px; color: #000; font-weight: 600; cursor: pointer; font-size: 1rem;">
-                    Saya Sudah Bayar
+                <button onclick="submitDuitNowPayment('${orderRef}')" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, #4ade80, #22c55e); border: none; border-radius: 12px; color: #000; font-weight: 600; cursor: pointer; font-size: 1rem; transition: transform 0.2s;">
+                    ✓ Saya Sudah Bayar
                 </button>
+                
+                <p style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-secondary);">
+                    Pengesahan pembayaran akan dilakukan dalam masa 1-24 jam
+                </p>
             </div>
         </div>
     `;
 
     document.body.appendChild(modal);
+}
+
+// Copy DuitNow ID to clipboard
+function copyDuitNowId(id) {
+    navigator.clipboard.writeText(id).then(() => {
+        const btn = event.target;
+        btn.textContent = '✓ Disalin!';
+        btn.style.background = 'rgba(74,222,128,0.4)';
+        setTimeout(() => {
+            btn.textContent = 'Salin';
+            btn.style.background = 'rgba(74,222,128,0.2)';
+        }, 2000);
+    });
+}
+
+// Copy payment reference to clipboard
+function copyPaymentRef(ref) {
+    navigator.clipboard.writeText(ref).then(() => {
+        const btn = event.target;
+        btn.textContent = '✓';
+        setTimeout(() => {
+            btn.textContent = 'Salin';
+        }, 2000);
+    });
+}
+
+// Generate order reference
+function generateOrderReference() {
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `A2Z-${date}-${random}`;
+}
+
+// Submit DuitNow payment notification
+async function submitDuitNowPayment(orderRef) {
+    try {
+        const eventData = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
+
+        const response = await fetch('/api/payment/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                eventData,
+                packageId: selectedPackage,
+                paymentMethod: 'duitnow',
+                orderRef
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success || data.orderRef) {
+            closePaymentModal();
+            showPendingPaymentScreen(data.orderRef || orderRef);
+        } else {
+            alert(data.error || 'Gagal membuat pesanan pembayaran');
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Ralat berlaku. Sila cuba lagi.');
+    }
 }
 
 async function submitManualPayment() {
