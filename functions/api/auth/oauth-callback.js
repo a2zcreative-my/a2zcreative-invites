@@ -97,11 +97,30 @@ export async function onRequestPost(context) {
         // Create D1 session
         const session = await createSession(db, user.id);
 
-        // Determine redirect based on role
-        let redirect = '/dashboard/';
+        // Determine redirect based on role and subscription status
+        let redirect = '/pricing/';
+
         if (user.role === 'super_admin') {
             redirect = '/admin/';
+        } else if (user.role === 'admin' || user.role === 'event_admin') {
+            // Check if user has an active subscription/payment
+            const activeSubscription = await db.prepare(`
+                SELECT ea.* FROM event_access ea
+                JOIN events e ON ea.event_id = e.id
+                WHERE e.created_by = ? 
+                AND ea.paid_at IS NOT NULL 
+                AND (ea.expires_at IS NULL OR ea.expires_at > CURRENT_TIMESTAMP)
+                LIMIT 1
+            `).bind(user.id).first();
+
+            if (activeSubscription) {
+                redirect = '/dashboard/';
+            } else {
+                // No active subscription - go to pricing
+                redirect = '/pricing/';
+            }
         }
+        // New users without admin/event_admin role go to /pricing/ by default
 
         // Create response with session cookie
         const response = new Response(JSON.stringify({
