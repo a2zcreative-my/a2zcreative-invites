@@ -101,7 +101,7 @@ export async function onRequestPost(context) {
 
         if (user.role === 'super_admin') {
             redirect = '/admin/';
-        } else if (user.role === 'admin' || user.role === 'event_admin') {
+        } else if (user.role === 'admin') {
             // Check if user has an active subscription/payment
             const activeSubscription = await db.prepare(`
                 SELECT ea.* FROM event_access ea
@@ -119,7 +119,7 @@ export async function onRequestPost(context) {
                 redirect = '/pricing/';
             }
         }
-        // New users without admin/event_admin role go to /pricing/ by default
+        // 'user' role goes to /pricing/ by default
 
         // Create response with session cookie
         const response = new Response(JSON.stringify({

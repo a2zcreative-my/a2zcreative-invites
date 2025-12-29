@@ -124,13 +124,13 @@ export async function onRequest(context) {
             }
         }
 
-        // Check admin routes (admin = paid client, event_admin = legacy name)
+        // Check admin routes (admin = paid client)
         if (matchesRoute(path, PROTECTED_ROUTES.admin)) {
             if (!user) {
                 return redirectToLogin(request);
             }
-            // Accept both 'admin' and legacy 'event_admin' roles
-            const isAdminRole = user.role === 'admin' || user.role === 'event_admin' || user.role === 'super_admin';
+            // Only 'admin' and 'super_admin' can access admin routes
+            const isAdminRole = user.role === 'admin' || user.role === 'super_admin';
             if (!isAdminRole) {
                 return new Response('Forbidden', { status: 403 });
             }

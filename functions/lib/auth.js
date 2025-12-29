@@ -98,7 +98,7 @@ export async function syncUserToD1(db, user) {
     // Create new user
     const result = await db.prepare(`
         INSERT INTO users (name, email, supabase_id, role)
-        VALUES (?, ?, ?, 'event_admin')
+        VALUES (?, ?, ?, 'admin')
     `).bind(user.name, user.email, user.supabaseId).run();
 
     return result.meta?.last_row_id;

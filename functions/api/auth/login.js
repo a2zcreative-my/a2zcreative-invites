@@ -66,7 +66,7 @@ export async function onRequestPost(context) {
 
         if (user.role === 'super_admin') {
             redirect = '/admin/';
-        } else if (user.role === 'admin' || user.role === 'event_admin') {
+        } else if (user.role === 'admin') {
             // Paid users go to dashboard
             redirect = '/dashboard/';
         }
