@@ -732,8 +732,63 @@ function initFormInputs() {
             disableMobile: true,
             locale: 'ms',
             monthSelectorType: 'static',
-            static: true,
-            wrap: false,
+            appendTo: dateInput.parentElement,
+            onOpen: function (selectedDates, dateStr, instance) {
+                const isMobile = window.innerWidth <= 768;
+                const calendar = instance.calendarContainer;
+
+                if (isMobile) {
+                    // Mobile: Modal style with backdrop
+                    let backdrop = document.getElementById('calendar-backdrop');
+                    if (!backdrop) {
+                        backdrop = document.createElement('div');
+                        backdrop.id = 'calendar-backdrop';
+                        backdrop.style.cssText = `
+                            position: fixed;
+                            top: 0; left: 0; right: 0; bottom: 0;
+                            background: rgba(0,0,0,0.6);
+                            z-index: 9998;
+                        `;
+                        backdrop.onclick = () => instance.close();
+                        document.body.appendChild(backdrop);
+                    }
+                    backdrop.style.display = 'block';
+
+                    // Center calendar
+                    calendar.style.position = 'fixed';
+                    calendar.style.top = '50%';
+                    calendar.style.left = '50%';
+                    calendar.style.transform = 'translate(-50%, -50%)';
+                    calendar.style.zIndex = '9999';
+                } else {
+                    // Desktop: Smart positioning based on available space
+                    const inputRect = instance.input.getBoundingClientRect();
+                    const spaceBelow = window.innerHeight - inputRect.bottom;
+                    const spaceAbove = inputRect.top;
+                    const calendarHeight = 320;
+
+                    if (spaceBelow < calendarHeight && spaceAbove > spaceBelow) {
+                        // Position above input
+                        calendar.style.top = 'auto';
+                        calendar.style.bottom = (window.innerHeight - inputRect.top + 8) + 'px';
+                    }
+                }
+            },
+            onClose: function (selectedDates, dateStr, instance) {
+                // Remove backdrop on mobile
+                const backdrop = document.getElementById('calendar-backdrop');
+                if (backdrop) {
+                    backdrop.style.display = 'none';
+                }
+
+                // Reset calendar positioning
+                const calendar = instance.calendarContainer;
+                calendar.style.position = '';
+                calendar.style.top = '';
+                calendar.style.left = '';
+                calendar.style.bottom = '';
+                calendar.style.transform = '';
+            },
             onReady: function (selectedDates, dateStr, instance) {
                 // Apply brand styling to Flatpickr
                 const style = document.createElement('style');
@@ -743,17 +798,12 @@ function initFormInputs() {
                         border: 1px solid rgba(212, 175, 55, 0.3) !important;
                         box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
                         font-size: 14px !important;
-                        margin-top: 8px !important;
-                        margin-bottom: 16px !important;
-                    }
-                    /* Static inline calendar styling */
-                    .flatpickr-calendar.static {
-                        position: relative !important;
-                        top: auto !important;
+                        z-index: 9999 !important;
                     }
                     @media (max-width: 768px) {
                         .flatpickr-calendar {
-                            max-width: 100% !important;
+                            width: 300px !important;
+                            max-width: 90vw !important;
                         }
                     }
                     .flatpickr-months {
