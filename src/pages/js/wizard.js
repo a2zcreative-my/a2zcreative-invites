@@ -720,14 +720,18 @@ function initFormInputs() {
     // Initialize Flatpickr date picker with premium styling
     const dateInput = document.getElementById('eventDate');
     if (dateInput && typeof flatpickr !== 'undefined') {
+        // Get today's date properly
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         flatpickr(dateInput, {
             dateFormat: 'Y-m-d',
             altInput: true,
             altFormat: 'd M Y',
-            minDate: 'today',
+            minDate: today,
             disableMobile: true,
             locale: 'ms',
-            theme: 'dark',
+            monthSelectorType: 'static',
             onReady: function (selectedDates, dateStr, instance) {
                 // Apply brand styling to Flatpickr
                 const style = document.createElement('style');
@@ -736,16 +740,26 @@ function initFormInputs() {
                         background: #1a2744 !important;
                         border: 1px solid rgba(212, 175, 55, 0.3) !important;
                         box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+                        font-size: 14px !important;
                     }
                     .flatpickr-months {
                         background: linear-gradient(135deg, #0a192f, #1a2744) !important;
+                        padding: 8px 0 !important;
                     }
                     .flatpickr-month, .flatpickr-current-month {
                         color: #d4af37 !important;
+                        font-size: 1.1em !important;
+                        font-weight: 600 !important;
+                    }
+                    .flatpickr-current-month input.cur-year {
+                        color: #d4af37 !important;
+                        font-weight: 600 !important;
                     }
                     .flatpickr-monthDropdown-months {
                         background: #1a2744 !important;
                         color: #d4af37 !important;
+                        font-size: 1em !important;
+                        padding: 4px 8px !important;
                     }
                     .flatpickr-weekdays {
                         background: rgba(0,0,0,0.2) !important;
@@ -757,8 +771,10 @@ function initFormInputs() {
                     .flatpickr-day {
                         color: #fff !important;
                         border-radius: 8px !important;
+                        height: 38px !important;
+                        line-height: 38px !important;
                     }
-                    .flatpickr-day:hover {
+                    .flatpickr-day:hover:not(.flatpickr-disabled) {
                         background: rgba(212, 175, 55, 0.2) !important;
                         border-color: rgba(212, 175, 55, 0.4) !important;
                     }
@@ -771,14 +787,27 @@ function initFormInputs() {
                     .flatpickr-day.today {
                         border-color: #d4af37 !important;
                     }
+                    .flatpickr-day.flatpickr-disabled,
+                    .flatpickr-day.flatpickr-disabled:hover {
+                        color: #3a4a6a !important;
+                        background: transparent !important;
+                        cursor: not-allowed !important;
+                        text-decoration: line-through !important;
+                    }
                     .flatpickr-prev-month, .flatpickr-next-month {
                         fill: #d4af37 !important;
+                        padding: 8px !important;
                     }
                     .flatpickr-prev-month:hover, .flatpickr-next-month:hover {
                         fill: #fff !important;
+                        background: rgba(212, 175, 55, 0.2) !important;
+                        border-radius: 4px !important;
                     }
                     .numInputWrapper span {
                         border-color: rgba(212, 175, 55, 0.3) !important;
+                    }
+                    .numInputWrapper span:hover {
+                        background: rgba(212, 175, 55, 0.2) !important;
                     }
                 `;
                 document.head.appendChild(style);
