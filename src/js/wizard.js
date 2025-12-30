@@ -577,7 +577,7 @@ function addContactItemWithRole(role) {
     item.innerHTML = `
         <input type="text" placeholder="Peranan" value="${role}">
         <input type="text" placeholder="Nama" value="">
-        <input type="tel" placeholder="No. Telefon" value="">
+        <input type="tel" name="contactPhone" placeholder="Contoh: 012-345 6789" inputmode="numeric" value="">
         <button class="remove-btn" onclick="removeContactItem(this)">
             <i data-lucide="x"></i>
         </button>
@@ -717,11 +717,73 @@ function initThemeCards() {
 // Form Inputs
 // =============================================
 function initFormInputs() {
-    // Set min date to today
+    // Initialize Flatpickr date picker with premium styling
     const dateInput = document.getElementById('eventDate');
-    if (dateInput) {
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.min = today;
+    if (dateInput && typeof flatpickr !== 'undefined') {
+        flatpickr(dateInput, {
+            dateFormat: 'Y-m-d',
+            altInput: true,
+            altFormat: 'd M Y',
+            minDate: 'today',
+            disableMobile: true,
+            locale: 'ms',
+            theme: 'dark',
+            onReady: function (selectedDates, dateStr, instance) {
+                // Apply brand styling to Flatpickr
+                const style = document.createElement('style');
+                style.textContent = `
+                    .flatpickr-calendar {
+                        background: #1a2744 !important;
+                        border: 1px solid rgba(212, 175, 55, 0.3) !important;
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+                    }
+                    .flatpickr-months {
+                        background: linear-gradient(135deg, #0a192f, #1a2744) !important;
+                    }
+                    .flatpickr-month, .flatpickr-current-month {
+                        color: #d4af37 !important;
+                    }
+                    .flatpickr-monthDropdown-months {
+                        background: #1a2744 !important;
+                        color: #d4af37 !important;
+                    }
+                    .flatpickr-weekdays {
+                        background: rgba(0,0,0,0.2) !important;
+                    }
+                    .flatpickr-weekday {
+                        color: #d4af37 !important;
+                        font-weight: 600 !important;
+                    }
+                    .flatpickr-day {
+                        color: #fff !important;
+                        border-radius: 8px !important;
+                    }
+                    .flatpickr-day:hover {
+                        background: rgba(212, 175, 55, 0.2) !important;
+                        border-color: rgba(212, 175, 55, 0.4) !important;
+                    }
+                    .flatpickr-day.selected {
+                        background: linear-gradient(135deg, #d4af37, #b8962e) !important;
+                        border-color: #d4af37 !important;
+                        color: #0a192f !important;
+                        font-weight: 700 !important;
+                    }
+                    .flatpickr-day.today {
+                        border-color: #d4af37 !important;
+                    }
+                    .flatpickr-prev-month, .flatpickr-next-month {
+                        fill: #d4af37 !important;
+                    }
+                    .flatpickr-prev-month:hover, .flatpickr-next-month:hover {
+                        fill: #fff !important;
+                    }
+                    .numInputWrapper span {
+                        border-color: rgba(212, 175, 55, 0.3) !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        });
     }
 
     // Setup phone number formatting on all contact phone inputs

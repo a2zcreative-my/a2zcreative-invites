@@ -17,7 +17,13 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="/css/global.css?v=3">
-    <link rel="stylesheet" href="/css/wizard.css?v=3">
+    <link rel="stylesheet" href="/css/wizard.css?v=4">
+
+    <!-- Flatpickr Date Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ms.js"></script>
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -158,7 +164,8 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="eventDate">Tarikh Majlis</label>
-                        <input type="date" id="eventDate" name="eventDate" required>
+                        <input type="text" id="eventDate" name="eventDate" placeholder="Pilih tarikh..." required
+                            readonly>
                     </div>
                     <div class="form-group">
                         <label for="startTime">Masa Mula</label>
