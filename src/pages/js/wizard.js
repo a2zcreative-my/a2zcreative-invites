@@ -875,8 +875,15 @@ async function publishEvent() {
 }
 
 function generateSlug(name1, name2) {
-    const clean = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return `${clean(name1)}-${clean(name2)}`;
+    const clean = (str) => (str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const slug1 = clean(name1);
+    const slug2 = clean(name2);
+
+    // Only add name2 if it exists and is different from name1
+    if (slug2 && slug2 !== slug1) {
+        return `${slug1}-${slug2}`;
+    }
+    return slug1 || 'majlis-anda';
 }
 
 function showPublishSuccess(slug) {

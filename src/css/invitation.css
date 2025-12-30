@@ -125,12 +125,8 @@
 }
 
 .door-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--theme-primary);
+    /* Removed decorative lines - they looked unprofessional */
+    display: none;
 }
 
 .door-left {

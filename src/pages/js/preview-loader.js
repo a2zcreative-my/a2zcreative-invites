@@ -259,6 +259,37 @@ window.addEventListener('DOMContentLoaded', () => {
         venueAddress: 'Alamat akan dipaparkan di sini'
     });
 
+    // Setup "Buka Jemputan" button handler
+    const openBtn = document.getElementById('openInvitation');
+    const coverSection = document.querySelector('.cover-section');
+    const mainContent = document.getElementById('mainContent');
+    const bottomNav = document.getElementById('bottomNav');
+
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            // Add open class to trigger door animation
+            if (coverSection) {
+                coverSection.classList.add('open');
+
+                // After animation, hide cover and show content
+                setTimeout(() => {
+                    coverSection.classList.add('hidden');
+                    if (mainContent) {
+                        mainContent.classList.add('visible');
+                    }
+                    if (bottomNav) {
+                        bottomNav.classList.remove('hidden');
+                    }
+                }, 1200);
+            }
+        });
+    }
+
+    // Prevent cover section scroll until opened
+    if (coverSection) {
+        document.body.style.overflow = 'hidden';
+    }
+
     // Tell parent we're ready
     if (window.parent !== window) {
         window.parent.postMessage({ type: 'preview-ready' }, '*');
