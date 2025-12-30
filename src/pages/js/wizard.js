@@ -204,7 +204,29 @@ document.addEventListener('DOMContentLoaded', () => {
     initFormInputs();
     loadUserInfo();
     updateProgressSteps();
+
+    // Listen for preview-ready message from iframe
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'preview-ready') {
+            sendDataToPreview();
+        }
+    });
 });
+
+// Send data to preview iframe
+function sendDataToPreview() {
+    const iframe = document.getElementById('previewFrame');
+    if (!iframe || !iframe.contentWindow) return;
+
+    // Collect latest data
+    collectStepData();
+
+    // Send to preview via postMessage
+    iframe.contentWindow.postMessage({
+        type: 'preview',
+        data: eventData
+    }, '*');
+}
 
 // =============================================
 // User Info
@@ -311,6 +333,11 @@ function showStep(step) {
 
     // Re-initialize icons
     lucide.createIcons();
+
+    // Step 6: Auto-generate and check slug
+    if (step === 6) {
+        initializeStep6Slug();
+    }
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -905,6 +932,41 @@ function shareEmail() {
     const subject = encodeURIComponent('Jemputan Majlis');
     const body = encodeURIComponent(`Anda dijemput ke majlis kami!\n\n${link}`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+// =============================================
+// Step 6 Initialization: Auto-slug & Preview
+// =============================================
+function initializeStep6Slug() {
+    // Collect latest data from previous steps
+    collectStepData();
+
+    // Auto-generate slug from host names if not already set
+    const customSlugInput = document.getElementById('customSlug');
+    if (!customSlugInput.value || customSlugInput.value.length < 3) {
+        const host1 = eventData.hostName1 || '';
+        const host2 = eventData.hostName2 || '';
+        const autoSlug = generateSlug(host1, host2);
+        customSlugInput.value = autoSlug;
+    }
+
+    // Trigger availability check
+    checkSlugAvailability(customSlugInput.value);
+
+    // Update preview with current event type and theme
+    updatePreviewTemplate();
+}
+
+function updatePreviewTemplate() {
+    const iframe = document.getElementById('previewFrame');
+    if (!iframe) return;
+
+    // Build preview URL with event type and theme
+    const eventType = eventData.eventType || 1;
+    const theme = eventData.theme || 'elegant-gold';
+
+    // Update iframe src to include parameters
+    iframe.src = `/inv/preview/?type=${eventType}&theme=${theme}`;
 }
 
 // =============================================
