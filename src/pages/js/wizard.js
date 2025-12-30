@@ -809,6 +809,17 @@ function initFormInputs() {
                     .numInputWrapper span:hover {
                         background: rgba(212, 175, 55, 0.2) !important;
                     }
+                    /* Adjacent month days - fade them out */
+                    .flatpickr-day.prevMonthDay,
+                    .flatpickr-day.nextMonthDay {
+                        color: #3a4a6a !important;
+                        opacity: 0.4 !important;
+                    }
+                    .flatpickr-day.prevMonthDay:hover,
+                    .flatpickr-day.nextMonthDay:hover {
+                        background: rgba(212, 175, 55, 0.1) !important;
+                        color: #5a6a8a !important;
+                    }
                 `;
                 document.head.appendChild(style);
             }
