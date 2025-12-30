@@ -4,6 +4,56 @@
  * (Does NOT fetch from API - receives data from parent wizard)
  */
 
+// Event Type Content Configuration - Controls what shows for each event type
+const EVENT_CONTENT_CONFIG = {
+    1: { // Perkahwinan
+        showParents: true,
+        showDoa: true,
+        showVerse: true,
+        showAmpersand: true,
+        showWishes: true,
+        doaTitle: 'Doa Buat Pengantin',
+        introText: 'Dengan segala hormatnya kami menjemput Dato\' / Datin / Tuan / Puan / Encik / Cik ke majlis perkahwinan putera/puteri kami:'
+    },
+    2: { // Korporat
+        showParents: false,
+        showDoa: false,
+        showVerse: false,
+        showAmpersand: false,
+        showWishes: true,
+        doaTitle: '',
+        introText: 'Dengan hormatnya, kami menjemput Tuan/Puan ke majlis:'
+    },
+    3: { // Keluarga
+        showParents: false,
+        showDoa: false,
+        showVerse: false,
+        showAmpersand: false,
+        showWishes: true,
+        doaTitle: '',
+        introText: 'Dengan penuh hormat, kami menjemput keluarga dan sahabat ke majlis:'
+    },
+    4: { // Hari Lahir
+        showParents: false,
+        showDoa: false,
+        showVerse: false,
+        showAmpersand: false,
+        showAgeDisplay: true,
+        showWishes: true,
+        doaTitle: '',
+        introText: 'Anda dijemput ke majlis sambutan hari lahir:'
+    },
+    5: { // Komuniti
+        showParents: false,
+        showDoa: false,
+        showVerse: false,
+        showAmpersand: false,
+        showWishes: true,
+        doaTitle: '',
+        introText: 'Dengan hormatnya, anda dijemput ke majlis:'
+    }
+};
+
 // Format date for display
 function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -151,26 +201,29 @@ function renderPreview(data) {
     // Hashtag
     setText('hashtag', data.hashtag || '');
 
-    // Parents section (Wedding only)
-    const parentsSection = document.getElementById('parents-section');
+    // Parents section (Wedding only) - Use config instead of isWedding check
+    const parentsSection = document.getElementById('parents');
     if (parentsSection) {
         if (isWedding && data.parentNames1) {
             parentsSection.style.display = '';
-            setText('parents-1', data.parentNames1 || '');
-            setText('parents-2', data.parentNames2 || '');
+            setText('parent1', data.parentNames1 || '');
+            setText('parent2', data.parentNames2 || '');
+            setText('full-name1', (data.hostName1 || '').toUpperCase());
+            setText('full-name2', (data.hostName2 || '').toUpperCase());
         } else {
             parentsSection.style.display = 'none';
         }
     }
 
-    // Verse
+    // Verse - Only show for wedding when there's verse text AND config allows
     const verseSection = document.querySelector('.verse-section');
     if (verseSection) {
-        if (data.verseText) {
+        if (isWedding && data.verseText) {
             verseSection.style.display = '';
             setText('verse-text', data.verseText);
             setText('verse-ref', data.verseRef || '');
         } else {
+            // Hide for non-wedding events regardless of verse text
             verseSection.style.display = 'none';
         }
     }
@@ -203,6 +256,38 @@ function renderPreview(data) {
                 </a>
             </div>
         `).join('');
+    }
+
+    // Get event type config
+    const config = EVENT_CONTENT_CONFIG[eventType] || EVENT_CONTENT_CONFIG[1];
+
+    // Doa/Prayer Section - Event type specific
+    const footerSection = document.querySelector('.footer-section');
+    const prayerTitle = document.querySelector('.prayer-title');
+    const prayerText = document.getElementById('prayer-text');
+    if (footerSection) {
+        if (config.showDoa) {
+            // Show for wedding only
+            footerSection.style.display = '';
+            if (prayerTitle) prayerTitle.textContent = config.doaTitle || 'Doa Buat Pengantin';
+        } else {
+            // Hide for non-wedding - just show countdown
+            if (prayerTitle) prayerTitle.style.display = 'none';
+            if (prayerText) prayerText.style.display = 'none';
+        }
+    }
+
+    // Wishes Section - Clear sample wishes (should be empty by default in preview)
+    const wishesContainer = document.getElementById('wishesContainer');
+    if (wishesContainer) {
+        // In preview mode, clear sample wishes (real wishes loaded from API in live view)
+        wishesContainer.innerHTML = '<p style="opacity: 0.5; text-align: center;">Belum ada ucapan</p>';
+    }
+
+    // Update intro text based on event type
+    const introText = document.getElementById('intro-text');
+    if (introText && config.introText) {
+        introText.textContent = config.introText;
     }
 
     // Re-init icons
