@@ -729,9 +729,11 @@ function initFormInputs() {
             altInput: true,
             altFormat: 'd M Y',
             minDate: today,
-            disableMobile: true,
+            disableMobile: false,
             locale: 'ms',
             monthSelectorType: 'static',
+            position: 'below',
+            positionElement: dateInput,
             onReady: function (selectedDates, dateStr, instance) {
                 // Apply brand styling to Flatpickr
                 const style = document.createElement('style');
@@ -741,6 +743,34 @@ function initFormInputs() {
                         border: 1px solid rgba(212, 175, 55, 0.3) !important;
                         box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
                         font-size: 14px !important;
+                        z-index: 9999 !important;
+                        margin-top: 4px !important;
+                    }
+                    /* Mobile responsive */
+                    @media (max-width: 768px) {
+                        .flatpickr-calendar {
+                            width: 100% !important;
+                            max-width: 320px !important;
+                            left: 50% !important;
+                            transform: translateX(-50%) !important;
+                            position: fixed !important;
+                            top: 50% !important;
+                            transform: translate(-50%, -50%) !important;
+                        }
+                        .flatpickr-calendar.open {
+                            z-index: 99999 !important;
+                        }
+                        /* Add backdrop for mobile */
+                        .flatpickr-calendar::before {
+                            content: '';
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: rgba(0,0,0,0.5);
+                            z-index: -1;
+                        }
                     }
                     .flatpickr-months {
                         background: linear-gradient(135deg, #0a192f, #1a2744) !important;
