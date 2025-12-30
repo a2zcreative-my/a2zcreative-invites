@@ -53,6 +53,19 @@ export async function onRequestGet(context) {
     }
 
     try {
+        // Defensive check for DB binding
+        if (!env.DB) {
+            console.warn('DB not bound - slug check skipped');
+            return new Response(JSON.stringify({
+                available: true,
+                slug,
+                warning: 'Database check skipped - slug assumed available'
+            }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
         // Check if slug exists in events table
         const existing = await env.DB.prepare(`
             SELECT id FROM events WHERE slug = ?

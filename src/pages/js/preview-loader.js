@@ -274,6 +274,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 // After animation, hide cover and show content
                 setTimeout(() => {
                     coverSection.classList.add('hidden');
+                    document.body.style.overflow = 'auto';  // Re-enable scrolling
                     if (mainContent) {
                         mainContent.classList.add('visible');
                     }

@@ -723,6 +723,37 @@ function initFormInputs() {
         const today = new Date().toISOString().split('T')[0];
         dateInput.min = today;
     }
+
+    // Setup phone number formatting on all contact phone inputs
+    document.addEventListener('input', (e) => {
+        if (e.target.name === 'contactPhone' || e.target.id?.includes('phone')) {
+            formatPhoneInput(e.target);
+        }
+    });
+}
+
+// Malaysian phone number formatter (01X-XXX XXXX)
+function formatPhoneInput(input) {
+    let value = input.value.replace(/\D/g, ''); // Remove non-digits
+
+    // Limit to 11 digits max (Malaysian mobile)
+    if (value.length > 11) {
+        value = value.substring(0, 11);
+    }
+
+    // Format based on length
+    let formatted = '';
+    if (value.length > 0) {
+        formatted = value.substring(0, 3);
+    }
+    if (value.length > 3) {
+        formatted += '-' + value.substring(3, 6);
+    }
+    if (value.length > 6) {
+        formatted += ' ' + value.substring(6);
+    }
+
+    input.value = formatted;
 }
 
 function collectStepData() {
