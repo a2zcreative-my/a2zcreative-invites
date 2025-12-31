@@ -296,28 +296,17 @@
 
         <!-- Payment Methods -->
         <div class="payment-card payment-methods">
-            <h3>Pilih Kaedah Pembayaran</h3>
+            <h3>Kaedah Pembayaran</h3>
 
             <div class="method-options">
                 <label class="method-option selected" id="methodFpx">
                     <input type="radio" name="paymentMethod" value="billplz" checked>
                     <div class="method-icon">
-                        <i data-lucide="building-2"></i>
+                        <i data-lucide="credit-card"></i>
                     </div>
                     <div class="method-details">
-                        <div class="method-name">FPX Online Banking</div>
-                        <div class="method-desc">Maybank, CIMB, Public Bank, dll.</div>
-                    </div>
-                </label>
-
-                <label class="method-option" id="methodDuitnow">
-                    <input type="radio" name="paymentMethod" value="duitnow">
-                    <div class="method-icon">
-                        <i data-lucide="qr-code"></i>
-                    </div>
-                    <div class="method-details">
-                        <div class="method-name">DuitNow QR</div>
-                        <div class="method-desc">Scan & bayar, hantar resit via WhatsApp</div>
+                        <div class="method-name">Pembayaran Online</div>
+                        <div class="method-desc">FPX, DuitNow QR, TNG, Kad Kredit/Debit</div>
                     </div>
                 </label>
             </div>
@@ -328,39 +317,12 @@
 
             <div class="secure-notice">
                 <i data-lucide="shield-check"></i>
-                Pembayaran selamat & terjamin
+                Pembayaran selamat & terjamin oleh Billplz
             </div>
         </div>
     </div>
 
-    <!-- DuitNow Modal -->
-    <div class="duitnow-modal" id="duitnowModal">
-        <div class="duitnow-content">
-            <h3>DuitNow QR</h3>
 
-            <div class="qr-placeholder" id="duitnowQr">
-                [QR Code akan dipaparkan]
-            </div>
-
-            <div class="duitnow-info">
-                <p><strong>Akaun:</strong> A2Z CREATIVE SDN BHD</p>
-                <p><strong>No. Akaun:</strong> 1234567890</p>
-                <p><strong>Jumlah:</strong> <span id="modalAmount">RM99</span></p>
-                <p><strong>Rujukan:</strong> <span id="modalRef">-</span></p>
-            </div>
-
-            <p style="color: #8892b0; font-size: 0.875rem;">
-                Selepas bayar, sila hantar resit kepada kami untuk pengesahan.
-            </p>
-
-            <a class="whatsapp-btn" id="whatsappLink" href="#" target="_blank">
-                <i data-lucide="message-circle"></i>
-                Hantar Resit via WhatsApp
-            </a>
-
-            <button class="close-modal" onclick="closeModal()">Tutup</button>
-        </div>
-    </div>
 
     <!-- JavaScript -->
     <script>
@@ -425,18 +387,11 @@
                 document.getElementById('orderRef').textContent = data.orderRef;
                 document.getElementById('modalRef').textContent = data.orderRef;
 
-                if (selectedMethod === 'billplz') {
-                    // Redirect to Billplz payment page
-                    if (data.paymentUrl) {
-                        window.location.href = data.paymentUrl;
-                    } else {
-                        alert('Ralat: URL pembayaran tidak dijumpai. Sila cuba lagi.');
-                    }
-                } else if (selectedMethod === 'duitnow') {
-                    // Show DuitNow modal
-                    document.getElementById('whatsappLink').href =
-                        `https://wa.me/60123456789?text=Pembayaran%20${data.orderRef}%20-%20${data.amountDisplay}`;
-                    document.getElementById('duitnowModal').classList.add('open');
+                // Redirect to Billplz payment page
+                if (data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    alert('Ralat: URL pembayaran tidak dijumpai. Sila cuba lagi.');
                 }
 
             } catch (error) {
@@ -445,10 +400,6 @@
                 payBtn.disabled = false;
                 payBtnText.textContent = 'Bayar Sekarang';
             }
-        }
-
-        function closeModal() {
-            document.getElementById('duitnowModal').classList.remove('open');
         }
     </script>
 </body>
