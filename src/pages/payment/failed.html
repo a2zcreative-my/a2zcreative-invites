@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Gagal | A2Z Creative</title>
+
+    <link rel="icon" href="/favicon.png" type="image/png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <style>
+        .failed-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #0a192f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .failed-card {
+            max-width: 450px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .failed-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .failed-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        .failed-card h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            color: #dc3545;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .failed-card p {
+            color: #ccd6f6;
+            margin: 0 0 1.5rem 0;
+        }
+
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .error-message p {
+            margin: 0;
+            color: #f8d7da;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            border: none;
+            border-radius: 0.5rem;
+            color: #0a192f;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            color: #ccd6f6;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(212, 175, 55, 0.5);
+            color: #d4af37;
+        }
+
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            border: none;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128c7e;
+            color: white;
+        }
+
+        .help-text {
+            color: #8892b0;
+            font-size: 0.75rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="failed-page">
+    <div class="failed-card">
+        <div class="failed-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </div>
+
+        <h1>Pembayaran Gagal</h1>
+        <p>Maaf, pembayaran anda tidak dapat diproses.</p>
+
+        <div class="error-message">
+            <p id="errorReason">Pembayaran dibatalkan atau tidak lengkap. Sila cuba lagi.</p>
+        </div>
+
+        <a href="#" class="btn-primary" id="retryBtn">
+            <i data-lucide="refresh-cw"></i>
+            Cuba Lagi
+        </a>
+
+        <a href="/dashboard" class="btn-secondary">
+            <i data-lucide="layout-dashboard"></i>
+            Kembali ke Dashboard
+        </a>
+
+        <a href="https://wa.me/60123456789?text=Saya%20memerlukan%20bantuan%20dengan%20pembayaran"
+            class="btn-secondary btn-whatsapp" target="_blank">
+            <i data-lucide="message-circle"></i>
+            Hubungi Sokongan
+        </a>
+
+        <p class="help-text">
+            Jika masalah berterusan, sila hubungi kami melalui WhatsApp.
+        </p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Parse URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderRef = urlParams.get('order_ref');
+        const reason = urlParams.get('reason');
+
+        // Display error reason
+        const errorReasonEl = document.getElementById('errorReason');
+        const reasons = {
+            'payment_not_completed': 'Pembayaran tidak lengkap. Sila cuba lagi.',
+            'payment_failed': 'Pembayaran gagal diproses. Sila cuba kaedah lain.',
+            'invalid_signature': 'Terdapat masalah pengesahan. Sila cuba lagi.',
+            'order_not_found': 'Pesanan tidak dijumpai. Sila hubungi sokongan.',
+            'no_bill_id': 'Maklumat pembayaran tidak lengkap.'
+        };
+
+        if (reason && reasons[reason]) {
+            errorReasonEl.textContent = reasons[reason];
+        }
+
+        // Set retry link
+        const retryBtn = document.getElementById('retryBtn');
+        if (orderRef) {
+            // Try to find the original payment URL
+            retryBtn.href = `/payment?order_ref=${orderRef}`;
+        } else {
+            retryBtn.href = '/dashboard';
+        }
+    </script>
+</body>
+
+</html>

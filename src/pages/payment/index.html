@@ -426,9 +426,12 @@
                 document.getElementById('modalRef').textContent = data.orderRef;
 
                 if (selectedMethod === 'billplz') {
-                    // Redirect to Billplz (simulated)
-                    alert('Dalam versi sebenar, anda akan diarahkan ke laman pembayaran Billplz.');
-                    // window.location.href = data.paymentUrl;
+                    // Redirect to Billplz payment page
+                    if (data.paymentUrl) {
+                        window.location.href = data.paymentUrl;
+                    } else {
+                        alert('Ralat: URL pembayaran tidak dijumpai. Sila cuba lagi.');
+                    }
                 } else if (selectedMethod === 'duitnow') {
                     // Show DuitNow modal
                     document.getElementById('whatsappLink').href =
@@ -451,4 +454,3 @@
 </body>
 
 </html>
-

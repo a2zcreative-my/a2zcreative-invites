@@ -6,6 +6,7 @@
  */
 
 import { requireAuth, requireEventOwnership } from '../../lib/auth.js';
+import { createBill } from '../../lib/billplz.js';
 
 // Generate unique order reference
 function generateOrderRef() {
@@ -25,7 +26,7 @@ export async function onRequestPost(context) {
     const { request, env } = context;
 
     // 1. Authenticate user
-    const { userId, errorResponse: authError } = await requireAuth(request, env.DB);
+    const { userId, user, errorResponse: authError } = await requireAuth(request, env.DB);
     if (authError) return authError;
 
     let data;
@@ -41,9 +42,14 @@ export async function onRequestPost(context) {
     const { eventId, packageId, paymentMethod } = data;
 
     // 2. Verify user owns the event
+    let event = null;
     if (eventId) {
         const ownershipError = await requireEventOwnership(env.DB, eventId, userId);
         if (ownershipError) return ownershipError;
+
+        // Get event details for Billplz description
+        event = await env.DB.prepare('SELECT event_name FROM events WHERE id = ?')
+            .bind(eventId).first();
     }
 
     // Validate package
@@ -63,29 +69,36 @@ export async function onRequestPost(context) {
     expiresAt.setHours(expiresAt.getHours() + 24);
 
     try {
-        // Create payment order in database (using authenticated userId, NOT from request)
-        await env.DB.prepare(`
-            INSERT INTO payment_orders (
-                event_id, user_id, order_ref, amount_cents, package_id, 
-                payment_method, status, expires_at
-            ) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
-        `).bind(
-            eventId || null,
-            userId,  // ✅ SECURE: userId from JWT, not from request
-            orderRef,
-            pkg.price,
-            packageId,
-            paymentMethod || 'pending',
-            expiresAt.toISOString()
-        ).run();
-
         // Prepare response based on payment method
         let paymentUrl = null;
         let duitnowQr = null;
+        let gatewayRef = null;
 
         if (paymentMethod === 'billplz') {
-            // TODO: Integrate with Billplz API
-            paymentUrl = `https://www.billplz.com/bills/${orderRef}`;
+            // Create Billplz bill
+            try {
+                const bill = await createBill(env, {
+                    name: user?.name || user?.email?.split('@')[0] || 'Customer',
+                    email: user?.email || 'customer@example.com',
+                    amount: pkg.price, // Amount in cents
+                    description: `Pakej ${pkg.name} - ${event?.event_name || 'Jemputan Digital'}`,
+                    orderRef: orderRef,
+                    mobile: user?.phone || null
+                });
+
+                paymentUrl = bill.url;
+                gatewayRef = bill.id;
+                console.log(`[Payment] Billplz bill created: ${bill.id} for order ${orderRef}`);
+            } catch (billplzError) {
+                console.error('[Payment] Billplz error:', billplzError);
+                return new Response(JSON.stringify({
+                    error: 'Failed to create payment',
+                    details: billplzError.message
+                }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
         } else if (paymentMethod === 'duitnow') {
             // Return DuitNow QR info
             duitnowQr = {
@@ -96,6 +109,24 @@ export async function onRequestPost(context) {
                 whatsappLink: `https://wa.me/60123456789?text=Pembayaran%20${orderRef}%20-%20RM${pkg.price / 100}`
             };
         }
+
+        // Create payment order in database
+        await env.DB.prepare(`
+            INSERT INTO payment_orders (
+                event_id, user_id, order_ref, amount_cents, package_id, 
+                payment_method, gateway_ref, gateway_url, status, expires_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)
+        `).bind(
+            eventId || null,
+            userId,
+            orderRef,
+            pkg.price,
+            packageId,
+            paymentMethod || 'pending',
+            gatewayRef,
+            paymentUrl,
+            expiresAt.toISOString()
+        ).run();
 
         return new Response(JSON.stringify({
             success: true,
@@ -115,26 +146,11 @@ export async function onRequestPost(context) {
 
     } catch (error) {
         console.error('Create payment error:', error);
-
-        // Return success for demo even if DB fails
         return new Response(JSON.stringify({
-            success: true,
-            orderRef,
-            amount: pkg.price,
-            amountDisplay: `RM${(pkg.price / 100).toFixed(2)}`,
-            packageId,
-            packageName: pkg.name,
-            expiresAt: expiresAt.toISOString(),
-            paymentMethod,
-            duitnowQr: paymentMethod === 'duitnow' ? {
-                accountNo: '1234567890',
-                accountName: 'A2Z CREATIVE SDN BHD',
-                amount: pkg.price / 100,
-                reference: orderRef,
-                whatsappLink: `https://wa.me/60123456789?text=Pembayaran%20${orderRef}%20-%20RM${pkg.price / 100}`
-            } : null
+            error: 'Failed to create payment order',
+            details: error.message
         }), {
-            status: 201,
+            status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
     }

@@ -18,8 +18,12 @@ ENVIRONMENT = "development"
 # =============================================
 # SUPABASE_URL = "https://your-project.supabase.co"
 # SUPABASE_ANON_KEY = "your-supabase-anon-key"
-# BILLPLZ_SECRET = "your-billplz-signature-key"
 # ADMIN_PASSWORD = "your-admin-api-password"
+#
+# Billplz Payment Gateway
+# BILLPLZ_API_KEY = "your-billplz-api-key"
+# BILLPLZ_COLLECTION_ID = "your-collection-id"
+# BILLPLZ_XSIGNATURE_KEY = "your-xsignature-key"
 
 # =============================================
 # PLACEHOLDER VALUES TO UPDATE BEFORE LAUNCH

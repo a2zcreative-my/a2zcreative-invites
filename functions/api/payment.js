@@ -141,11 +141,43 @@ async function handleCreatePayment(request, env) {
         // Prepare response based on payment method
         let paymentUrl = null;
         let duitnowQr = null;
+        let gatewayRef = null;
 
         if (paymentMethod === 'billplz') {
-            // TODO: Integrate with Billplz API
-            // For now, return placeholder
-            paymentUrl = `https://www.billplz.com/bills/${orderRef}`;
+            // Create Billplz bill using the helper
+            try {
+                const { createBill } = await import('../lib/billplz.js');
+
+                // Get user and event details
+                const user = await env.DB.prepare('SELECT name, email FROM users WHERE id = ?')
+                    .bind(userId).first();
+
+                const bill = await createBill(env, {
+                    name: user?.name || user?.email?.split('@')[0] || 'Customer',
+                    email: user?.email || 'customer@example.com',
+                    amount: pkg.price,
+                    description: `Pakej ${pkg.name} - ${event?.event_name || 'Jemputan Digital'}`,
+                    orderRef: orderRef
+                });
+
+                paymentUrl = bill.url;
+                gatewayRef = bill.id;
+
+                // Update order with gateway_ref
+                await env.DB.prepare('UPDATE payment_orders SET gateway_ref = ?, gateway_url = ? WHERE order_ref = ?')
+                    .bind(bill.id, bill.url, orderRef).run();
+
+                console.log(`[Payment] Billplz bill created: ${bill.id}`);
+            } catch (billplzError) {
+                console.error('[Payment] Billplz error:', billplzError);
+                return new Response(JSON.stringify({
+                    error: 'Failed to create payment',
+                    details: billplzError.message
+                }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
         } else if (paymentMethod === 'duitnow') {
             // Return DuitNow QR info
             duitnowQr = {
