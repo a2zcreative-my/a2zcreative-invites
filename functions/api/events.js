@@ -3,7 +3,7 @@
  * GET /api/events - List user's events
  */
 
-import { getAuthUser, syncUserToD1 } from '../lib/auth.js';
+import { requireAuth } from '../lib/auth.js';
 
 // Generate random slug for invitation
 function generatePublicSlug(prefix = '') {
@@ -18,16 +18,10 @@ function generatePublicSlug(prefix = '') {
 export async function onRequestPost(context) {
     const { request, env } = context;
 
-    // Authenticate user
-    const authUser = await getAuthUser(request);
-    if (!authUser) {
-        return new Response(JSON.stringify({
-            error: 'Unauthorized',
-            message: 'Please log in to create events'
-        }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' }
-        });
+    // Authenticate user using D1 session cookies
+    const { user, userId, errorResponse } = await requireAuth(request, env.DB);
+    if (errorResponse) {
+        return errorResponse;
     }
 
     let data;
@@ -41,8 +35,6 @@ export async function onRequestPost(context) {
     }
 
     try {
-        // Sync user to D1 and get their ID
-        const userId = await syncUserToD1(env.DB, authUser);
 
         // ===== PACKAGE ACCESS CONTROL =====
         // Get user's subscription info
@@ -206,22 +198,13 @@ export async function onRequestPost(context) {
 export async function onRequestGet(context) {
     const { request, env } = context;
 
-    // Authenticate user
-    const authUser = await getAuthUser(request);
-    if (!authUser) {
-        return new Response(JSON.stringify({
-            error: 'Unauthorized',
-            message: 'Please log in to view events'
-        }), {
-            status: 401,
-            headers: { 'Content-Type': 'application/json' }
-        });
+    // Authenticate user using D1 session cookies
+    const { user, userId, errorResponse } = await requireAuth(request, env.DB);
+    if (errorResponse) {
+        return errorResponse;
     }
 
     try {
-        // Get user ID from D1
-        const userId = await syncUserToD1(env.DB, authUser);
-
         // Get only this user's events
         const events = await env.DB.prepare(`
             SELECT 

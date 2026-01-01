@@ -7,6 +7,7 @@
 // State
 // =============================================
 let currentStep = 1;
+let highestStepReached = 1; // Track the highest step user has visited
 const totalSteps = 7;
 
 const eventData = {
@@ -376,11 +377,12 @@ function initClickableSteps() {
         step.addEventListener('click', () => {
             const targetStep = parseInt(step.getAttribute('data-step'));
 
-            // Allow clicking on current or previous steps
-            if (targetStep <= currentStep) {
+            // Allow clicking on any step up to the highest step reached
+            // This lets users go back AND return to any step they've visited
+            if (targetStep <= highestStepReached) {
                 goToStep(targetStep);
             } else {
-                // For future steps, show a message
+                // For steps beyond highest reached, show a message
                 alert('Sila lengkapkan langkah semasa dahulu sebelum meneruskan.');
             }
         });
@@ -537,6 +539,12 @@ function nextStep() {
 
         collectStepData();
         currentStep++;
+
+        // Track the highest step the user has reached
+        if (currentStep > highestStepReached) {
+            highestStepReached = currentStep;
+        }
+
         showStep(currentStep);
         updateProgressSteps();
     }
