@@ -259,6 +259,123 @@
                 </div>
             </form>
 
+            <!-- Music Selection Section -->
+            <h3 class="section-title" style="margin-top: 2rem; margin-bottom: 1rem;">
+                <i data-lucide="music"
+                    style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
+                Muzik Latar
+            </h3>
+
+            <div class="music-selection">
+                <div class="music-options">
+                    <label class="music-option selected">
+                        <input type="radio" name="musicOption" value="none" checked>
+                        <div class="music-option-content">
+                            <i data-lucide="volume-x"></i>
+                            <span>Tiada Muzik</span>
+                        </div>
+                    </label>
+                    <label class="music-option">
+                        <input type="radio" name="musicOption" value="romantic">
+                        <div class="music-option-content">
+                            <i data-lucide="heart"></i>
+                            <span>Romantik</span>
+                        </div>
+                    </label>
+                    <label class="music-option">
+                        <input type="radio" name="musicOption" value="nasyid">
+                        <div class="music-option-content">
+                            <i data-lucide="sparkles"></i>
+                            <span>Nasyid</span>
+                        </div>
+                    </label>
+                    <label class="music-option">
+                        <input type="radio" name="musicOption" value="piano">
+                        <div class="music-option-content">
+                            <i data-lucide="music-2"></i>
+                            <span>Piano</span>
+                        </div>
+                    </label>
+                    <label class="music-option">
+                        <input type="radio" name="musicOption" value="custom">
+                        <div class="music-option-content">
+                            <i data-lucide="link"></i>
+                            <span>URL Sendiri</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="form-group" id="customMusicUrlGroup" style="display: none; margin-top: 1rem;">
+                    <label for="customMusicUrl">Pautan Muzik (MP3)</label>
+                    <input type="url" id="customMusicUrl" name="customMusicUrl"
+                        placeholder="https://example.com/music.mp3">
+                    <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
+                        Gunakan pautan terus ke fail MP3. YouTube tidak disokong.
+                    </small>
+                </div>
+            </div>
+
+            <!-- Hadiah (Gift) Info Section - Only for Wedding/Family/Birthday -->
+            <div id="giftInfoSection" class="gift-info-section" style="display: none;">
+                <h3 class="section-title" style="margin-top: 2rem; margin-bottom: 1rem;">
+                    <i data-lucide="gift"
+                        style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
+                    Sumbangan / Hadiah
+                </h3>
+                <p class="section-desc" style="margin-bottom: 1rem;">Maklumat akaun untuk tetamu yang ingin memberi
+                    sumbangan.</p>
+
+                <div class="form-group">
+                    <label class="toggle-label"
+                        style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                        <input type="checkbox" id="giftEnabled" name="giftEnabled" checked
+                            style="width: 20px; height: 20px;">
+                        <span>Paparkan butang Hadiah dalam jemputan</span>
+                    </label>
+                </div>
+
+                <div id="giftDetailsFields">
+                    <div class="form-group">
+                        <label for="giftBankName">Nama Bank</label>
+                        <select id="giftBankName" name="giftBankName">
+                            <option value="">-- Pilih Bank --</option>
+                            <option value="Maybank">Maybank</option>
+                            <option value="CIMB Bank">CIMB Bank</option>
+                            <option value="Public Bank">Public Bank</option>
+                            <option value="RHB Bank">RHB Bank</option>
+                            <option value="Hong Leong Bank">Hong Leong Bank</option>
+                            <option value="AmBank">AmBank</option>
+                            <option value="Bank Islam">Bank Islam</option>
+                            <option value="Bank Rakyat">Bank Rakyat</option>
+                            <option value="BSN">BSN</option>
+                            <option value="Affin Bank">Affin Bank</option>
+                            <option value="Touch n Go">Touch 'n Go eWallet</option>
+                            <option value="GrabPay">GrabPay</option>
+                            <option value="Boost">Boost</option>
+                            <option value="ShopeePay">ShopeePay</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="giftAccountNumber">Nombor Akaun</label>
+                        <input type="text" id="giftAccountNumber" name="giftAccountNumber" placeholder="1234 5678 9012">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="giftAccountHolder">Nama Pemegang Akaun</label>
+                        <input type="text" id="giftAccountHolder" name="giftAccountHolder" placeholder="NAMA PENUH">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="giftQrImage">QR E-Wallet (Pilihan)</label>
+                        <input type="url" id="giftQrImage" name="giftQrImage"
+                            placeholder="https://... (pautan gambar QR)">
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
+                            Muat naik gambar QR anda ke Imgur/Google Drive, kemudian tampal pautan di sini.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
             <div class="wizard-nav">
                 <button class="nav-btn secondary" onclick="prevStep()">
                     <i data-lucide="arrow-left"></i>

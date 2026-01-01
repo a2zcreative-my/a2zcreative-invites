@@ -839,3 +839,119 @@ input[type="time"] {
         max-width: 100% !important;
     }
 }
+
+/* =============================================
+   Music Selection Styles
+   ============================================= */
+.music-selection {
+    margin-bottom: 1.5rem;
+}
+
+.music-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+}
+
+.music-option {
+    position: relative;
+    cursor: pointer;
+}
+
+.music-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.music-option-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0.75rem;
+    min-height: 80px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.music-option-content i {
+    width: 24px;
+    height: 24px;
+    color: #8892b0;
+}
+
+.music-option-content span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #a8b2d1;
+}
+
+.music-option:hover .music-option-content {
+    border-color: rgba(212, 175, 55, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.music-option.selected .music-option-content,
+.music-option input:checked+.music-option-content {
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.music-option.selected .music-option-content i,
+.music-option input:checked+.music-option-content i {
+    color: #d4af37;
+}
+
+.music-option.selected .music-option-content span,
+.music-option input:checked+.music-option-content span {
+    color: #d4af37;
+}
+
+/* Gift Info Section */
+.gift-info-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.gift-info-section .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.gift-info-section .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Checkbox styling for gift toggle */
+.toggle-label input[type="checkbox"] {
+    accent-color: #d4af37;
+}
+
+/* Responsive music options */
+@media (max-width: 480px) {
+    .music-options {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .music-option-content {
+        padding: 0.75rem 0.5rem;
+        min-height: 70px;
+    }
+
+    .music-option-content i {
+        width: 20px;
+        height: 20px;
+    }
+
+    .music-option-content span {
+        font-size: 0.7rem;
+    }
+}

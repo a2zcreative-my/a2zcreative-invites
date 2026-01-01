@@ -26,7 +26,16 @@ const eventData = {
     verseRef: '',
     hashtag: '',
     schedule: [],
-    contacts: []
+    contacts: [],
+    // Music settings
+    musicOption: 'none',
+    musicUrl: '',
+    // Gift/Hadiah settings
+    giftEnabled: true,
+    giftBankName: '',
+    giftAccountNumber: '',
+    giftAccountHolder: '',
+    giftQrImage: ''
 };
 
 // =============================================
@@ -202,6 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
     filterEventTypesByPackage();
     initThemeCards();
     initFormInputs();
+    initMusicOptions();
+    initGiftToggle();
     loadUserInfo();
     updateProgressSteps();
 
@@ -212,6 +223,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// =============================================
+// Music Selection Handling
+// =============================================
+const MUSIC_PRESETS = {
+    'none': '',
+    'romantic': '/assets/audio/romantic-wedding.mp3',
+    'nasyid': '/assets/audio/nasyid-wedding.mp3',
+    'piano': '/assets/audio/piano-soft.mp3'
+};
+
+function initMusicOptions() {
+    const musicOptions = document.querySelectorAll('.music-option');
+    const customUrlGroup = document.getElementById('customMusicUrlGroup');
+    const customUrlInput = document.getElementById('customMusicUrl');
+
+    musicOptions.forEach(option => {
+        const input = option.querySelector('input');
+        if (!input) return;
+
+        input.addEventListener('change', () => {
+            // Update selection styling
+            musicOptions.forEach(opt => opt.classList.remove('selected'));
+            option.classList.add('selected');
+
+            const value = input.value;
+            eventData.musicOption = value;
+
+            // Show/hide custom URL input
+            if (customUrlGroup) {
+                customUrlGroup.style.display = value === 'custom' ? 'block' : 'none';
+            }
+
+            // Set music URL based on selection
+            if (value === 'custom') {
+                eventData.musicUrl = customUrlInput?.value || '';
+            } else {
+                eventData.musicUrl = MUSIC_PRESETS[value] || '';
+            }
+        });
+    });
+
+    // Custom URL input change handler
+    if (customUrlInput) {
+        customUrlInput.addEventListener('input', () => {
+            if (eventData.musicOption === 'custom') {
+                eventData.musicUrl = customUrlInput.value;
+            }
+        });
+    }
+}
+
+// =============================================
+// Gift Toggle Handling  
+// =============================================
+function initGiftToggle() {
+    const giftEnabled = document.getElementById('giftEnabled');
+    const giftDetailsFields = document.getElementById('giftDetailsFields');
+
+    if (giftEnabled) {
+        giftEnabled.addEventListener('change', () => {
+            eventData.giftEnabled = giftEnabled.checked;
+            if (giftDetailsFields) {
+                giftDetailsFields.style.opacity = giftEnabled.checked ? '1' : '0.5';
+                giftDetailsFields.style.pointerEvents = giftEnabled.checked ? 'auto' : 'none';
+            }
+        });
+    }
+}
 
 // Send data to preview iframe
 function sendDataToPreview() {
@@ -436,6 +516,26 @@ function applyAllContext(eventType) {
     applyThemeContext(eventType);
     applyScheduleContext(eventType);
     applyContactContext(eventType);
+    applyGiftContext(eventType);
+}
+
+// =============================================
+// Gift Section Visibility (only for Wedding/Family/Birthday)
+// =============================================
+function applyGiftContext(eventType) {
+    const giftSection = document.getElementById('giftInfoSection');
+    if (!giftSection) return;
+
+    // Gift is available for: Perkahwinan (1), Keluarga (3), Hari Lahir (4)
+    const giftAllowedTypes = [1, 3, 4];
+    const showGift = giftAllowedTypes.includes(eventType);
+
+    giftSection.style.display = showGift ? 'block' : 'none';
+
+    // Reset gift data if not allowed for this event type
+    if (!showGift) {
+        eventData.giftEnabled = false;
+    }
 }
 
 // =============================================

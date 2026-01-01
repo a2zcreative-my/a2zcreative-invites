@@ -370,6 +370,58 @@ function populateInvitation(data) {
     if (prayerTitle) prayerTitle.textContent = prayerConfig.title;
     if (prayerText) prayerText.textContent = prayerConfig.text;
 
+    // =============================================
+    // Music Loading from Settings
+    // =============================================
+    if (settings?.background_music_url) {
+        const audioEl = document.getElementById('background-audio');
+        const audioSource = audioEl?.querySelector('source');
+        if (audioSource) {
+            audioSource.src = settings.background_music_url;
+            audioEl.load(); // Reload audio element with new source
+            console.log('Music loaded:', settings.background_music_url);
+        }
+    }
+
+    // =============================================
+    // Gift Modal Population from Settings
+    // =============================================
+    const giftBtn = document.getElementById('giftBtn');
+    const giftModal = document.getElementById('giftModal');
+
+    // Gift is only available for Wedding (1), Family (3), Birthday (4)
+    const giftAllowedTypes = [1, 3, 4];
+    const showGiftButton = giftAllowedTypes.includes(eventType) &&
+        (settings?.gift_enabled !== 0) &&
+        (settings?.gift_bank_name || settings?.gift_qr_image_url);
+
+    if (giftBtn) {
+        giftBtn.style.display = showGiftButton ? 'flex' : 'none';
+    }
+
+    // Populate gift modal with settings data
+    if (giftModal && settings) {
+        const bankName = document.getElementById('bankName');
+        const accNumber = document.getElementById('accNumber');
+        const accHolder = document.getElementById('accHolder');
+
+        if (bankName && settings.gift_bank_name) bankName.textContent = settings.gift_bank_name;
+        if (accNumber && settings.gift_account_number) accNumber.textContent = settings.gift_account_number;
+        if (accHolder && settings.gift_account_holder) accHolder.textContent = settings.gift_account_holder;
+
+        // Add QR image if provided
+        if (settings.gift_qr_image_url) {
+            const bankDetails = giftModal.querySelector('.bank-details');
+            if (bankDetails && !document.getElementById('giftQrDisplay')) {
+                const qrDiv = document.createElement('div');
+                qrDiv.id = 'giftQrDisplay';
+                qrDiv.style.cssText = 'text-align: center; margin-top: 1rem;';
+                qrDiv.innerHTML = `<img src="${settings.gift_qr_image_url}" alt="QR Code" style="max-width: 200px; border-radius: 12px;">`;
+                bankDetails.appendChild(qrDiv);
+            }
+        }
+    }
+
     // Store event ID for RSVP form
     window.currentEventId = event.id;
     window.currentEventSlug = invitation.slug;
