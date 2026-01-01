@@ -19,7 +19,6 @@ const PROTECTED_ROUTES = {
     admin: [
         '/dashboard/',
         '/checkin/',
-        '/api/events',
         '/api/guests',
         '/api/export/',
         '/api/analytics/'
@@ -28,7 +27,8 @@ const PROTECTED_ROUTES = {
     authenticated: [
         '/pricing/',
         '/create/',
-        '/api/payment'  // Payment routes - unpaid users need to pay to become admin
+        '/api/payment',  // Payment routes - unpaid users need to pay to become admin
+        '/api/events'    // Event creation - users create events then pay
     ]
 };
 
