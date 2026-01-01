@@ -818,3 +818,24 @@ input[type="time"] {
         transform: translate(-50%, -50%) scale(1);
     }
 }
+
+/* Time Input Specific Styling */
+.time-input-group {
+    max-width: 200px !important;
+}
+
+.time-input {
+    max-width: 150px !important;
+    text-align: center !important;
+}
+
+/* On mobile, time input should still be constrained */
+@media (max-width: 768px) {
+    .time-input-group {
+        max-width: 50% !important;
+    }
+
+    .time-input {
+        max-width: 100% !important;
+    }
+}

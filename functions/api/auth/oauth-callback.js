@@ -122,7 +122,7 @@ export async function onRequestPost(context) {
             status: 200,
             headers: {
                 'Content-Type': 'application/json',
-                'Set-Cookie': createSessionCookie(session.token)
+                'Set-Cookie': createSessionCookie(session.token, session.expiresAt)
             }
         });
 
