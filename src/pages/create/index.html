@@ -509,11 +509,25 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="giftQrImage">QR E-Wallet (Pilihan)</label>
-                        <input type="url" id="giftQrImage" name="giftQrImage"
-                            placeholder="https://... (pautan gambar QR)">
+                        <label for="giftQrUpload">QR E-Wallet (Pilihan)</label>
+                        <div class="qr-upload-wrapper">
+                            <input type="file" id="giftQrUpload" name="giftQrUpload" accept="image/*"
+                                class="qr-upload-input">
+                            <label for="giftQrUpload" class="qr-upload-btn">
+                                <i data-lucide="upload"></i>
+                                <span>Muat naik gambar QR</span>
+                            </label>
+                            <div id="qrPreviewContainer" class="qr-preview-container" style="display: none;">
+                                <img id="qrPreviewImg" class="qr-preview-img" alt="QR Preview">
+                                <br>
+                                <button type="button" id="qrRemoveBtn" class="qr-remove-btn">
+                                    <i data-lucide="trash-2"></i>
+                                    Buang
+                                </button>
+                            </div>
+                        </div>
                         <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
-                            Muat naik gambar QR anda ke Imgur/Google Drive, kemudian tampal pautan di sini.
+                            Format: JPG, PNG. Maksimum 2MB.
                         </small>
                     </div>
                 </div>

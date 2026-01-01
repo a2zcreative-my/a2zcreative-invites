@@ -47,6 +47,21 @@ export async function onRequestPost(context) {
 }
 
 async function handleCreatePayment(request, env) {
+    // Verify user authentication
+    const { user, errorResponse } = await requireAuth(request, env.DB);
+    if (errorResponse) {
+        // Return JSON error for frontend
+        return new Response(JSON.stringify({
+            error: 'Unauthorized',
+            message: 'Sila log masuk semula'
+        }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    const userId = user.id;
+
     let data;
     try {
         data = await request.json();
@@ -57,15 +72,7 @@ async function handleCreatePayment(request, env) {
         });
     }
 
-    const { eventId, packageId, paymentMethod, userId } = data;
-
-    // Validate required fields
-    if (!userId) {
-        return new Response(JSON.stringify({ error: 'userId required' }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
+    const { eventId, packageId, paymentMethod } = data;
 
     // Validate package
     const pkg = PACKAGES[packageId];

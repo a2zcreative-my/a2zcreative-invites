@@ -213,6 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initFormInputs();
     initMusicOptions();
     initGiftToggle();
+    initClickableSteps();
+    initQrUpload();
     loadUserInfo();
     updateProgressSteps();
 
@@ -360,6 +362,101 @@ function initGiftToggle() {
                 giftDetailsFields.style.opacity = giftEnabled.checked ? '1' : '0.5';
                 giftDetailsFields.style.pointerEvents = giftEnabled.checked ? 'auto' : 'none';
             }
+        });
+    }
+}
+
+// =============================================
+// Clickable Wizard Steps
+// =============================================
+function initClickableSteps() {
+    const progressSteps = document.querySelectorAll('.progress-step');
+
+    progressSteps.forEach(step => {
+        step.addEventListener('click', () => {
+            const targetStep = parseInt(step.getAttribute('data-step'));
+
+            // Allow clicking on current or previous steps
+            if (targetStep <= currentStep) {
+                goToStep(targetStep);
+            } else {
+                // For future steps, show a message
+                alert('Sila lengkapkan langkah semasa dahulu sebelum meneruskan.');
+            }
+        });
+    });
+}
+
+function goToStep(stepNumber) {
+    if (stepNumber < 1 || stepNumber > totalSteps) return;
+
+    // Collect current step data before navigating
+    collectStepData();
+
+    // Update current step
+    currentStep = stepNumber;
+
+    // Show the target step
+    showStep(stepNumber);
+    updateProgressSteps();
+
+    // Re-init Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+// =============================================
+// QR Image Upload Handling
+// =============================================
+function initQrUpload() {
+    const qrInput = document.getElementById('giftQrUpload');
+    const qrPreview = document.getElementById('qrPreviewContainer');
+    const qrPreviewImg = document.getElementById('qrPreviewImg');
+    const qrRemoveBtn = document.getElementById('qrRemoveBtn');
+
+    if (!qrInput) return;
+
+    qrInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Sila pilih fail gambar sahaja (JPG, PNG, dll)');
+            return;
+        }
+
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Saiz gambar terlalu besar. Maksimum 2MB.');
+            return;
+        }
+
+        // Convert to Base64
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const base64Data = event.target.result;
+            eventData.giftQrImage = base64Data;
+
+            // Show preview
+            if (qrPreviewImg) {
+                qrPreviewImg.src = base64Data;
+            }
+            if (qrPreview) {
+                qrPreview.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Remove button handler
+    if (qrRemoveBtn) {
+        qrRemoveBtn.addEventListener('click', () => {
+            eventData.giftQrImage = '';
+            if (qrInput) qrInput.value = '';
+            if (qrPreviewImg) qrPreviewImg.src = '';
+            if (qrPreview) qrPreview.style.display = 'none';
         });
     }
 }
@@ -878,7 +975,11 @@ function initThemeCards() {
 
             const input = card.querySelector('input');
             if (input) {
+                input.checked = true;
                 eventData.theme = input.value;
+
+                // Update preview with new theme
+                sendDataToPreview();
             }
         });
     });
@@ -1631,7 +1732,15 @@ async function proceedToBillplzPayment() {
         const sessionResponse = await fetch('/api/auth/session', {
             credentials: 'include'
         });
-        const sessionData = await sessionResponse.json();
+
+        // Safe JSON parsing for session
+        let sessionData;
+        try {
+            sessionData = await sessionResponse.json();
+        } catch (parseError) {
+            console.error('Session response parse error:', parseError);
+            throw new Error('Ralat pelayan. Sila cuba lagi.');
+        }
 
         if (!sessionData.authenticated) {
             // Session expired or invalid - redirect to login
@@ -1659,7 +1768,18 @@ async function proceedToBillplzPayment() {
             })
         });
 
-        const eventResult = await eventResponse.json();
+        // Safe JSON parsing for event response
+        let eventResult;
+        try {
+            eventResult = await eventResponse.json();
+        } catch (parseError) {
+            console.error('Event response parse error:', parseError);
+            if (eventResponse.status === 403) {
+                throw new Error('Akses ditolak. Sila log masuk semula.');
+            }
+            throw new Error('Ralat pelayan. Sila cuba lagi.');
+        }
+
         if (!eventResponse.ok) {
             if (eventResponse.status === 401) {
                 // Session became invalid during request
@@ -1681,12 +1801,25 @@ async function proceedToBillplzPayment() {
             body: JSON.stringify({
                 eventId: eventId,
                 packageId: selectedPackage,
-                paymentMethod: 'billplz',
-                userId: user.id
+                paymentMethod: 'billplz'
             })
         });
 
-        const paymentResult = await paymentResponse.json();
+        // Safe JSON parsing for payment response
+        let paymentResult;
+        try {
+            paymentResult = await paymentResponse.json();
+        } catch (parseError) {
+            console.error('Payment response parse error:', parseError);
+            if (paymentResponse.status === 403) {
+                throw new Error('Akses ditolak. Sila log masuk semula.');
+            } else if (paymentResponse.status === 401) {
+                alert('Sesi anda telah tamat. Sila log masuk semula.');
+                window.location.href = '/auth/login.html';
+                return;
+            }
+            throw new Error('Ralat pembayaran. Sila cuba lagi.');
+        }
 
         if (!paymentResponse.ok) {
             if (paymentResponse.status === 401) {
@@ -1694,7 +1827,7 @@ async function proceedToBillplzPayment() {
                 window.location.href = '/auth/login.html';
                 return;
             }
-            throw new Error(paymentResult.error || paymentResult.details || 'Gagal mencipta pembayaran');
+            throw new Error(paymentResult.error || paymentResult.message || paymentResult.details || 'Gagal mencipta pembayaran');
         }
 
         if (paymentResult.paymentUrl) {
