@@ -781,3 +781,40 @@ input[type="time"] {
         max-width: 100% !important;
     }
 }
+
+/* iOS Zoom Prevention - All inputs must be 16px+ */
+@media screen and (max-width: 768px) {
+
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+
+    .flatpickr-calendar {
+        font-size: 14px !important;
+    }
+
+    /* Time input consistent width on mobile */
+    input[type="time"] {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* Calendar Overlay for Mobile */
+.flatpickr-calendar.open {
+    animation: fadeInCalendar 0.2s ease-out;
+}
+
+@keyframes fadeInCalendar {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
