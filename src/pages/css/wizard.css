@@ -743,3 +743,41 @@
 .share-btn.email {
     background: #8892b0;
 }
+
+/* Calendar Modal - Mobile Fix */
+@media (max-width: 768px) {
+    .flatpickr-calendar {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        max-width: 90vw !important;
+        z-index: 99999 !important;
+    }
+
+    .flatpickr-calendar.open {
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+    }
+}
+
+/* Calendar Backdrop */
+.flatpickr-calendar.open~.flatpickr-mobile-backdrop,
+body.flatpickr-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99998;
+}
+
+/* Time Input Width Fix */
+input[type="time"] {
+    max-width: 150px !important;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    input[type="time"] {
+        max-width: 100% !important;
+    }
+}

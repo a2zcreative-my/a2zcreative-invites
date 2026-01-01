@@ -1468,6 +1468,7 @@ async function proceedToBillplzPayment() {
         const eventResponse = await fetch('/api/events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({
                 ...eventData,
                 slug,
@@ -1487,6 +1488,7 @@ async function proceedToBillplzPayment() {
         const paymentResponse = await fetch('/api/payment/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({
                 eventId: eventId,
                 packageId: selectedPackage,
