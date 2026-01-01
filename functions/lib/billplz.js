@@ -58,7 +58,13 @@ export async function createBill(env, options) {
     const callbackUrl = env.BILLPLZ_CALLBACK_URL || 'https://a2zcreative.my/api/webhook/billplz';
 
     // Build redirect URL (where user goes after payment)
-    const redirectUrl = env.BILLPLZ_REDIRECT_URL || 'https://a2zcreative.my/payment/callback';
+    // Redirect back to the creation wizard payment check step
+    // We append the orderRef so the frontend can check status
+    const redirectUrl = env.BILLPLZ_REDIRECT_URL
+        ? env.BILLPLZ_REDIRECT_URL
+        : `https://a2zcreative.my/create/payment-return.html?order_ref=${orderRef}`;
+
+    console.log(`[Payment Create] Redirect URL set to: ${redirectUrl}`);
 
     // Prepare form data
     const formData = new URLSearchParams();

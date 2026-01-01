@@ -195,10 +195,13 @@
     margin: 0 0 2rem 0;
 }
 
-/* Event Type Cards */
+/* Event Type Cards*/
 .event-type-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 180px));
+    /* Standard card size */
+    justify-content: center;
+    /* Center cards */
     gap: 1rem;
 }
 
@@ -234,8 +237,24 @@
 }
 
 .event-type-icon {
-    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
     margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.event-type-icon img {
+    /* STRICT SIZING TO PREVENT EXPLOSION */
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+
+    /* TRICK: Make black background transparent */
+    mix-blend-mode: screen;
 }
 
 .event-type-name {

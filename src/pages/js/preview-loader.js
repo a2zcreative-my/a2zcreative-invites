@@ -323,6 +323,21 @@ function renderPreview(data) {
         wishesContainer.innerHTML = '<p style="opacity: 0.5; text-align: center;">Belum ada ucapan</p>';
     }
 
+    // Gift/Hadiah Section Mapping
+    if (data.giftEnabled) {
+        setText('bankName', data.giftBankName || '-');
+        setText('accNumber', data.giftAccountNumber || '-');
+        setText('accHolder', data.giftAccountHolder || '-');
+
+        // Ensure nav button is visible
+        const giftNavBtn = document.getElementById('giftBtn');
+        if (giftNavBtn) giftNavBtn.style.display = 'flex';
+    } else {
+        // Hide nav button if gift disabled
+        const giftNavBtn = document.getElementById('giftBtn');
+        if (giftNavBtn) giftNavBtn.style.display = 'none';
+    }
+
     // Update intro text based on event type
     const introText = document.getElementById('intro-text');
     if (introText && config.introText) {
@@ -414,6 +429,65 @@ window.addEventListener('DOMContentLoaded', () => {
     if (coverSection) {
         document.body.style.overflow = 'hidden';
     }
+
+    // =============================================
+    // Navigation & Modals
+    // =============================================
+
+    // Contact Modal
+    const contactNavBtn = document.getElementById('contactNavBtn');
+    const contactModal = document.getElementById('contactModal');
+    const closeContact = document.getElementById('closeContactModal');
+
+    if (contactNavBtn && contactModal) {
+        contactNavBtn.addEventListener('click', () => {
+            contactModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+    if (closeContact && contactModal) {
+        closeContact.addEventListener('click', () => {
+            contactModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+
+    // Gift Modal
+    const giftBtn = document.getElementById('giftBtn');
+    const giftModal = document.getElementById('giftModal');
+    const closeGift = document.getElementById('closeGiftModal');
+
+    if (giftBtn && giftModal) {
+        giftBtn.addEventListener('click', () => {
+            giftModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    }
+    if (closeGift && giftModal) {
+        closeGift.addEventListener('click', () => {
+            giftModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        });
+    }
+
+    // Scroll Buttons (Lokasi, RSVP)
+    document.querySelectorAll('[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sectionId = btn.dataset.section;
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    });
 
     // Tell parent we're ready
     if (window.parent !== window) {

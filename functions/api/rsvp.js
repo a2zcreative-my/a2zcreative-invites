@@ -10,19 +10,13 @@ import {
     sanitizeInput,
     logSecurityEvent,
     errorResponse,
-    successResponse
+    successResponse,
+    generateSecureString
 } from '../lib/security.js';
 import { checkAccess, incrementUsage } from '../lib/access-control.js';
 
-// Generate a cryptographically random token
-function generateCheckinToken() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-    let token = '';
-    for (let i = 0; i < 12; i++) {
-        token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return token;
-}
+const CHECKIN_TOKEN_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+const CHECKIN_TOKEN_LENGTH = 12;
 
 export async function onRequestPost(context) {
     const { request, env } = context;
@@ -122,7 +116,7 @@ export async function onRequestPost(context) {
 
             // Generate token if doesn't exist and attending
             if (!checkinToken && attendance === 'yes' && accessCheck.features?.qr) {
-                checkinToken = generateCheckinToken();
+                checkinToken = generateSecureString(CHECKIN_TOKEN_LENGTH, CHECKIN_TOKEN_CHARS);
                 await env.DB.prepare(`
                     UPDATE guests SET name = ?, pax = ?, checkin_token = ?, updated_at = CURRENT_TIMESTAMP
                     WHERE id = ?
@@ -143,7 +137,7 @@ export async function onRequestPost(context) {
         } else {
             // New guest - check if QR is enabled before generating token
             checkinToken = (attendance === 'yes' && accessCheck.features?.qr)
-                ? generateCheckinToken()
+                ? generateSecureString(CHECKIN_TOKEN_LENGTH, CHECKIN_TOKEN_CHARS)
                 : null;
 
             // Create new guest

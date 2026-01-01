@@ -18,7 +18,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="/css/global.css">
-    <link rel="stylesheet" href="/css/auth.css?v=2">
+    <link rel="stylesheet" href="/css/auth.css?v=200">
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -103,8 +103,20 @@
         </div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="auth-logo" style="margin-bottom: 2rem;">
+            <img src="/logo.png" alt="A2Z Creative" height="48">
+        </div>
+        <div class="loading-card">
+            <div class="spinner-large"></div>
+            <h2 class="loading-title">Memproses Log Masuk</h2>
+            <p class="loading-text" id="loadingText">Menyegerakkan akaun...</p>
+        </div>
+    </div>
+
     <!-- JavaScript -->
-    <script src="/js/auth.js?v=100" defer></script>
+    <script src="/js/auth.js?v=300" defer></script>
     <script>
         lucide.createIcons();
 

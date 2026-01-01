@@ -259,6 +259,22 @@ export const CORS_HEADERS = {
 };
 
 /**
+ * Generate a cryptographically secure random string
+ * @param {number} length - desired string length
+ * @param {string} charset - characters to draw from
+ */
+export function generateSecureString(length, charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789') {
+    const randomBytes = new Uint8Array(length);
+    crypto.getRandomValues(randomBytes);
+
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += charset.charAt(randomBytes[i] % charset.length);
+    }
+    return result;
+}
+
+/**
  * Create error response with proper headers
  */
 export function errorResponse(message, status = 400, code = 'ERROR') {

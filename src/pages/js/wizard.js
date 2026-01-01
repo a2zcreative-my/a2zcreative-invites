@@ -687,12 +687,95 @@ function initEventTypeCards() {
 // =============================================
 // Context Application Functions
 // =============================================
+
+// Music Options Configuration by Event Type
+// 1: Perkahwinan, 2: Korporat, 3: Keluarga, 4: Hari Lahir, 5: Komuniti
+const MUSIC_OPTIONS_CONFIG = {
+    1: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Perkahwinan: all options
+    2: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Korporat: same options, different labels
+    3: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Keluarga
+    4: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Hari Lahir
+    5: ['none', 'romantic', 'nasyid', 'piano', 'custom']  // Komuniti
+};
+
+// Music Labels Configuration - different labels per event type
+// Perkahwinan: Romantik Klasik, Nasyid Perkahwinan
+// Others: Lagu Klasik, Nasyid Majlis
+const MUSIC_LABELS = {
+    wedding: {
+        romantic: { title: 'Romantik Klasik', desc: 'Instrumental lembut, 3:24' },
+        nasyid: { title: 'Nasyid Perkahwinan', desc: 'Vokal nasyid, 4:12' },
+        piano: { title: 'Piano Lembut', desc: 'Instrumental piano, 3:48' }
+    },
+    general: {
+        romantic: { title: 'Lagu Klasik', desc: 'Instrumental lembut, 3:24' },
+        nasyid: { title: 'Nasyid Majlis', desc: 'Vokal nasyid, 4:12' },
+        piano: { title: 'Piano Lembut', desc: 'Instrumental piano, 3:48' }
+    }
+};
+
 function applyAllContext(eventType) {
     applyStep2Config(eventType);
     applyThemeContext(eventType);
     applyScheduleContext(eventType);
     applyContactContext(eventType);
     applyGiftContext(eventType);
+    applyMusicContext(eventType);
+}
+
+// Apply music options and labels based on event type
+function applyMusicContext(eventType) {
+    console.log('[Music] applyMusicContext called with:', eventType);
+    const typeId = parseInt(eventType);
+    const allowedMusic = MUSIC_OPTIONS_CONFIG[typeId] || MUSIC_OPTIONS_CONFIG[1];
+
+    // Correct logic: typeId 1 is Wedding (Perkahwinan)
+    const isWedding = (typeId === 1);
+    const labels = isWedding ? MUSIC_LABELS.wedding : MUSIC_LABELS.general;
+    console.log('[Music] isWedding:', isWedding, 'Using labels:', isWedding ? 'wedding' : 'general');
+
+    let hasSelectedVisible = false;
+
+    document.querySelectorAll('.music-card').forEach(card => {
+        const musicType = card.dataset.music;
+        // Skip if no data-music (e.g. unknown wrapper)
+        if (!musicType) return;
+
+        const isAllowed = allowedMusic.includes(musicType);
+
+        card.style.display = isAllowed ? '' : 'none';
+
+        // Update labels for this card if it has custom labels
+        if (labels[musicType]) {
+            const titleEl = card.querySelector('.music-card-title');
+            const descEl = card.querySelector('.music-card-desc');
+
+            if (titleEl) titleEl.innerText = labels[musicType].title;
+            if (descEl) descEl.innerText = labels[musicType].desc;
+        }
+
+        // Track if selected card is still visible
+        if (isAllowed && card.classList.contains('selected')) {
+            hasSelectedVisible = true;
+        }
+
+        // If current selection is hidden, unselect it
+        if (!isAllowed && card.classList.contains('selected')) {
+            card.classList.remove('selected');
+            const input = card.querySelector('input');
+            if (input) input.checked = false;
+        }
+    });
+
+    // If no visible card is selected, select 'none'
+    if (!hasSelectedVisible) {
+        const noneCard = document.querySelector('.music-card[data-music="none"]');
+        if (noneCard) {
+            noneCard.classList.add('selected');
+            const input = noneCard.querySelector('input');
+            if (input) input.checked = true;
+        }
+    }
 }
 
 // =============================================

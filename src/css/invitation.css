@@ -1069,4 +1069,27 @@
         min-width: 38px;
         padding: var(--space-1) var(--space-2);
     }
+
+    /* Better Bottom Nav for Mobile */
+    .bottom-nav {
+        padding: var(--space-2);
+        gap: var(--space-1);
+    }
+
+    .nav-item {
+        padding: var(--space-1);
+        min-width: 0;
+        flex: 1;
+    }
+
+    .nav-item span {
+        font-size: 10px;
+        /* Smaller text */
+        letter-spacing: -0.02em;
+    }
+
+    .nav-item i {
+        width: 18px;
+        height: 18px;
+    }
 }

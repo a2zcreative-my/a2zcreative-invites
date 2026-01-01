@@ -100,30 +100,163 @@
             <h2 class="section-title">Pilih Jenis Majlis</h2>
             <p class="section-desc">Pilih jenis majlis untuk menyesuaikan tema dan kandungan jemputan.</p>
 
+            <style>
+                /* NUCLEAR CACHE FIX: Force styles inline */
+                .event-type-icon img {
+                    max-width: 100% !important;
+                    max-height: 100% !important;
+                    width: auto !important;
+                    height: auto !important;
+                    object-fit: contain !important;
+                    mix-blend-mode: screen !important;
+                }
+
+                /* DESKTOP: 4 columns */
+                .event-type-grid {
+                    display: grid !important;
+                    grid-template-columns: repeat(4, 1fr) !important;
+                    justify-content: center !important;
+                    gap: 1rem !important;
+                    max-width: 800px !important;
+                    margin: 0 auto !important;
+                }
+
+                .event-type-card {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                }
+
+                /* FIX: Ensure date and time inputs have equal width */
+                /* Force grid layout for form-row */
+                .form-row {
+                    display: grid !important;
+                    grid-template-columns: repeat(2, 1fr) !important;
+                    gap: 1rem !important;
+                    width: 100% !important;
+                }
+
+                .form-row .form-group {
+                    width: 100% !important;
+                    min-width: 0 !important;
+                }
+
+                .form-row input {
+                    width: 100% !important;
+                    box-sizing: border-box !important;
+                    margin: 0 !important;
+                }
+
+                /* Specifically target time input group */
+                .form-row .time-input-group {
+                    width: 100% !important;
+                    max-width: none !important;
+                }
+
+                /* FIX FOR FLATPICKR WRAPPER */
+                .flatpickr-wrapper {
+                    width: 100% !important;
+                    display: block !important;
+                }
+
+                .flatpickr-input {
+                    width: 100% !important;
+                    box-sizing: border-box !important;
+                }
+
+                /* SUPER NUCLEAR FIX: ID-based overrides */
+                #eventDate,
+                #startTime {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    display: block !important;
+                    box-sizing: border-box !important;
+                    height: 50px !important;
+                    /* Normalize Visuals */
+                    padding: 0 1rem !important;
+                    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    border-radius: 12px !important;
+                    background: rgba(255, 255, 255, 0.03) !important;
+                    font-size: 1rem !important;
+                    line-height: 50px !important;
+                    /* Center text vertically */
+                    appearance: none !important;
+                    -webkit-appearance: none !important;
+                }
+
+                /* Ensure containers strictly obey grid */
+                .form-row>div {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                }
+
+                /* MOBILE: 3 columns */
+                @media (max-width: 768px) {
+                    .event-type-grid {
+                        grid-template-columns: repeat(3, 1fr) !important;
+                        gap: 0.5rem !important;
+                    }
+
+                    .event-type-card {
+                        padding: 0.75rem 0.5rem !important;
+                    }
+
+                    .event-type-icon {
+                        width: 40px !important;
+                        height: 40px !important;
+                    }
+
+                    .event-type-name {
+                        font-size: 0.75rem !important;
+                    }
+
+                    /* Mobile: ensure equal width for date/time */
+                    .form-row {
+                        grid-template-columns: 1fr !important;
+                        gap: 1rem !important;
+                    }
+
+                    .form-row .form-group,
+                    .form-row .time-input-group {
+                        width: 100% !important;
+                    }
+                }
+            </style>
+
+
             <div class="event-type-grid">
                 <label class="event-type-card selected">
                     <input type="radio" name="eventType" value="1" checked>
-                    <div class="event-type-icon">💒</div>
+                    <div class="event-type-icon">
+                        <img src="/icons/event-wedding-v4.png" alt="Perkahwinan">
+                    </div>
                     <div class="event-type-name">Perkahwinan</div>
                 </label>
                 <label class="event-type-card">
                     <input type="radio" name="eventType" value="3">
-                    <div class="event-type-icon">👨‍👩‍👧‍👦</div>
+                    <div class="event-type-icon">
+                        <img src="/icons/event-family-v3.png" alt="Keluarga">
+                    </div>
                     <div class="event-type-name">Keluarga</div>
                 </label>
                 <label class="event-type-card">
                     <input type="radio" name="eventType" value="4">
-                    <div class="event-type-icon">🎂</div>
+                    <div class="event-type-icon">
+                        <img src="/icons/event-birthday-v3.png" alt="Hari Lahir">
+                    </div>
                     <div class="event-type-name">Hari Lahir</div>
                 </label>
                 <label class="event-type-card">
                     <input type="radio" name="eventType" value="5">
-                    <div class="event-type-icon">🌿</div>
+                    <div class="event-type-icon">
+                        <img src="/icons/event-community-v3.png" alt="Komuniti">
+                    </div>
                     <div class="event-type-name">Komuniti</div>
                 </label>
                 <label class="event-type-card">
                     <input type="radio" name="eventType" value="2">
-                    <div class="event-type-icon">🏢</div>
+                    <div class="event-type-icon">
+                        <img src="/icons/event-corporate-v3.png" alt="Korporat">
+                    </div>
                     <div class="event-type-name">Korporat</div>
                 </label>
             </div>
@@ -294,7 +427,8 @@
                 </label>
             </div>
 
-            <h3 class="section-title" style="margin-top: 2rem; margin-bottom: 1rem;">Kandungan Jemputan</h3>
+            <h3 class="section-title" style="margin-top: 2rem; margin-bottom: 1rem;">Kandungan Jemputan
+            </h3>
 
             <form class="wizard-form">
                 <div class="form-group">
@@ -464,7 +598,8 @@
                     style="width: 24px; height: 24px; display: inline-block; vertical-align: middle; margin-right: 0.5rem; color: #d4af37;"></i>
                 Hadiah & Sumbangan
             </h2>
-            <p class="section-desc">Tetapkan maklumat akaun untuk tetamu yang ingin memberi sumbangan.</p>
+            <p class="section-desc">Tetapkan maklumat akaun untuk tetamu yang ingin memberi sumbangan.
+            </p>
 
             <div id="giftInfoSection" class="gift-info-section" style="margin-top: 1.5rem;">
                 <div class="form-group">

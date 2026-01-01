@@ -7,11 +7,12 @@
 
 import { requireAuth, requireEventOwnership } from '../../lib/auth.js';
 import { createBill } from '../../lib/billplz.js';
+import { generateSecureString } from '../../lib/security.js';
 
 // Generate unique order reference
 function generateOrderRef() {
     const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const random = generateSecureString(8, 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789');
     return `ORD-${date}-${random}`;
 }
 

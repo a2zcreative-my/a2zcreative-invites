@@ -45,7 +45,10 @@
             togglePassword: document.getElementById('togglePassword'),
             authError: document.getElementById('authError'),
             submitBtn: document.getElementById('submitBtn'),
-            loadingSpinner: document.getElementById('loadingSpinner')
+            loadingSpinner: document.getElementById('loadingSpinner'),
+            // New Loading Overlay Elements
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            loadingText: document.getElementById('loadingText')
         };
 
         initPasswordToggle();
@@ -59,6 +62,30 @@
         document.addEventListener('DOMContentLoaded', initAuth);
     } else {
         initAuth();
+    }
+
+    // Helper: Show/Hide Full Screen Loading
+    function showLoadingOverlay(message = 'Memproses...') {
+        console.log('[A2Z Auth] showLoadingOverlay called with:', message);
+        console.log('[A2Z Auth] DOM.loadingOverlay:', DOM.loadingOverlay);
+
+        if (DOM.loadingOverlay) {
+            if (DOM.loadingText) DOM.loadingText.textContent = message;
+            // Use inline style directly (overrides any previous inline display: none)
+            DOM.loadingOverlay.style.display = 'flex';
+            console.log('[A2Z Auth] Overlay should now be VISIBLE');
+        } else {
+            console.log('[A2Z Auth] Overlay element NOT FOUND, using fallback spinner');
+            // Fallback to button spinner if overlay is missing
+            setLoading(true);
+        }
+    }
+
+    function hideLoadingOverlay() {
+        if (DOM.loadingOverlay) {
+            DOM.loadingOverlay.style.display = 'none';
+        }
+        setLoading(false);
     }
 
     // =============================================
@@ -213,7 +240,8 @@
                 return;
             }
 
-            setLoading(true);
+            // Show full screen overlay
+            showLoadingOverlay('Memproses Log Masuk...');
             hideError();
 
             try {
@@ -227,6 +255,9 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    // Update text to show success state
+                    if (DOM.loadingText) DOM.loadingText.textContent = 'Log masuk berjaya! Mengalihkan...';
+
                     // Store minimal user info for UI display only
                     if (data.user) {
                         localStorage.setItem('a2z_user', JSON.stringify({
@@ -236,16 +267,18 @@
                         }));
                     }
 
-                    // Use server-provided redirect
-                    window.location.href = data.redirect || '/dashboard/';
+                    // Delay slightly to let user see success message, then redirect
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/dashboard/';
+                    }, 800);
                 } else {
+                    hideLoadingOverlay();
                     showError(data.error || 'Log masuk gagal. Sila cuba lagi.');
                 }
             } catch (error) {
                 console.error('Login error:', error);
+                hideLoadingOverlay();
                 showError('Ralat rangkaian. Sila semak sambungan internet anda.');
-            } finally {
-                setLoading(false);
             }
         });
     }

@@ -440,6 +440,12 @@ function initEventTypeCards() {
 
                 // Trigger all context updates
                 applyAllContext(eventTypeId);
+
+                // Force update UI for music section if it's visible
+                const musicSection = document.getElementById('music-section'); // Assuming there's a container ID or we can find it
+                if (musicSection) {
+                    // Force redraw/check
+                }
             }
         });
     });
@@ -476,18 +482,31 @@ const MUSIC_LABELS = {
 };
 
 function applyAllContext(eventType) {
-    applyStep2Config(eventType);
-    applyThemeContext(eventType);
-    applyScheduleContext(eventType);
-    applyContactContext(eventType);
-    applyMusicContext(eventType);
+    // Ensure eventType is integer for config lookups
+    const typeId = parseInt(eventType);
+
+    console.log('Applying context for event type:', typeId); // Debug
+
+    applyStep2Config(typeId);
+    applyThemeContext(typeId);
+    applyScheduleContext(typeId);
+    applyContactContext(typeId);
+    applyMusicContext(typeId);
 }
 
 // Apply music options and labels based on event type
+// Apply music options and labels based on event type
 function applyMusicContext(eventType) {
-    const allowedMusic = MUSIC_OPTIONS_CONFIG[eventType] || MUSIC_OPTIONS_CONFIG[1];
-    const isWedding = (eventType === 1 || eventType === '1');
+    const typeId = parseInt(eventType);
+    const allowedMusic = MUSIC_OPTIONS_CONFIG[typeId] || MUSIC_OPTIONS_CONFIG[1];
+
+    // Correct logic: typeId 1 is Wedding (Perkahwinan)
+    const isWedding = (typeId === 1);
     const labels = isWedding ? MUSIC_LABELS.wedding : MUSIC_LABELS.general;
+
+    // Debug
+    // console.log(`[Music] Type: ${typeId}, Wedding: ${isWedding}, Allowed:`, allowedMusic);
+
     let hasSelectedVisible = false;
 
     document.querySelectorAll('.music-card[data-music]').forEach(card => {
@@ -500,8 +519,9 @@ function applyMusicContext(eventType) {
         if (labels[musicType]) {
             const titleEl = card.querySelector('.music-card-title');
             const descEl = card.querySelector('.music-card-desc');
-            if (titleEl) titleEl.textContent = labels[musicType].title;
-            if (descEl) descEl.textContent = labels[musicType].desc;
+
+            if (titleEl) titleEl.innerText = labels[musicType].title;
+            if (descEl) descEl.innerText = labels[musicType].desc;
         }
 
         // Track if selected card is still visible
