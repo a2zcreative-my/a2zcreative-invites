@@ -434,14 +434,28 @@ function initEventTypeCards() {
 
 // Music Options Configuration by Event Type
 // 1: Perkahwinan, 2: Korporat, 3: Keluarga, 4: Hari Lahir, 5: Komuniti
-// Perkahwinan: Romantik Klasik, Nasyid Perkahwinan, Piano Lembut
-// Others: Nasyid Majlis, Piano Lembut (no romantic option)
 const MUSIC_OPTIONS_CONFIG = {
-    1: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Perkahwinan: romantic + nasyid + piano
-    2: ['none', 'nasyid', 'piano', 'custom'], // Korporat: nasyid + piano
-    3: ['none', 'nasyid', 'piano', 'custom'], // Keluarga: nasyid + piano
-    4: ['none', 'nasyid', 'piano', 'custom'], // Hari Lahir: nasyid + piano
-    5: ['none', 'nasyid', 'piano', 'custom']  // Komuniti: nasyid + piano
+    1: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Perkahwinan: all options
+    2: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Korporat: same options, different labels
+    3: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Keluarga
+    4: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Hari Lahir
+    5: ['none', 'romantic', 'nasyid', 'piano', 'custom']  // Komuniti
+};
+
+// Music Labels Configuration - different labels per event type
+// Perkahwinan: Romantik Klasik, Nasyid Perkahwinan
+// Others: Lagu Klasik, Nasyid Majlis
+const MUSIC_LABELS = {
+    wedding: {
+        romantic: { title: 'Romantik Klasik', desc: 'Instrumental lembut, 3:24' },
+        nasyid: { title: 'Nasyid Perkahwinan', desc: 'Vokal nasyid, 4:12' },
+        piano: { title: 'Piano Lembut', desc: 'Instrumental piano, 3:48' }
+    },
+    general: {
+        romantic: { title: 'Lagu Klasik', desc: 'Instrumental lembut, 3:24' },
+        nasyid: { title: 'Nasyid Majlis', desc: 'Vokal nasyid, 4:12' },
+        piano: { title: 'Piano Lembut', desc: 'Instrumental piano, 3:48' }
+    }
 };
 
 function applyAllContext(eventType) {
@@ -452,9 +466,11 @@ function applyAllContext(eventType) {
     applyMusicContext(eventType);
 }
 
-// Apply music options based on event type
+// Apply music options and labels based on event type
 function applyMusicContext(eventType) {
     const allowedMusic = MUSIC_OPTIONS_CONFIG[eventType] || MUSIC_OPTIONS_CONFIG[1];
+    const isWedding = (eventType === 1 || eventType === '1');
+    const labels = isWedding ? MUSIC_LABELS.wedding : MUSIC_LABELS.general;
     let hasSelectedVisible = false;
 
     document.querySelectorAll('.music-card[data-music]').forEach(card => {
@@ -462,6 +478,14 @@ function applyMusicContext(eventType) {
         const isAllowed = allowedMusic.includes(musicType);
 
         card.style.display = isAllowed ? '' : 'none';
+
+        // Update labels for this card if it has custom labels
+        if (labels[musicType]) {
+            const titleEl = card.querySelector('.music-card-title');
+            const descEl = card.querySelector('.music-card-desc');
+            if (titleEl) titleEl.textContent = labels[musicType].title;
+            if (descEl) descEl.textContent = labels[musicType].desc;
+        }
 
         // Track if selected card is still visible
         if (isAllowed && card.classList.contains('selected')) {
