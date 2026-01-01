@@ -1456,13 +1456,24 @@ async function proceedToBillplzPayment() {
     }
 
     try {
-        // Get user info
-        const user = await window.A2ZAuth?.getCurrentUser();
-        if (!user) {
-            alert('Sila log masuk semula.');
-            window.location.href = '/auth/login';
+        // CRITICAL: Verify session with server first (not just localStorage)
+        const sessionResponse = await fetch('/api/auth/session', {
+            credentials: 'include'
+        });
+        const sessionData = await sessionResponse.json();
+
+        if (!sessionData.authenticated) {
+            // Session expired or invalid - redirect to login
+            alert('Sesi anda telah tamat. Sila log masuk semula.');
+            // Save pending data before redirect
+            sessionStorage.setItem('pendingEventData', JSON.stringify(eventData));
+            sessionStorage.setItem('returnTo', window.location.href);
+            window.location.href = '/auth/login.html';
             return;
         }
+
+        const user = sessionData.user;
+        console.log('[Payment] Session verified for user:', user.email);
 
         // Create event first
         const eventResponse = await fetch('/api/events', {
@@ -1479,10 +1490,17 @@ async function proceedToBillplzPayment() {
 
         const eventResult = await eventResponse.json();
         if (!eventResponse.ok) {
+            if (eventResponse.status === 401) {
+                // Session became invalid during request
+                alert('Sesi anda telah tamat. Sila log masuk semula.');
+                window.location.href = '/auth/login.html';
+                return;
+            }
             throw new Error(eventResult.error || 'Gagal mencipta jemputan');
         }
 
         const eventId = eventResult.id || eventResult.eventId;
+        console.log('[Payment] Event created:', eventId);
 
         // Create Billplz payment
         const paymentResponse = await fetch('/api/payment/create', {
@@ -1499,11 +1517,21 @@ async function proceedToBillplzPayment() {
 
         const paymentResult = await paymentResponse.json();
 
+        if (!paymentResponse.ok) {
+            if (paymentResponse.status === 401) {
+                alert('Sesi anda telah tamat. Sila log masuk semula.');
+                window.location.href = '/auth/login.html';
+                return;
+            }
+            throw new Error(paymentResult.error || paymentResult.details || 'Gagal mencipta pembayaran');
+        }
+
         if (paymentResult.paymentUrl) {
             // Redirect to Billplz payment page
+            console.log('[Payment] Redirecting to Billplz:', paymentResult.paymentUrl);
             window.location.href = paymentResult.paymentUrl;
         } else {
-            throw new Error(paymentResult.error || 'Gagal mencipta pembayaran');
+            throw new Error(paymentResult.error || 'Gagal mencipta pembayaran - URL tidak dijumpai');
         }
 
     } catch (error) {
