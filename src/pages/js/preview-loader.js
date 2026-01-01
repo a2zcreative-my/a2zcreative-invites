@@ -232,15 +232,54 @@ function renderPreview(data) {
     setText('venue-name', (data.venueName || 'LOKASI MAJLIS').toUpperCase());
     setHtml('venue-address', (data.venueAddress || '').replace(/\n/g, '<br>'));
 
-    // Schedule
-    const scheduleContainer = document.getElementById('scheduleContainer');
-    if (scheduleContainer && data.schedule && data.schedule.length > 0) {
-        scheduleContainer.innerHTML = data.schedule.map(item => `
+    // Schedule - FIXED: Use correct element ID 'schedule-list'
+    const scheduleList = document.getElementById('schedule-list');
+    if (scheduleList && data.schedule && data.schedule.length > 0) {
+        scheduleList.innerHTML = data.schedule.map(item => `
             <div class="schedule-item">
-                <p class="schedule-time">${item.time || ''}</p>
-                <p class="schedule-activity">${item.activity || ''}</p>
+                <span class="schedule-time">${item.time || ''}</span>
+                <span class="schedule-dot"></span>
+                <span class="schedule-activity">${item.activity || ''}</span>
             </div>
         `).join('');
+    }
+
+    // Map handling - Generate embed URL from map link
+    const mapIframe = document.getElementById('map-iframe');
+    const mapContainer = document.getElementById('map-container');
+
+    if (mapIframe && data.mapLink) {
+        // Try to extract coordinates from Google Maps link
+        const coordsMatch = data.mapLink.match(/@(-?[\d.]+),(-?[\d.]+)/);
+        if (coordsMatch) {
+            const lat = coordsMatch[1];
+            const lng = coordsMatch[2];
+            mapIframe.src = `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3000!2d${lng}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2smy!4v1700000000000`;
+        } else if (data.venueName || data.venueAddress) {
+            // Use venue address for search
+            const query = encodeURIComponent((data.venueName || '') + ' ' + (data.venueAddress || ''));
+            mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${query}`;
+        }
+    } else if (mapIframe && (data.venueName || data.venueAddress)) {
+        // No map link but has venue - try address search
+        const query = encodeURIComponent((data.venueName || '') + ' ' + (data.venueAddress || ''));
+        mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${query}`;
+    }
+
+    // Navigation buttons
+    if (data.mapLink) {
+        const googleBtn = document.getElementById('google-maps-btn');
+        const wazeBtn = document.getElementById('waze-btn');
+
+        if (googleBtn) googleBtn.href = data.mapLink;
+        if (wazeBtn) {
+            const coordsMatch = data.mapLink.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+            if (coordsMatch) {
+                wazeBtn.href = `https://waze.com/ul?ll=${coordsMatch[1]},${coordsMatch[2]}&navigate=yes`;
+            } else {
+                wazeBtn.href = `https://waze.com/ul?q=${encodeURIComponent(data.venueAddress || data.venueName || '')}`;
+            }
+        }
     }
 
     // Contacts

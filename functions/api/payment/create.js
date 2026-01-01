@@ -25,9 +25,18 @@ const PACKAGES = {
 export async function onRequestPost(context) {
     const { request, env } = context;
 
+    // Debug logging for payment creation
+    console.log('[Payment Create] Request received');
+
     // 1. Authenticate user
     const { userId, user, errorResponse: authError } = await requireAuth(request, env.DB);
-    if (authError) return authError;
+    if (authError) {
+        console.error('[Payment Create] Auth failed - no valid session found');
+        console.error('[Payment Create] Check if a2z_session cookie is being sent with the request');
+        return authError;
+    }
+
+    console.log(`[Payment Create] User authenticated: userId=${userId}, email=${user?.email}`);
 
     let data;
     try {
