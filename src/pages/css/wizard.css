@@ -487,12 +487,41 @@
 
 @media (max-width: 600px) {
     .contact-item {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+    }
+
+    .contact-item input {
+        width: 100%;
+        padding: 0.875rem 1rem;
     }
 
     .contact-item .remove-btn {
-        grid-column: 1 / -1;
         width: 100%;
+        margin-top: 0.25rem;
+    }
+
+    /* Theme Grid - 3 per row on mobile */
+    .theme-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .theme-card {
+        padding: 0.5rem;
+    }
+
+    .theme-preview {
+        height: 40px;
+        margin-bottom: 0.5rem;
+    }
+
+    .theme-name {
+        font-size: 0.7rem;
     }
 }
 

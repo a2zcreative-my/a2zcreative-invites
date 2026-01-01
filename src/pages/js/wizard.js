@@ -1405,50 +1405,32 @@ function showPaymentOptions() {
         <div style="background: linear-gradient(135deg, #1a2744, #0f1729); border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1);">
             <div style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h3 style="margin: 0; color: var(--text-primary);">Pilih Kaedah Pembayaran</h3>
+                    <h3 style="margin: 0; color: var(--text-primary);">Pembayaran</h3>
                     <button onclick="closePaymentModal()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.5rem;">&times;</button>
                 </div>
                 <p style="margin: 0.5rem 0 0; color: var(--text-secondary);">Pakej ${pkg.name} - ${pkg.priceDisplay}</p>
             </div>
             
             <div style="padding: 1.5rem;">
-                <!-- Manual Bank Transfer -->
-                <div class="payment-option" onclick="selectPaymentMethod('manual')" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s;">
+                <!-- Billplz Payment Option -->
+                <div class="payment-option" onclick="proceedToBillplzPayment()" style="padding: 1.25rem; border: 2px solid rgba(212,175,55,0.5); border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s; background: rgba(212,175,55,0.1);">
                     <div style="display: flex; align-items: center; gap: 1rem;">
                         <div style="width: 48px; height: 48px; background: rgba(212,175,55,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i data-lucide="building-2" style="color: #d4af37;"></i>
+                            <i data-lucide="credit-card" style="color: #d4af37;"></i>
                         </div>
-                        <div>
-                            <div style="font-weight: 600; color: var(--text-primary);">Pindahan Bank</div>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Manual verification (1-24 jam)</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: var(--text-primary);">Pembayaran Online</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">FPX, DuitNow QR, Kad Kredit/Debit</div>
                         </div>
+                        <i data-lucide="chevron-right" style="color: #d4af37;"></i>
                     </div>
                 </div>
                 
-                <!-- DuitNow QR -->
-                <div class="payment-option" onclick="selectPaymentMethod('duitnow')" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s;">
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; background: rgba(74,222,128,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i data-lucide="qr-code" style="color: #4ade80;"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; color: var(--text-primary);">DuitNow QR</div>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Imbas & bayar segera</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- FPX (Coming Soon) -->
-                <div class="payment-option" style="padding: 1rem; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; opacity: 0.5; cursor: not-allowed;">
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 48px; height: 48px; background: rgba(96,165,250,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                            <i data-lucide="credit-card" style="color: #60a5fa;"></i>
-                        </div>
-                        <div>
-                            <div style="font-weight: 600; color: var(--text-primary);">FPX Online Banking</div>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Akan datang</div>
-                        </div>
-                    </div>
+                <div style="text-align: center; padding-top: 0.5rem;">
+                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">
+                        <i data-lucide="shield-check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px; color: #4ade80;"></i>
+                        Pembayaran selamat melalui Billplz
+                    </p>
                 </div>
             </div>
         </div>
@@ -1456,6 +1438,83 @@ function showPaymentOptions() {
 
     document.body.appendChild(modal);
     lucide.createIcons();
+}
+
+// Proceed to Billplz payment
+async function proceedToBillplzPayment() {
+    const pkg = PACKAGE_INFO[selectedPackage];
+    const slug = document.getElementById('customSlug').value;
+
+    closePaymentModal();
+
+    // Show loading state
+    const payBtn = document.getElementById('btnPublishPaid');
+    if (payBtn) {
+        payBtn.disabled = true;
+        payBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Memproses...';
+        lucide.createIcons();
+    }
+
+    try {
+        // Get user info
+        const user = await window.A2ZAuth?.getCurrentUser();
+        if (!user) {
+            alert('Sila log masuk semula.');
+            window.location.href = '/auth/login';
+            return;
+        }
+
+        // Create event first
+        const eventResponse = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ...eventData,
+                slug,
+                package: selectedPackage,
+                status: 'pending_payment'
+            })
+        });
+
+        const eventResult = await eventResponse.json();
+        if (!eventResponse.ok) {
+            throw new Error(eventResult.error || 'Gagal mencipta jemputan');
+        }
+
+        const eventId = eventResult.id || eventResult.eventId;
+
+        // Create Billplz payment
+        const paymentResponse = await fetch('/api/payment/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                eventId: eventId,
+                packageId: selectedPackage,
+                paymentMethod: 'billplz',
+                userId: user.id
+            })
+        });
+
+        const paymentResult = await paymentResponse.json();
+
+        if (paymentResult.paymentUrl) {
+            // Redirect to Billplz payment page
+            window.location.href = paymentResult.paymentUrl;
+        } else {
+            throw new Error(paymentResult.error || 'Gagal mencipta pembayaran');
+        }
+
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Ralat: ' + error.message);
+
+        // Reset button
+        if (payBtn) {
+            payBtn.disabled = false;
+            payBtn.innerHTML = '<i data-lucide="credit-card"></i> Bayar & Terbitkan';
+            lucide.createIcons();
+        }
+    }
 }
 
 function closePaymentModal() {
