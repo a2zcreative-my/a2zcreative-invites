@@ -288,6 +288,7 @@ function nextStep() {
         }
 
         collectStepData();
+        sendDataToPreview(); // Sync data to preview
         currentStep++;
         showStep(currentStep);
         updateProgressSteps();
@@ -337,6 +338,12 @@ function showStep(step) {
     // Step 6: Auto-generate and check slug
     if (step === 6) {
         initializeStep6Slug();
+    }
+
+    // Step 7: Preview - send data to iframe
+    if (step === 7) {
+        collectStepData();
+        sendDataToPreview();
     }
 
     // Scroll to top

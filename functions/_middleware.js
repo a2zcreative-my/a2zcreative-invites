@@ -27,7 +27,8 @@ const PROTECTED_ROUTES = {
     // Routes that require any authenticated user (including unpaid)
     authenticated: [
         '/pricing/',
-        '/create/'
+        '/create/',
+        '/api/payment'  // Payment routes - unpaid users need to pay to become admin
     ]
 };
 
