@@ -43,7 +43,9 @@ const PUBLIC_ROUTES = [
     '/api/invitation/',
     '/api/checkin',
     '/api/templates',
-    '/api/slug/'
+    '/api/slug/',
+    '/api/payment/callback',
+    '/api/payment/webhook'
 ];
 
 /**
@@ -132,7 +134,17 @@ export async function onRequest(context) {
             // Only 'admin' and 'super_admin' can access admin routes
             const isAdminRole = user.role === 'admin' || user.role === 'super_admin';
             if (!isAdminRole) {
-                return new Response('Forbidden', { status: 403 });
+                // Return JSON for API routes, redirect for page routes
+                if (path.startsWith('/api/')) {
+                    return new Response(JSON.stringify({
+                        error: 'Forbidden',
+                        message: 'Akses ditolak. Sila log masuk semula.'
+                    }), {
+                        status: 403,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+                return Response.redirect(new URL('/auth/login', request.url).href, 302);
             }
         }
 

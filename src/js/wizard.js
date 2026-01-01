@@ -431,11 +431,62 @@ function initEventTypeCards() {
 // =============================================
 // Context Application Functions
 // =============================================
+
+// Music Options Configuration by Event Type
+// 1: Perkahwinan, 2: Korporat, 3: Keluarga, 4: Hari Lahir, 5: Komuniti
+// Perkahwinan: Romantik Klasik, Nasyid Perkahwinan, Piano Lembut
+// Others: Nasyid Majlis, Piano Lembut (no romantic option)
+const MUSIC_OPTIONS_CONFIG = {
+    1: ['none', 'romantic', 'nasyid', 'piano', 'custom'], // Perkahwinan: romantic + nasyid + piano
+    2: ['none', 'nasyid', 'piano', 'custom'], // Korporat: nasyid + piano
+    3: ['none', 'nasyid', 'piano', 'custom'], // Keluarga: nasyid + piano
+    4: ['none', 'nasyid', 'piano', 'custom'], // Hari Lahir: nasyid + piano
+    5: ['none', 'nasyid', 'piano', 'custom']  // Komuniti: nasyid + piano
+};
+
 function applyAllContext(eventType) {
     applyStep2Config(eventType);
     applyThemeContext(eventType);
     applyScheduleContext(eventType);
     applyContactContext(eventType);
+    applyMusicContext(eventType);
+}
+
+// Apply music options based on event type
+function applyMusicContext(eventType) {
+    const allowedMusic = MUSIC_OPTIONS_CONFIG[eventType] || MUSIC_OPTIONS_CONFIG[1];
+    let hasSelectedVisible = false;
+
+    document.querySelectorAll('.music-card[data-music]').forEach(card => {
+        const musicType = card.dataset.music;
+        const isAllowed = allowedMusic.includes(musicType);
+
+        card.style.display = isAllowed ? '' : 'none';
+
+        // Track if selected card is still visible
+        if (isAllowed && card.classList.contains('selected')) {
+            hasSelectedVisible = true;
+        }
+
+        // If current selection is hidden, unselect it
+        if (!isAllowed && card.classList.contains('selected')) {
+            card.classList.remove('selected');
+            const input = card.querySelector('input');
+            if (input) input.checked = false;
+        }
+    });
+
+    // If no visible card is selected, select 'none'
+    if (!hasSelectedVisible) {
+        const noneCard = document.querySelector('.music-card[data-music="none"]');
+        if (noneCard) {
+            noneCard.classList.add('selected');
+            const input = noneCard.querySelector('input');
+            if (input) input.checked = true;
+        }
+    }
+
+    lucide.createIcons();
 }
 
 // =============================================

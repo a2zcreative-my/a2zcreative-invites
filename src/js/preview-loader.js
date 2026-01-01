@@ -232,10 +232,10 @@ function renderPreview(data) {
     setText('venue-name', (data.venueName || 'LOKASI MAJLIS').toUpperCase());
     setHtml('venue-address', (data.venueAddress || '').replace(/\n/g, '<br>'));
 
-    // Schedule
-    const scheduleContainer = document.getElementById('scheduleContainer');
-    if (scheduleContainer && data.schedule && data.schedule.length > 0) {
-        scheduleContainer.innerHTML = data.schedule.map(item => `
+    // Schedule - Use correct element ID 'schedule-list' to match HTML
+    const scheduleList = document.getElementById('schedule-list');
+    if (scheduleList && data.schedule && data.schedule.length > 0) {
+        scheduleList.innerHTML = data.schedule.map(item => `
             <div class="schedule-item">
                 <p class="schedule-time">${item.time || ''}</p>
                 <p class="schedule-activity">${item.activity || ''}</p>
@@ -292,6 +292,45 @@ function renderPreview(data) {
 
     // Re-init icons
     if (window.lucide) lucide.createIcons();
+
+    // Initialize countdown with event date and time (Malaysia UTC+8)
+    if (data.eventDate) {
+        initCountdown(data.eventDate, data.startTime || '11:00');
+    }
+}
+
+// Initialize countdown for preview
+// Uses Malaysia timezone (UTC+8)
+function initCountdown(eventDate, startTime) {
+    // Parse date and time with Malaysia timezone offset
+    const dateTimeStr = `${eventDate}T${startTime}:00+08:00`;
+    const target = new Date(dateTimeStr);
+
+    function update() {
+        const now = new Date();
+        const diff = target - now;
+
+        if (diff <= 0) {
+            setText('days', '00');
+            setText('hours', '00');
+            setText('minutes', '00');
+            setText('seconds', '00');
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        setText('days', String(days).padStart(2, '0'));
+        setText('hours', String(hours).padStart(2, '0'));
+        setText('minutes', String(minutes).padStart(2, '0'));
+        setText('seconds', String(seconds).padStart(2, '0'));
+    }
+
+    update();
+    setInterval(update, 1000);
 }
 
 // Listen for messages from parent (wizard)

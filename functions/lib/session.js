@@ -126,7 +126,8 @@ export async function destroySession(db, token) {
  */
 export function createSessionCookie(token, expiresAt) {
     const expires = new Date(expiresAt).toUTCString();
-    return `${SESSION_COOKIE_NAME}=${token}; Path=/; Expires=${expires}; HttpOnly; Secure; SameSite=Lax`;
+    // Use SameSite=None for cross-site compatibility (required for Billplz payment redirects on mobile Safari)
+    return `${SESSION_COOKIE_NAME}=${token}; Path=/; Expires=${expires}; HttpOnly; Secure; SameSite=None`;
 }
 
 /**
@@ -134,7 +135,8 @@ export function createSessionCookie(token, expiresAt) {
  * @returns {string} Set-Cookie header value
  */
 export function createLogoutCookie() {
-    return `${SESSION_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax`;
+    // Use SameSite=None for consistency with session cookie
+    return `${SESSION_COOKIE_NAME}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=None`;
 }
 
 /**

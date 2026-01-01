@@ -255,6 +255,17 @@
     gap: 1rem;
 }
 
+/* Time input specific styling */
+.time-input-group {
+    max-width: 100%;
+}
+
+.time-input-group .time-input,
+.form-group input[type="time"] {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 @media (max-width: 768px) {
     .event-type-card {
         flex-direction: column !important;
@@ -263,6 +274,15 @@
 
     .form-row {
         grid-template-columns: 1fr;
+    }
+
+    /* Ensure time inputs don't overflow on mobile */
+    .time-input-group,
+    .time-input-group .time-input,
+    .form-group input[type="time"] {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 }
 
@@ -286,6 +306,10 @@
 .form-group select,
 .form-group textarea {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    /* Prevent browser default overflow */
     padding: 1rem 1.25rem;
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
@@ -483,6 +507,36 @@
     grid-template-columns: 1fr 1fr 1fr auto;
     gap: 0.75rem;
     margin-bottom: 0.75rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+}
+
+.contact-item input {
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    color: #ffffff;
+    font-size: 0.875rem;
+}
+
+.contact-item .remove-btn {
+    width: 36px;
+    height: 36px;
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 0.5rem;
+    color: #dc3545;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-item .remove-btn:hover {
+    background: rgba(220, 53, 69, 0.2);
 }
 
 @media (max-width: 600px) {
