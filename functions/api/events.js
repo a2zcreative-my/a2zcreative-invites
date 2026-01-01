@@ -110,11 +110,7 @@ export async function onRequestPost(context) {
             }
         }
 
-        // Decrement user's events_remaining
-        await env.DB.prepare(`
-            UPDATE users SET events_remaining = events_remaining - 1 
-            WHERE id = ? AND events_remaining > 0
-        `).bind(userId).run();
+        // NOTE: events_remaining decrement removed - column doesn't exist yet
 
         return new Response(JSON.stringify({
             success: true,
