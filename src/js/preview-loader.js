@@ -258,6 +258,13 @@ function renderPreview(data) {
         `).join('');
     }
 
+    // Gift/Hadiah data for modal
+    if (data.giftEnabled) {
+        setText('bankName', (data.giftBankName || 'MAYBANK').toUpperCase());
+        setText('accNumber', data.giftAccountNumber || '');
+        setText('accHolder', (data.giftAccountHolder || '').toUpperCase());
+    }
+
     // Get event type config
     const config = EVENT_CONTENT_CONFIG[eventType] || EVENT_CONTENT_CONFIG[1];
 
@@ -414,6 +421,75 @@ window.addEventListener('DOMContentLoaded', () => {
     if (coverSection) {
         document.body.style.overflow = 'hidden';
     }
+
+    // ===== Bottom Nav Button Handlers =====
+    // Scroll to section buttons (Lokasi, RSVP)
+    document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sectionId = btn.dataset.section;
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // Contact modal button
+    const contactNavBtn = document.getElementById('contactNavBtn');
+    const contactModal = document.getElementById('contactModal');
+    const closeContactModal = document.getElementById('closeContactModal');
+
+    if (contactNavBtn && contactModal) {
+        contactNavBtn.addEventListener('click', () => {
+            contactModal.classList.add('active');
+        });
+    }
+    if (closeContactModal && contactModal) {
+        closeContactModal.addEventListener('click', () => {
+            contactModal.classList.remove('active');
+        });
+        contactModal.addEventListener('click', (e) => {
+            if (e.target === contactModal) {
+                contactModal.classList.remove('active');
+            }
+        });
+    }
+
+    // Gift modal button
+    const giftBtn = document.getElementById('giftBtn');
+    const giftModal = document.getElementById('giftModal');
+    const closeGiftModal = document.getElementById('closeGiftModal');
+    const copyAccBtn = document.getElementById('copyAccBtn');
+
+    if (giftBtn && giftModal) {
+        giftBtn.addEventListener('click', () => {
+            giftModal.classList.add('active');
+        });
+    }
+    if (closeGiftModal && giftModal) {
+        closeGiftModal.addEventListener('click', () => {
+            giftModal.classList.remove('active');
+        });
+        giftModal.addEventListener('click', (e) => {
+            if (e.target === giftModal) {
+                giftModal.classList.remove('active');
+            }
+        });
+    }
+    if (copyAccBtn) {
+        copyAccBtn.addEventListener('click', () => {
+            const accNumber = document.getElementById('accNumber')?.textContent || '';
+            navigator.clipboard.writeText(accNumber).then(() => {
+                copyAccBtn.innerHTML = '<i data-lucide="check"></i> Disalin!';
+                if (window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    copyAccBtn.innerHTML = '<i data-lucide="copy"></i> Salin';
+                    if (window.lucide) lucide.createIcons();
+                }, 2000);
+            });
+        });
+    }
+    // ===== End Nav Button Handlers =====
 
     // Tell parent we're ready
     if (window.parent !== window) {
