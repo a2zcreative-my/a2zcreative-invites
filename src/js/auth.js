@@ -5,20 +5,29 @@
     'use strict';
 
     // =============================================
-    // Supabase Configuration (Optional - for Google OAuth)
+    // Supabase Configuration (Loaded from server - no hard-coded credentials)
     // =============================================
-    const SUPABASE_URL = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
-
     let supabaseClient;
+    let supabaseReady = false;
 
-    try {
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Fetch Supabase config from server (credentials stored securely in env vars)
+    async function initSupabase() {
+        try {
+            const response = await fetch('/api/auth/config');
+            if (response.ok) {
+                const config = await response.json();
+                if (config.url && config.anonKey && window.supabase) {
+                    supabaseClient = window.supabase.createClient(config.url, config.anonKey);
+                    supabaseReady = true;
+                }
+            }
+        } catch (e) {
+            console.warn('Supabase config not available. Google OAuth will be unavailable.');
         }
-    } catch (e) {
-        console.warn('Supabase not configured. Google OAuth will be unavailable.');
     }
+
+    // Initialize Supabase asynchronously
+    initSupabase();
 
     // =============================================
     // DOM Elements

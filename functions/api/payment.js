@@ -186,13 +186,26 @@ async function handleCreatePayment(request, env) {
                 });
             }
         } else if (paymentMethod === 'duitnow') {
-            // Return DuitNow QR info
+            // Require configured DuitNow account from environment
+            if (!env.DUITNOW_ACCOUNT_NO || !env.DUITNOW_ACCOUNT_NAME) {
+                return new Response(JSON.stringify({
+                    error: 'DuitNow tidak dikonfigurasi. Sila hubungi pentadbir.'
+                }), {
+                    status: 503,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            // Return DuitNow QR info from secure env vars
             duitnowQr = {
-                accountNo: '1234567890',  // Your DuitNow ID
-                accountName: 'A2Z CREATIVE SDN BHD',
+                accountNo: env.DUITNOW_ACCOUNT_NO,
+                accountName: env.DUITNOW_ACCOUNT_NAME,
                 amount: pkg.price / 100,
                 reference: orderRef,
-                whatsappLink: `https://wa.me/60123456789?text=Pembayaran%20${orderRef}%20-%20RM${pkg.price / 100}`
+                // Only include WhatsApp link if configured
+                whatsappLink: env.DUITNOW_WHATSAPP
+                    ? `https://wa.me/${env.DUITNOW_WHATSAPP}?text=${encodeURIComponent(`Pembayaran ${orderRef} - RM${(pkg.price / 100).toFixed(2)}`)}`
+                    : null
             };
         }
 
