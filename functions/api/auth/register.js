@@ -1,0 +1,110 @@
+import { hashPassword } from '../../lib/password-utils.js';
+import { createSession, createSessionCookie } from '../../lib/session.js';
+
+/**
+ * Register API Handler
+ * Creates a new user account and logs them in
+ */
+export async function onRequestPost(context) {
+    const { request, env } = context;
+    const db = env.DB;
+
+    try {
+        const { name, email, password } = await request.json();
+
+        // Validate input
+        if (!name || !email || !password) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: "Nama, emel dan kata laluan diperlukan"
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: "Format emel tidak sah"
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: "Kata laluan mestilah sekurang-kurangnya 6 aksara"
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Check if email already exists
+        const existingUser = await db.prepare(
+            "SELECT id FROM users WHERE email = ?"
+        ).bind(email).first();
+
+        if (existingUser) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: "Emel ini telah didaftarkan"
+            }), {
+                status: 409,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Hash password
+        const passwordHash = await hashPassword(password);
+
+        // Create user with 'user' role (unpaid)
+        const result = await db.prepare(
+            "INSERT INTO users (name, email, password_hash, role, created_at) VALUES (?, ?, ?, 'user', datetime('now'))"
+        ).bind(name, email, passwordHash).run();
+
+        if (!result.success) {
+            throw new Error('Failed to create user');
+        }
+
+        const userId = result.meta.last_row_id;
+
+        // Create session for auto-login
+        const session = await createSession(db, userId);
+
+        // Return success with session cookie
+        return new Response(JSON.stringify({
+            success: true,
+            message: "Akaun berjaya didaftarkan!",
+            redirect: '/pricing/',
+            user: {
+                id: userId,
+                name: name,
+                email: email,
+                role: 'user'
+            }
+        }), {
+            status: 201,
+            headers: {
+                'Content-Type': 'application/json',
+                'Set-Cookie': createSessionCookie(session.token, session.expiresAt)
+            }
+        });
+
+    } catch (error) {
+        console.error('Register error:', error);
+        return new Response(JSON.stringify({
+            success: false,
+            error: "Ralat pelayan. Sila cuba lagi."
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
