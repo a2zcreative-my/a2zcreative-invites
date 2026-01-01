@@ -76,14 +76,18 @@
             </div>
             <div class="progress-step" data-step="4">
                 <div class="step-number">4</div>
-                <div class="step-label">Atur Cara</div>
+                <div class="step-label">Hadiah</div>
             </div>
             <div class="progress-step" data-step="5">
                 <div class="step-number">5</div>
-                <div class="step-label">Hubungi</div>
+                <div class="step-label">Atur Cara</div>
             </div>
             <div class="progress-step" data-step="6">
                 <div class="step-number">6</div>
+                <div class="step-label">Hubungi</div>
+            </div>
+            <div class="progress-step" data-step="7">
+                <div class="step-number">7</div>
                 <div class="step-label">Terbit</div>
             </div>
         </div>
@@ -208,11 +212,61 @@
             <p class="section-desc">Pilih warna tema untuk jemputan anda.</p>
 
             <div class="theme-grid">
+                <!-- Classic Collection -->
                 <label class="theme-card selected">
                     <input type="radio" name="theme" value="elegant-gold" checked>
                     <div class="theme-preview elegant-gold"></div>
                     <div class="theme-name">Emas Elegan</div>
                 </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="cream-classic">
+                    <div class="theme-preview cream-classic"></div>
+                    <div class="theme-name">Krim Klasik</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="beige-sand">
+                    <div class="theme-preview beige-sand"></div>
+                    <div class="theme-name">Beige Lembut</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="white-gold">
+                    <div class="theme-preview white-gold"></div>
+                    <div class="theme-name">Putih Emas</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="black-gold">
+                    <div class="theme-preview black-gold"></div>
+                    <div class="theme-name">Hitam Emas</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="navy-elegant">
+                    <div class="theme-preview navy-elegant"></div>
+                    <div class="theme-name">Navy Elegan</div>
+                </label>
+
+                <!-- Pastel Collection -->
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="pastel-pink">
+                    <div class="theme-preview pastel-pink"></div>
+                    <div class="theme-name">Merah Jambu Pastel</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="pastel-blue">
+                    <div class="theme-preview pastel-blue"></div>
+                    <div class="theme-name">Biru Pastel</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="sage-green">
+                    <div class="theme-preview sage-green"></div>
+                    <div class="theme-name">Hijau Sage</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="dusty-rose">
+                    <div class="theme-preview dusty-rose"></div>
+                    <div class="theme-name">Dusty Rose</div>
+                </label>
+
+                <!-- Vibrant Collection -->
                 <label class="theme-card">
                     <input type="radio" name="theme" value="professional-blue">
                     <div class="theme-preview professional-blue"></div>
@@ -232,6 +286,11 @@
                     <input type="radio" name="theme" value="nature-green">
                     <div class="theme-preview nature-green"></div>
                     <div class="theme-name">Hijau Alam</div>
+                </label>
+                <label class="theme-card">
+                    <input type="radio" name="theme" value="terracotta">
+                    <div class="theme-preview terracotta"></div>
+                    <div class="theme-name">Terracotta</div>
                 </label>
             </div>
 
@@ -260,50 +319,119 @@
             </form>
 
             <!-- Music Selection Section -->
-            <h3 class="section-title" style="margin-top: 2rem; margin-bottom: 1rem;">
-                <i data-lucide="music"
-                    style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
-                Muzik Latar
-            </h3>
+            <div class="music-section-card">
+                <div class="music-section-header">
+                    <div class="music-icon-wrapper">
+                        <i data-lucide="music"></i>
+                    </div>
+                    <div>
+                        <h3 class="section-title" style="margin: 0;">Muzik Latar</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0 0 0;">
+                            Pilih lagu latar untuk jemputan anda
+                        </p>
+                    </div>
+                </div>
 
-            <div class="music-selection">
-                <div class="music-options">
-                    <label class="music-option selected">
+                <div class="music-cards">
+                    <!-- No Music Option -->
+                    <label class="music-card selected" data-music="none">
                         <input type="radio" name="musicOption" value="none" checked>
-                        <div class="music-option-content">
-                            <i data-lucide="volume-x"></i>
-                            <span>Tiada Muzik</span>
+                        <div class="music-card-content">
+                            <div class="music-card-icon muted">
+                                <i data-lucide="volume-x"></i>
+                            </div>
+                            <div class="music-card-info">
+                                <span class="music-card-title">Tiada Muzik</span>
+                                <span class="music-card-desc">Jemputan tanpa lagu latar</span>
+                            </div>
+                            <div class="music-card-check">
+                                <i data-lucide="check-circle-2"></i>
+                            </div>
                         </div>
                     </label>
-                    <label class="music-option">
+
+                    <!-- Romantic Option -->
+                    <label class="music-card" data-music="romantic">
                         <input type="radio" name="musicOption" value="romantic">
-                        <div class="music-option-content">
-                            <i data-lucide="heart"></i>
-                            <span>Romantik</span>
+                        <div class="music-card-content">
+                            <div class="music-card-icon romantic">
+                                <i data-lucide="heart"></i>
+                            </div>
+                            <div class="music-card-info">
+                                <span class="music-card-title">Romantik Klasik</span>
+                                <span class="music-card-desc">Instrumental lembut, 3:24</span>
+                            </div>
+                            <button type="button" class="music-preview-btn" onclick="previewMusic('romantic', event)">
+                                <i data-lucide="play" class="play-icon"></i>
+                                <i data-lucide="pause" class="pause-icon" style="display:none"></i>
+                            </button>
+                            <div class="music-card-check">
+                                <i data-lucide="check-circle-2"></i>
+                            </div>
                         </div>
                     </label>
-                    <label class="music-option">
+
+                    <!-- Nasyid Option -->
+                    <label class="music-card" data-music="nasyid">
                         <input type="radio" name="musicOption" value="nasyid">
-                        <div class="music-option-content">
-                            <i data-lucide="sparkles"></i>
-                            <span>Nasyid</span>
+                        <div class="music-card-content">
+                            <div class="music-card-icon nasyid">
+                                <i data-lucide="sparkles"></i>
+                            </div>
+                            <div class="music-card-info">
+                                <span class="music-card-title">Nasyid Perkahwinan</span>
+                                <span class="music-card-desc">Vokal nasyid, 4:12</span>
+                            </div>
+                            <button type="button" class="music-preview-btn" onclick="previewMusic('nasyid', event)">
+                                <i data-lucide="play" class="play-icon"></i>
+                                <i data-lucide="pause" class="pause-icon" style="display:none"></i>
+                            </button>
+                            <div class="music-card-check">
+                                <i data-lucide="check-circle-2"></i>
+                            </div>
                         </div>
                     </label>
-                    <label class="music-option">
+
+                    <!-- Piano Option -->
+                    <label class="music-card" data-music="piano">
                         <input type="radio" name="musicOption" value="piano">
-                        <div class="music-option-content">
-                            <i data-lucide="music-2"></i>
-                            <span>Piano</span>
+                        <div class="music-card-content">
+                            <div class="music-card-icon piano">
+                                <i data-lucide="music-2"></i>
+                            </div>
+                            <div class="music-card-info">
+                                <span class="music-card-title">Piano Lembut</span>
+                                <span class="music-card-desc">Instrumental piano, 3:48</span>
+                            </div>
+                            <button type="button" class="music-preview-btn" onclick="previewMusic('piano', event)">
+                                <i data-lucide="play" class="play-icon"></i>
+                                <i data-lucide="pause" class="pause-icon" style="display:none"></i>
+                            </button>
+                            <div class="music-card-check">
+                                <i data-lucide="check-circle-2"></i>
+                            </div>
                         </div>
                     </label>
-                    <label class="music-option">
+
+                    <!-- Custom URL Option -->
+                    <label class="music-card" data-music="custom">
                         <input type="radio" name="musicOption" value="custom">
-                        <div class="music-option-content">
-                            <i data-lucide="link"></i>
-                            <span>URL Sendiri</span>
+                        <div class="music-card-content">
+                            <div class="music-card-icon custom">
+                                <i data-lucide="link"></i>
+                            </div>
+                            <div class="music-card-info">
+                                <span class="music-card-title">Pautan URL Sendiri</span>
+                                <span class="music-card-desc">Masukkan pautan MP3 anda</span>
+                            </div>
+                            <div class="music-card-check">
+                                <i data-lucide="check-circle-2"></i>
+                            </div>
                         </div>
                     </label>
                 </div>
+
+                <!-- Custom URL Input -->
                 <div class="form-group" id="customMusicUrlGroup" style="display: none; margin-top: 1rem;">
                     <label for="customMusicUrl">Pautan Muzik (MP3)</label>
                     <input type="url" id="customMusicUrl" name="customMusicUrl"
@@ -312,18 +440,33 @@
                         Gunakan pautan terus ke fail MP3. YouTube tidak disokong.
                     </small>
                 </div>
+
+                <!-- Audio Preview Element -->
+                <audio id="musicPreviewAudio" preload="none"></audio>
             </div>
 
-            <!-- Hadiah (Gift) Info Section - Only for Wedding/Family/Birthday -->
-            <div id="giftInfoSection" class="gift-info-section" style="display: none;">
-                <h3 class="section-title" style="margin-top: 2rem; margin-bottom: 1rem;">
-                    <i data-lucide="gift"
-                        style="width: 20px; height: 20px; display: inline-block; vertical-align: middle; margin-right: 0.5rem;"></i>
-                    Sumbangan / Hadiah
-                </h3>
-                <p class="section-desc" style="margin-bottom: 1rem;">Maklumat akaun untuk tetamu yang ingin memberi
-                    sumbangan.</p>
+            <div class="wizard-nav">
+                <button class="nav-btn secondary" onclick="prevStep()">
+                    <i data-lucide="arrow-left"></i>
+                    Sebelumnya
+                </button>
+                <button class="nav-btn primary" onclick="nextStep()">
+                    Seterusnya
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </div>
 
+        <!-- Step 4: Hadiah (Gift) - Only for Wedding/Family/Birthday -->
+        <div class="wizard-step" id="step4">
+            <h2 class="section-title">
+                <i data-lucide="gift"
+                    style="width: 24px; height: 24px; display: inline-block; vertical-align: middle; margin-right: 0.5rem; color: #d4af37;"></i>
+                Hadiah & Sumbangan
+            </h2>
+            <p class="section-desc">Tetapkan maklumat akaun untuk tetamu yang ingin memberi sumbangan.</p>
+
+            <div id="giftInfoSection" class="gift-info-section" style="margin-top: 1.5rem;">
                 <div class="form-group">
                     <label class="toggle-label"
                         style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
@@ -335,7 +478,7 @@
 
                 <div id="giftDetailsFields">
                     <div class="form-group">
-                        <label for="giftBankName">Nama Bank</label>
+                        <label for="giftBankName">Nama Bank / E-Wallet</label>
                         <select id="giftBankName" name="giftBankName">
                             <option value="">-- Pilih Bank --</option>
                             <option value="Maybank">Maybank</option>
@@ -388,8 +531,8 @@
             </div>
         </div>
 
-        <!-- Step 4: Schedule -->
-        <div class="wizard-step" id="step4">
+        <!-- Step 5: Schedule -->
+        <div class="wizard-step" id="step5">
             <h2 class="section-title">Atur Cara Majlis</h2>
             <p class="section-desc">Tambah jadual aktiviti majlis anda.</p>
 
@@ -416,8 +559,8 @@
             </div>
         </div>
 
-        <!-- Step 5: Contacts -->
-        <div class="wizard-step" id="step5">
+        <!-- Step 6: Contacts -->
+        <div class="wizard-step" id="step6">
             <h2 class="section-title">Maklumat Hubungi</h2>
             <p class="section-desc">Tambah kenalan untuk tetamu menghubungi.</p>
 
@@ -444,8 +587,8 @@
             </div>
         </div>
 
-        <!-- Step 6: Preview & Publish -->
-        <div class="wizard-step" id="step6">
+        <!-- Step 7: Preview & Publish -->
+        <div class="wizard-step" id="step7">
             <h2 class="section-title">Pratonton & Terbit</h2>
             <p class="section-desc">Semak jemputan anda dan tetapkan URL khas sebelum menerbitkan.</p>
 

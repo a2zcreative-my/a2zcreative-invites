@@ -7,7 +7,7 @@
 // State
 // =============================================
 let currentStep = 1;
-const totalSteps = 6;
+const totalSteps = 7;
 
 const eventData = {
     eventType: 1,
@@ -234,19 +234,23 @@ const MUSIC_PRESETS = {
     'piano': '/assets/audio/piano-soft.mp3'
 };
 
+// Track current playing audio for preview
+let currentPreviewTrack = null;
+
 function initMusicOptions() {
-    const musicOptions = document.querySelectorAll('.music-option');
+    // Support both old (.music-option) and new (.music-card) layouts
+    const musicCards = document.querySelectorAll('.music-card, .music-option');
     const customUrlGroup = document.getElementById('customMusicUrlGroup');
     const customUrlInput = document.getElementById('customMusicUrl');
 
-    musicOptions.forEach(option => {
-        const input = option.querySelector('input');
+    musicCards.forEach(card => {
+        const input = card.querySelector('input');
         if (!input) return;
 
         input.addEventListener('change', () => {
             // Update selection styling
-            musicOptions.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
+            musicCards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
 
             const value = input.value;
             eventData.musicOption = value;
@@ -262,6 +266,9 @@ function initMusicOptions() {
             } else {
                 eventData.musicUrl = MUSIC_PRESETS[value] || '';
             }
+
+            // Stop any playing preview when selection changes
+            stopMusicPreview();
         });
     });
 
@@ -273,6 +280,70 @@ function initMusicOptions() {
             }
         });
     }
+}
+
+// Music preview functions
+function previewMusic(track, event) {
+    event.preventDefault();
+    event.stopPropagation(); // Prevent card selection
+
+    const audio = document.getElementById('musicPreviewAudio');
+    if (!audio) return;
+
+    const btn = event.currentTarget;
+    const playIcon = btn.querySelector('.play-icon');
+    const pauseIcon = btn.querySelector('.pause-icon');
+
+    // If same track is playing, pause it
+    if (currentPreviewTrack === track && !audio.paused) {
+        audio.pause();
+        if (playIcon) playIcon.style.display = 'block';
+        if (pauseIcon) pauseIcon.style.display = 'none';
+        currentPreviewTrack = null;
+        return;
+    }
+
+    // Stop any other playing track and reset its button
+    stopMusicPreview();
+
+    // Play the new track
+    const musicUrl = MUSIC_PRESETS[track];
+    if (!musicUrl) return;
+
+    audio.src = musicUrl;
+    audio.play().then(() => {
+        if (playIcon) playIcon.style.display = 'none';
+        if (pauseIcon) pauseIcon.style.display = 'block';
+        currentPreviewTrack = track;
+    }).catch(err => {
+        console.log('Audio preview failed:', err);
+        alert('Muzik tidak dapat dimainkan. Fail mungkin tidak tersedia.');
+    });
+
+    // When audio ends, reset button
+    audio.onended = () => {
+        if (playIcon) playIcon.style.display = 'block';
+        if (pauseIcon) pauseIcon.style.display = 'none';
+        currentPreviewTrack = null;
+    };
+}
+
+function stopMusicPreview() {
+    const audio = document.getElementById('musicPreviewAudio');
+    if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+    }
+
+    // Reset all preview buttons
+    document.querySelectorAll('.music-preview-btn').forEach(btn => {
+        const playIcon = btn.querySelector('.play-icon');
+        const pauseIcon = btn.querySelector('.pause-icon');
+        if (playIcon) playIcon.style.display = 'block';
+        if (pauseIcon) pauseIcon.style.display = 'none';
+    });
+
+    currentPreviewTrack = null;
 }
 
 // =============================================
@@ -1843,18 +1914,39 @@ function generateOrderReference() {
 // Submit DuitNow payment notification
 async function submitDuitNowPayment(orderRef) {
     try {
-        const eventData = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
+        // Verify session first
+        const sessionCheck = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const sessionData = await sessionCheck.json();
+
+        if (!sessionData.authenticated) {
+            alert('Sesi anda telah tamat. Sila log masuk semula.');
+            sessionStorage.setItem('pendingEventData', JSON.stringify(eventData));
+            window.location.href = '/auth/login.html';
+            return;
+        }
+
+        const eventDataStored = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
 
         const response = await fetch('/api/payment/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({
-                eventData,
+                eventData: eventDataStored,
                 packageId: selectedPackage,
                 paymentMethod: 'duitnow',
                 orderRef
             })
         });
+
+        if (response.status === 401) {
+            alert('Sesi anda telah tamat. Sila log masuk semula.');
+            window.location.href = '/auth/login.html';
+            return;
+        }
 
         const data = await response.json();
 
@@ -1873,17 +1965,38 @@ async function submitDuitNowPayment(orderRef) {
 async function submitManualPayment() {
     // Create payment order and notify admin
     try {
-        const eventData = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
+        // Verify session first
+        const sessionCheck = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const sessionData = await sessionCheck.json();
+
+        if (!sessionData.authenticated) {
+            alert('Sesi anda telah tamat. Sila log masuk semula.');
+            sessionStorage.setItem('pendingEventData', JSON.stringify(eventData));
+            window.location.href = '/auth/login.html';
+            return;
+        }
+
+        const eventDataStored = JSON.parse(sessionStorage.getItem('pendingEventData') || '{}');
 
         const response = await fetch('/api/payment/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({
-                eventData,
+                eventData: eventDataStored,
                 packageId: selectedPackage,
                 paymentMethod: 'manual'
             })
         });
+
+        if (response.status === 401) {
+            alert('Sesi anda telah tamat. Sila log masuk semula.');
+            window.location.href = '/auth/login.html';
+            return;
+        }
 
         const data = await response.json();
 

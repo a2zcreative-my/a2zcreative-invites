@@ -383,6 +383,45 @@
     background: linear-gradient(135deg, #0a192f 50%, #d4af37 50%);
 }
 
+/* Classic Collection */
+.theme-preview.cream-classic {
+    background: linear-gradient(135deg, #f5f5dc 50%, #8b7355 50%);
+}
+
+.theme-preview.beige-sand {
+    background: linear-gradient(135deg, #f5f0e6 50%, #c4a77d 50%);
+}
+
+.theme-preview.white-gold {
+    background: linear-gradient(135deg, #ffffff 50%, #d4af37 50%);
+}
+
+.theme-preview.black-gold {
+    background: linear-gradient(135deg, #1a1a1a 50%, #d4af37 50%);
+}
+
+.theme-preview.navy-elegant {
+    background: linear-gradient(135deg, #1e3a5f 50%, #d4af37 50%);
+}
+
+/* Pastel Collection */
+.theme-preview.pastel-pink {
+    background: linear-gradient(135deg, #fdf2f8 50%, #f9a8d4 50%);
+}
+
+.theme-preview.pastel-blue {
+    background: linear-gradient(135deg, #f0f9ff 50%, #93c5fd 50%);
+}
+
+.theme-preview.sage-green {
+    background: linear-gradient(135deg, #f0fdf4 50%, #86efac 50%);
+}
+
+.theme-preview.dusty-rose {
+    background: linear-gradient(135deg, #1a1a1a 50%, #d4a5a5 50%);
+}
+
+/* Vibrant Collection */
 .theme-preview.professional-blue {
     background: linear-gradient(135deg, #1e3a5f 50%, #3b82f6 50%);
 }
@@ -397,6 +436,10 @@
 
 .theme-preview.nature-green {
     background: linear-gradient(135deg, #0a1f0d 50%, #22c55e 50%);
+}
+
+.theme-preview.terracotta {
+    background: linear-gradient(135deg, #fef3c7 50%, #c2755c 50%);
 }
 
 /* Schedule Builder */
@@ -841,75 +884,198 @@ input[type="time"] {
 }
 
 /* =============================================
-   Music Selection Styles
+   Modern Music Card Styles
    ============================================= */
-.music-selection {
+.music-section-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.music-section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 1.5rem;
 }
 
-.music-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+.music-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.music-icon-wrapper i {
+    width: 24px;
+    height: 24px;
+    color: #d4af37;
+}
+
+.music-cards {
+    display: flex;
+    flex-direction: column;
     gap: 0.75rem;
 }
 
-.music-option {
+.music-card {
     position: relative;
     cursor: pointer;
 }
 
-.music-option input {
+.music-card input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-.music-option-content {
+.music-card-content {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem 0.75rem;
-    min-height: 80px;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
     background: rgba(255, 255, 255, 0.03);
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     transition: all 0.2s ease;
-    text-align: center;
 }
 
-.music-option-content i {
-    width: 24px;
-    height: 24px;
-    color: #8892b0;
-}
-
-.music-option-content span {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #a8b2d1;
-}
-
-.music-option:hover .music-option-content {
+.music-card:hover .music-card-content {
     border-color: rgba(212, 175, 55, 0.3);
     background: rgba(255, 255, 255, 0.05);
 }
 
-.music-option.selected .music-option-content,
-.music-option input:checked+.music-option-content {
+.music-card.selected .music-card-content,
+.music-card input:checked+.music-card-content {
     border-color: #d4af37;
-    background: rgba(212, 175, 55, 0.1);
+    background: rgba(212, 175, 55, 0.08);
 }
 
-.music-option.selected .music-option-content i,
-.music-option input:checked+.music-option-content i {
+.music-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.music-card-icon i {
+    width: 22px;
+    height: 22px;
+}
+
+.music-card-icon.muted {
+    background: rgba(136, 146, 176, 0.2);
+}
+
+.music-card-icon.muted i {
+    color: #8892b0;
+}
+
+.music-card-icon.romantic {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.music-card-icon.romantic i {
+    color: #ef4444;
+}
+
+.music-card-icon.nasyid {
+    background: rgba(168, 85, 247, 0.15);
+}
+
+.music-card-icon.nasyid i {
+    color: #a855f7;
+}
+
+.music-card-icon.piano {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.music-card-icon.piano i {
+    color: #3b82f6;
+}
+
+.music-card-icon.custom {
+    background: rgba(34, 197, 94, 0.15);
+}
+
+.music-card-icon.custom i {
+    color: #22c55e;
+}
+
+.music-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.music-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.music-card-desc {
+    font-size: 0.8rem;
+    color: #8892b0;
+}
+
+.music-preview-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.music-preview-btn:hover {
+    background: rgba(212, 175, 55, 0.25);
+    transform: scale(1.05);
+}
+
+.music-preview-btn i {
+    width: 18px;
+    height: 18px;
     color: #d4af37;
 }
 
-.music-option.selected .music-option-content span,
-.music-option input:checked+.music-option-content span {
+.music-card-check {
+    display: none;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.music-card-check i {
+    width: 28px;
+    height: 28px;
     color: #d4af37;
+}
+
+.music-card.selected .music-card-check,
+.music-card input:checked+.music-card-content .music-card-check {
+    display: flex;
+}
+
+/* Hide preview buttons when selected - show checkmark instead */
+.music-card.selected .music-preview-btn,
+.music-card input:checked+.music-card-content .music-preview-btn {
+    display: none;
 }
 
 /* Gift Info Section */
@@ -934,24 +1100,32 @@ input[type="time"] {
     accent-color: #d4af37;
 }
 
-/* Responsive music options */
+/* Responsive music cards */
 @media (max-width: 480px) {
-    .music-options {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.5rem;
+    .music-section-card {
+        padding: 1rem;
     }
 
-    .music-option-content {
-        padding: 0.75rem 0.5rem;
-        min-height: 70px;
+    .music-card-content {
+        padding: 0.875rem 1rem;
     }
 
-    .music-option-content i {
+    .music-card-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .music-card-icon i {
         width: 20px;
         height: 20px;
     }
 
-    .music-option-content span {
-        font-size: 0.7rem;
+    .music-card-title {
+        font-size: 0.9rem;
+    }
+
+    .music-preview-btn {
+        width: 36px;
+        height: 36px;
     }
 }
