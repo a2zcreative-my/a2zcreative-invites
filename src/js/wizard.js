@@ -25,6 +25,12 @@ const eventData = {
     verseText: '',
     verseRef: '',
     hashtag: '',
+    musicOption: 'none',
+    customMusicUrl: '',
+    giftEnabled: true,
+    giftBankName: '',
+    giftAccountNumber: '',
+    giftAccountHolder: '',
     schedule: [],
     contacts: []
 };
@@ -1023,17 +1029,32 @@ function collectStepData() {
             break;
 
         case 3:
+            // Theme + Content + Music
             eventData.inviteTitle = document.getElementById('inviteTitle')?.value || '';
             eventData.verseText = document.getElementById('verseText')?.value || '';
             eventData.verseRef = document.getElementById('verseRef')?.value || '';
             eventData.hashtag = document.getElementById('hashtag')?.value || '';
+            // Collect selected music option
+            const selectedMusic = document.querySelector('input[name="musicOption"]:checked');
+            eventData.musicOption = selectedMusic?.value || 'none';
+            eventData.customMusicUrl = document.getElementById('customMusicUrl')?.value || '';
             break;
 
         case 4:
-            collectScheduleData();
+            // Gift/Hadiah section
+            eventData.giftEnabled = document.getElementById('giftEnabled')?.checked || false;
+            eventData.giftBankName = document.getElementById('giftBankName')?.value || '';
+            eventData.giftAccountNumber = document.getElementById('giftAccountNumber')?.value || '';
+            eventData.giftAccountHolder = document.getElementById('giftAccountHolder')?.value || '';
             break;
 
         case 5:
+            // Schedule/Atur Cara
+            collectScheduleData();
+            break;
+
+        case 6:
+            // Contacts/Hubungi
             collectContactsData();
             break;
     }
