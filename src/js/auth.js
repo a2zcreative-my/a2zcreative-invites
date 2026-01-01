@@ -290,9 +290,13 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    // Store user data in localStorage for getCurrentUser
+                    if (data.user) {
+                        localStorage.setItem('a2z_user', JSON.stringify(data.user));
+                    }
                     showError('Akaun berjaya didaftar! Mengalihkan...');
                     setTimeout(() => {
-                        window.location.href = data.redirect || '/auth/login.html';
+                        window.location.href = data.redirect || '/pricing/';
                     }, 1500);
                 } else {
                     showError(data.error || 'Pendaftaran gagal. Sila cuba lagi.');
@@ -350,17 +354,24 @@
             }
         }
 
-        // Legacy support
-        const legacyUser = localStorage.getItem('demo_user');
-        if (legacyUser) {
-            try {
-                return JSON.parse(legacyUser);
-            } catch (e) {
-                localStorage.removeItem('demo_user');
+        // Check D1 session via API (for D1-registered users)
+        try {
+            const response = await fetch('/api/auth/session', {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.authenticated && data.user) {
+                    // Cache for future calls
+                    localStorage.setItem('a2z_user', JSON.stringify(data.user));
+                    return data.user;
+                }
             }
+        } catch (e) {
+            // Silently continue to Supabase fallback
         }
 
-        // Check Supabase session
+        // Check Supabase session (legacy/OAuth users)
         if (supabaseClient) {
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();

@@ -37,28 +37,31 @@ export async function onRequestPost(context) {
     try {
 
         // ===== PACKAGE ACCESS CONTROL =====
-        // Get user's subscription info
-        const user = await env.DB.prepare(`
+        // Get user's subscription info (may be null for new users)
+        const userSub = await env.DB.prepare(`
             SELECT active_package_id, events_remaining 
             FROM users WHERE id = ?
         `).bind(userId).first();
 
-        const packageId = user?.active_package_id || 'free';
-        const eventsRemaining = user?.events_remaining ?? 1;
+        // Default to allowing free tier for new users
+        const packageId = userSub?.active_package_id || 'free';
+        // New users get 1 event by default, null/undefined treated as having events available
+        const eventsRemaining = userSub?.events_remaining ?? 999;
 
         // Package to allowed event types mapping
         const PACKAGE_EVENT_TYPES = {
-            'free': [1],              // Wedding only
-            'basic': [1, 2, 3, 4, 5], // ALL 5 types
-            'premium': [1, 3, 4],     // Wedding, Family, Birthday
-            'business': [2, 5]        // Corporate, Community
+            'free': [1, 2, 3, 4, 5],   // Allow all types for free (payment comes after)
+            'basic': [1, 2, 3, 4, 5],  // ALL 5 types
+            'premium': [1, 3, 4],      // Wedding, Family, Birthday
+            'business': [2, 5]         // Corporate, Community
         };
 
         const eventTypeId = parseInt(data.eventType) || 1;
-        const allowedTypes = PACKAGE_EVENT_TYPES[packageId] || [1];
+        const allowedTypes = PACKAGE_EVENT_TYPES[packageId] || PACKAGE_EVENT_TYPES['free'];
 
-        // Check if event type is allowed for this package
-        if (!allowedTypes.includes(eventTypeId)) {
+        // Skip package check for new/unpaid users (they'll pay after creating event)
+        // Only enforce for users with active packages
+        if (userSub?.active_package_id && !allowedTypes.includes(eventTypeId)) {
             return new Response(JSON.stringify({
                 error: 'Package restriction',
                 message: 'Sila naik taraf pakej anda untuk mencipta jenis majlis ini.',
@@ -71,8 +74,8 @@ export async function onRequestPost(context) {
             });
         }
 
-        // Check if user has events remaining
-        if (eventsRemaining <= 0) {
+        // Skip event limit check for new users (they'll pay after)
+        if (userSub?.active_package_id && eventsRemaining <= 0) {
             return new Response(JSON.stringify({
                 error: 'Limit exceeded',
                 message: 'Anda telah mencapai had jemputan. Sila naik taraf pakej.',
