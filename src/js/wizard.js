@@ -224,8 +224,12 @@ function sendDataToPreview() {
     const iframe = document.getElementById('previewFrame');
     if (!iframe || !iframe.contentWindow) return;
 
-    // Collect latest data
+    // Collect latest data from current step
     collectStepData();
+
+    // Always collect schedule and contacts data for preview
+    collectScheduleData();
+    collectContactsData();
 
     // Send to preview via postMessage
     iframe.contentWindow.postMessage({
@@ -1268,12 +1272,53 @@ function updatePreviewTemplate() {
     const iframe = document.getElementById('previewFrame');
     if (!iframe) return;
 
+    // Collect latest data before sending to preview
+    collectScheduleData();
+    collectContactsData();
+
     // Build preview URL with event type and theme
     const eventType = eventData.eventType || 1;
     const theme = eventData.theme || 'elegant-gold';
 
-    // Update iframe src to include parameters
-    iframe.src = `/inv/preview/?type=${eventType}&theme=${theme}`;
+    // If iframe already loaded, send data via PostMessage
+    if (iframe.contentWindow) {
+        iframe.contentWindow.postMessage({
+            type: 'preview',
+            data: eventData
+        }, '*');
+    }
+
+    // Also update iframe src if theme/type changed
+    const currentSrc = iframe.src || '';
+    const newSrc = `/inv/preview/?type=${eventType}&theme=${theme}`;
+    if (!currentSrc.includes(`type=${eventType}`) || !currentSrc.includes(`theme=${theme}`)) {
+        iframe.src = newSrc;
+        // Re-send data after iframe loads
+        iframe.onload = () => {
+            if (iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'preview',
+                    data: eventData
+                }, '*');
+            }
+        };
+    }
+}
+
+// Send live preview update when schedule/contact items change
+function sendLivePreviewUpdate() {
+    const iframe = document.getElementById('previewFrame');
+    if (!iframe || !iframe.contentWindow) return;
+
+    // Collect current data
+    collectScheduleData();
+    collectContactsData();
+
+    // Send to preview
+    iframe.contentWindow.postMessage({
+        type: 'preview',
+        data: eventData
+    }, '*');
 }
 
 // =============================================
@@ -1580,6 +1625,21 @@ async function proceedToBillplzPayment() {
         });
 
         const eventResult = await eventResponse.json();
+
+        // Handle 409 Conflict - slug already exists
+        if (eventResponse.status === 409) {
+            alert('URL jemputan ini sudah digunakan. Sila pilih URL yang berbeza.');
+            // Trigger slug re-check to show suggestions
+            checkSlugAvailability(slug);
+            // Reset button
+            if (payBtn) {
+                payBtn.disabled = false;
+                payBtn.innerHTML = '<i data-lucide="credit-card"></i> Bayar & Terbitkan';
+                lucide.createIcons();
+            }
+            return;
+        }
+
         if (!eventResponse.ok) {
             throw new Error(eventResult.error || 'Gagal mencipta jemputan');
         }
@@ -1601,8 +1661,39 @@ async function proceedToBillplzPayment() {
         const paymentResult = await paymentResponse.json();
 
         if (paymentResult.paymentUrl) {
-            // Redirect to Billplz payment page
-            window.location.href = paymentResult.paymentUrl;
+            // Store event info for post-payment handling
+            sessionStorage.setItem('pendingPaymentEventId', eventId);
+            sessionStorage.setItem('pendingPaymentSlug', slug);
+
+            // Open Billplz in a popup window to preserve current page data
+            const popup = window.open(
+                paymentResult.paymentUrl,
+                'billplz_payment',
+                'width=550,height=750,scrollbars=yes,resizable=yes,left=' +
+                (window.screen.width / 2 - 275) + ',top=' + (window.screen.height / 2 - 375)
+            );
+
+            // Monitor popup for completion
+            if (popup) {
+                const checkPopup = setInterval(() => {
+                    if (popup.closed) {
+                        clearInterval(checkPopup);
+                        // Check payment status after popup closes
+                        checkPaymentCompletion(eventId, slug);
+                    }
+                }, 1000);
+
+                // Reset button after opening popup
+                if (payBtn) {
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i data-lucide="credit-card"></i> Bayar & Terbitkan';
+                    lucide.createIcons();
+                }
+            } else {
+                // Popup blocked - fallback to redirect
+                alert('Popup disekat oleh pelayar. Mengalih ke halaman pembayaran...');
+                window.location.href = paymentResult.paymentUrl;
+            }
         } else {
             throw new Error(paymentResult.error || 'Gagal mencipta pembayaran');
         }
@@ -1619,6 +1710,27 @@ async function proceedToBillplzPayment() {
         }
     }
 }
+
+// Check payment completion after Billplz popup closes
+async function checkPaymentCompletion(eventId, slug) {
+    try {
+        // Check the event status
+        const response = await fetch(`/api/events/${eventId}/status`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.status === 'active' || data.paymentStatus === 'paid') {
+                // Payment successful - show success
+                showPublishSuccess(slug);
+            } else {
+                // Payment may still be processing or wasn't completed
+                alert('Jika anda telah membuat pembayaran, sila tunggu beberapa saat untuk pengesahan. Anda boleh semak status di Dashboard.');
+            }
+        }
+    } catch (error) {
+        console.error('Error checking payment status:', error);
+    }
+}
+
 
 function closePaymentModal() {
     const modal = document.getElementById('paymentModal');
