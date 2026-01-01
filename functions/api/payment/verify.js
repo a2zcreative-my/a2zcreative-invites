@@ -106,6 +106,15 @@ export async function onRequestPost(context) {
             expiresAt.toISOString()
         ).run();
 
+        // CRITICAL: Upgrade user role to 'admin' (paid client)
+        if (order.user_id) {
+            await env.DB.prepare(`
+                UPDATE users SET role = 'admin', updated_at = CURRENT_TIMESTAMP
+                WHERE id = ? AND role = 'user'
+            `).bind(order.user_id).run();
+            console.log(`[Payment Verify] User ${order.user_id} upgraded to admin role`);
+        }
+
         // Log audit
         await env.DB.prepare(`
             INSERT INTO audit_logs (event_id, user_id, action, details)

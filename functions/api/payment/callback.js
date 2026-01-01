@@ -57,7 +57,22 @@ export async function onRequestGet(context) {
         const billStatus = await getBillStatus(env, callbackData.billId);
 
         if (billStatus.paid) {
-            // Payment successful - redirect to success page with order info
+            // Payment successful - update database
+            await env.DB.prepare(`
+                UPDATE payment_orders SET status = 'verified', paid_at = CURRENT_TIMESTAMP
+                WHERE gateway_ref = ?
+            `).bind(callbackData.billId).run();
+
+            // CRITICAL: Upgrade user role to 'admin' (paid client)
+            if (order.user_id) {
+                await env.DB.prepare(`
+                    UPDATE users SET role = 'admin', updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ? AND role = 'user'
+                `).bind(order.user_id).run();
+                console.log(`[Payment Callback] User ${order.user_id} upgraded to admin role`);
+            }
+
+            // Redirect to success page with order info
             const successUrl = new URL('https://a2zcreative.my/payment/success');
             successUrl.searchParams.set('order_ref', order.order_ref);
             successUrl.searchParams.set('package', order.package_id);
