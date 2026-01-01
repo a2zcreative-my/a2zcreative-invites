@@ -113,11 +113,10 @@ export async function verifyEventOwnership(env, eventId, userId) {
  * Generate signed download token
  */
 export function generateDownloadToken(eventId, fileType, expiryMinutes = 60) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let token = '';
-    for (let i = 0; i < 32; i++) {
-        token += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+    // Use cryptographically secure random values to prevent token prediction
+    const randomBytes = new Uint8Array(32);
+    crypto.getRandomValues(randomBytes);
+    const token = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + expiryMinutes);

@@ -74,6 +74,12 @@ async function handleCreatePayment(request, env) {
 
     const { eventId, packageId, paymentMethod } = data;
 
+    // Enforce known payment methods to prevent arbitrary values being stored/used
+    const allowedMethods = ['billplz', 'duitnow', 'manual'];
+    const sanitizedMethod = paymentMethod && allowedMethods.includes(paymentMethod)
+        ? paymentMethod
+        : 'billplz';
+
     // Validate package
     const pkg = PACKAGES[packageId];
     if (!pkg) {
@@ -132,7 +138,7 @@ async function handleCreatePayment(request, env) {
             orderRef,
             pkg.price,
             packageId,
-            paymentMethod || 'pending',
+            sanitizedMethod,
             expiresAt.toISOString()
         ).run();
 
@@ -150,7 +156,7 @@ async function handleCreatePayment(request, env) {
         let duitnowQr = null;
         let gatewayRef = null;
 
-        if (paymentMethod === 'billplz') {
+        if (sanitizedMethod === 'billplz') {
             // Create Billplz bill using the helper
             try {
                 const { createBill } = await import('../lib/billplz.js');
@@ -185,7 +191,7 @@ async function handleCreatePayment(request, env) {
                     headers: { 'Content-Type': 'application/json' }
                 });
             }
-        } else if (paymentMethod === 'duitnow') {
+        } else if (sanitizedMethod === 'duitnow') {
             // Require configured DuitNow account from environment
             if (!env.DUITNOW_ACCOUNT_NO || !env.DUITNOW_ACCOUNT_NAME) {
                 return new Response(JSON.stringify({
