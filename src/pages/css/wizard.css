@@ -864,22 +864,23 @@ input[type="time"] {
 
 /* Time Input Specific Styling */
 .time-input-group {
-    max-width: 200px !important;
+    /* Same width as sibling form-groups */
 }
 
 .time-input {
-    max-width: 150px !important;
     text-align: center !important;
 }
 
-/* On mobile, time input should still be constrained */
+/* On mobile, time input should match date input width */
 @media (max-width: 768px) {
     .time-input-group {
-        max-width: 50% !important;
+        max-width: none !important;
+        width: 100% !important;
     }
 
     .time-input {
-        max-width: 100% !important;
+        max-width: none !important;
+        width: 100% !important;
     }
 }
 
