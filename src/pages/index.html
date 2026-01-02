@@ -50,8 +50,38 @@
                 <a href="#events" class="nav-link">Event Types</a>
                 <a href="#pricing" class="nav-link">Harga</a>
                 <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="/auth/login.html" class="nav-link">Login</a>
-                <a href="/pricing/" class="btn btn-primary nav-cta">Get Started</a>
+
+                <!-- Login link (shown when not logged in) -->
+                <a href="/auth/login.html" class="nav-link" id="navLoginLink">Login</a>
+
+                <!-- User Avatar (shown when logged in) -->
+                <div class="nav-user-menu" id="navUserMenu" style="display: none; position: relative; cursor: pointer;"
+                    onclick="toggleNavUserMenu(event)">
+                    <div class="nav-user-avatar" id="navUserAvatar"
+                        style="width: 36px; height: 36px; background: #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #0a192f; font-size: 0.875rem;">
+                    </div>
+                    <div class="nav-user-dropdown" id="navUserDropdown"
+                        style="display: none; position: absolute; right: 0; top: 45px; background: #1a2744; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); min-width: 180px; z-index: 9999; border: 1px solid rgba(255,255,255,0.1);">
+                        <a href="/dashboard/"
+                            style="display: flex; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
+                            <i data-lucide="layout-dashboard"
+                                style="width: 18px; height: 18px; margin-right: 10px;"></i>Dashboard
+                        </a>
+                        <a href="/create/"
+                            style="display: flex; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
+                            <i data-lucide="plus-circle"
+                                style="width: 18px; height: 18px; margin-right: 10px;"></i>Cipta Jemputan
+                        </a>
+                        <button onclick="handleNavLogout()"
+                            style="display: flex; align-items: center; width: 100%; padding: 14px 18px; background: none; border: none; color: #ff6b6b; text-align: left; cursor: pointer; font-size: 0.95rem;">
+                            <i data-lucide="log-out" style="width: 18px; height: 18px; margin-right: 10px;"></i>Log
+                            Keluar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CTA Button - changes based on login status -->
+                <a href="/pricing/" class="btn btn-primary nav-cta" id="navCtaBtn">Get Started</a>
             </div>
             <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
                 <span></span>
@@ -578,7 +608,100 @@
                 const arrow = document.getElementById('demoArrow');
                 if (arrow) arrow.style.transform = 'rotate(0deg)';
             }
+
+            // Close nav user dropdown when clicking outside
+            const navUserMenu = document.getElementById('navUserMenu');
+            const navUserDropdown = document.getElementById('navUserDropdown');
+            if (navUserDropdown && navUserMenu && !navUserMenu.contains(e.target)) {
+                navUserDropdown.style.display = 'none';
+            }
         });
+
+        // =============================================
+        // Navigation User Authentication
+        // =============================================
+        function toggleNavUserMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('navUserDropdown');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        async function handleNavLogout() {
+            try {
+                localStorage.removeItem('a2z_user');
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+            } catch (e) {
+                console.error('Logout error:', e);
+            }
+            window.location.href = '/';
+        }
+
+        async function initNavUserProfile() {
+            const loginLink = document.getElementById('navLoginLink');
+            const userMenu = document.getElementById('navUserMenu');
+            const userAvatar = document.getElementById('navUserAvatar');
+            const ctaBtn = document.getElementById('navCtaBtn');
+
+            if (!loginLink || !userMenu) return;
+
+            let user = null;
+
+            // Try localStorage first
+            try {
+                const storedUser = localStorage.getItem('a2z_user');
+                if (storedUser) {
+                    user = JSON.parse(storedUser);
+                }
+            } catch (e) {
+                console.log('No stored user');
+            }
+
+            // If no localStorage, check session API
+            if (!user) {
+                try {
+                    const response = await fetch('/api/auth/session', { credentials: 'include' });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.user) {
+                            user = data.user;
+                        }
+                    }
+                } catch (e) {
+                    console.log('Session check failed');
+                }
+            }
+
+            // Apply UI based on login status
+            if (user && (user.email || user.name)) {
+                // User is logged in
+                loginLink.style.display = 'none';
+                userMenu.style.display = 'flex';
+
+                // Set avatar initial
+                const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
+                if (userAvatar) userAvatar.textContent = initial;
+
+                // Change CTA to "Cipta Jemputan"
+                if (ctaBtn) {
+                    ctaBtn.textContent = 'Cipta Jemputan';
+                    ctaBtn.href = '/create/';
+                }
+
+                // Reinitialize Lucide icons for dropdown
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            } else {
+                // User is not logged in - keep defaults
+                loginLink.style.display = '';
+                userMenu.style.display = 'none';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initNavUserProfile);
     </script>
 </body>
 
