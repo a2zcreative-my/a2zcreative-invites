@@ -361,6 +361,10 @@
 .event-icon {
     font-size: 3rem;
     margin-bottom: var(--space-4);
+    background: rgba(10, 25, 47, 1);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    display: inline-block;
 }
 
 .event-icon img {
@@ -369,6 +373,7 @@
     max-width: 64px;
     max-height: 64px;
     mix-blend-mode: screen;
+    display: block;
 }
 
 .event-name {
