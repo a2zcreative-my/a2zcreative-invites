@@ -54,8 +54,8 @@
                         style="display: flex; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
                         <i data-lucide="home" style="width: 18px; height: 18px; margin-right: 10px;"></i>Laman Utama
                     </a>
-                    <a href="/dashboard/"
-                        style="display: flex; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
+                    <a href="/dashboard/" id="dashboardLink"
+                        style="display: none; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
                         <i data-lucide="layout-dashboard"
                             style="width: 18px; height: 18px; margin-right: 10px;"></i>Dashboard
                     </a>
@@ -452,6 +452,13 @@
                 if (userMenu) userMenu.style.display = 'flex';
                 if (userName) userName.textContent = user.name || user.email || 'User';
                 if (userAvatar) userAvatar.textContent = (user.name || user.email || 'U').charAt(0).toUpperCase();
+
+                // Show Dashboard link only for admin/super_admin
+                const dashboardLink = document.getElementById('dashboardLink');
+                if (dashboardLink && (user.role === 'admin' || user.role === 'super_admin')) {
+                    dashboardLink.style.display = 'flex';
+                }
+
                 lucide.createIcons();
             }
 
