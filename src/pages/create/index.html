@@ -180,16 +180,43 @@
                     color: #ffffff !important;
                     appearance: none !important;
                     -webkit-appearance: none !important;
+                    color-scheme: dark !important;
                 }
 
-                /* Target WebKit time input internal elements for left alignment */
+                #eventDate:focus,
+                #startTime:focus {
+                    border-color: #d4af37 !important;
+                    outline: none !important;
+                    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15) !important;
+                }
+
+                /* Force dark theme on all time input internal elements */
+                input[type="time"] {
+                    color-scheme: dark !important;
+                }
+
                 input[type="time"]::-webkit-datetime-edit {
                     padding: 0 !important;
                     margin: 0 !important;
+                    color: #ffffff !important;
                 }
 
                 input[type="time"]::-webkit-datetime-edit-fields-wrapper {
                     padding: 0 !important;
+                    background: transparent !important;
+                }
+
+                input[type="time"]::-webkit-datetime-edit-text,
+                input[type="time"]::-webkit-datetime-edit-hour-field,
+                input[type="time"]::-webkit-datetime-edit-minute-field,
+                input[type="time"]::-webkit-datetime-edit-ampm-field {
+                    color: #ffffff !important;
+                }
+
+                input[type="time"]::-webkit-calendar-picker-indicator {
+                    filter: invert(1) !important;
+                    opacity: 0.6 !important;
+                    cursor: pointer !important;
                 }
 
                 /* Ensure containers strictly obey grid */
