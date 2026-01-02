@@ -184,8 +184,7 @@
                 #startTime {
                     width: 100% !important;
                     max-width: 100% !important;
-                    display: flex !important;
-                    justify-content: flex-start !important;
+                    display: block !important;
                     box-sizing: border-box !important;
                     height: 50px !important;
                     padding: 0 1rem !important;
@@ -193,19 +192,19 @@
                     border-radius: 12px !important;
                     background: rgba(255, 255, 255, 0.03) !important;
                     font-size: 1rem !important;
-                    text-align: left !important;
-                    text-align: start !important;
-                    -webkit-text-align: left !important;
+                    line-height: 50px !important;
+                    appearance: none !important;
+                    -webkit-appearance: none !important;
                 }
 
-                /* Target WebKit time input internal elements */
-                #startTime::-webkit-datetime-edit {
-                    text-align: left !important;
-                    padding-right: auto !important;
+                /* Target WebKit time input internal elements for left alignment */
+                input[type="time"]::-webkit-datetime-edit {
+                    padding: 0 !important;
+                    margin: 0 !important;
                 }
 
-                #startTime::-webkit-datetime-edit-fields-wrapper {
-                    text-align: left !important;
+                input[type="time"]::-webkit-datetime-edit-fields-wrapper {
+                    padding: 0 !important;
                 }
 
                 /* Ensure containers strictly obey grid */
