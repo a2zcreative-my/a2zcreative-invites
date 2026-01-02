@@ -62,8 +62,8 @@
                     </div>
                     <div class="nav-user-dropdown" id="navUserDropdown"
                         style="display: none; position: absolute; right: 0; top: 45px; background: #1a2744; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); min-width: 180px; z-index: 9999; border: 1px solid rgba(255,255,255,0.1);">
-                        <a href="/dashboard/"
-                            style="display: flex; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
+                        <a href="/dashboard/" id="navDashboardLink"
+                            style="display: none; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
                             <i data-lucide="layout-dashboard"
                                 style="width: 18px; height: 18px; margin-right: 10px;"></i>Dashboard
                         </a>
@@ -682,6 +682,12 @@
                 // Set avatar initial
                 const initial = (user.name || user.email || 'U').charAt(0).toUpperCase();
                 if (userAvatar) userAvatar.textContent = initial;
+
+                // Show Dashboard link only for admin/super_admin
+                const dashboardLink = document.getElementById('navDashboardLink');
+                if (dashboardLink && (user.role === 'admin' || user.role === 'super_admin')) {
+                    dashboardLink.style.display = 'flex';
+                }
 
                 // Change CTA to "Cipta Jemputan"
                 if (ctaBtn) {
