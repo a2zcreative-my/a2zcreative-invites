@@ -889,7 +889,7 @@
     transition: opacity var(--transition-base);
 }
 
-.modal.visible {
+.modal.active {
     opacity: 1;
     pointer-events: auto;
 }

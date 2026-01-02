@@ -470,6 +470,44 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Music Toggle (mute/unmute)
+    const musicToggle = document.getElementById('musicToggle');
+    const backgroundAudio = document.getElementById('background-audio');
+    let isMusicPlaying = false;
+
+    if (musicToggle && backgroundAudio) {
+        musicToggle.addEventListener('click', () => {
+            if (isMusicPlaying) {
+                backgroundAudio.pause();
+                musicToggle.classList.remove('active');
+                musicToggle.innerHTML = '<i data-lucide="music-off"></i><span>Lagu</span>';
+            } else {
+                backgroundAudio.play().catch(e => console.log('Audio play blocked:', e));
+                musicToggle.classList.add('active');
+                musicToggle.innerHTML = '<i data-lucide="music"></i><span>Lagu</span>';
+            }
+            isMusicPlaying = !isMusicPlaying;
+            if (window.lucide) lucide.createIcons();
+        });
+    }
+
+    // Copy account number button
+    const copyAccBtn = document.getElementById('copyAccBtn');
+    const accNumber = document.getElementById('accNumber');
+    if (copyAccBtn && accNumber) {
+        copyAccBtn.addEventListener('click', () => {
+            const text = accNumber.textContent.replace(/\s/g, '');
+            navigator.clipboard.writeText(text).then(() => {
+                copyAccBtn.innerHTML = '<i data-lucide="check"></i> Disalin!';
+                if (window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    copyAccBtn.innerHTML = '<i data-lucide="copy"></i> Salin';
+                    if (window.lucide) lucide.createIcons();
+                }, 2000);
+            });
+        });
+    }
+
     // Scroll Buttons (Lokasi, RSVP)
     document.querySelectorAll('[data-section]').forEach(btn => {
         btn.addEventListener('click', () => {
