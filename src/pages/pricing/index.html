@@ -36,9 +36,35 @@
                 <i data-lucide="arrow-left"></i>
                 <span>Kembali</span>
             </a>
-            <a href="/" class="nav-logo">
+            <!-- Logo (shown when not logged in) -->
+            <a href="/" class="nav-logo" id="navLogo">
                 <img src="/logo.png" alt="A2Z Creative" height="32">
             </a>
+            <!-- User Profile (shown when logged in) -->
+            <div class="user-menu" id="userMenu" style="display: none; cursor: pointer; position: relative;"
+                onclick="toggleUserMenu(event)">
+                <span class="user-name" id="userName"
+                    style="font-size: 0.875rem; color: #8892b0; margin-right: 0.5rem;"></span>
+                <div class="user-avatar" id="userAvatar"
+                    style="width: 36px; height: 36px; background: #d4af37; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #0a192f; font-size: 0.875rem;">
+                </div>
+                <div class="user-dropdown" id="userDropdown"
+                    style="display: none; position: absolute; right: 0; top: 45px; background: #1a2744; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); min-width: 180px; z-index: 9999; border: 1px solid rgba(255,255,255,0.1);">
+                    <a href="/"
+                        style="display: flex; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
+                        <i data-lucide="home" style="width: 18px; height: 18px; margin-right: 10px;"></i>Laman Utama
+                    </a>
+                    <a href="/dashboard/"
+                        style="display: flex; align-items: center; padding: 14px 18px; color: #a0aec0; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem;">
+                        <i data-lucide="layout-dashboard"
+                            style="width: 18px; height: 18px; margin-right: 10px;"></i>Dashboard
+                    </a>
+                    <button onclick="handleLogout()"
+                        style="display: flex; align-items: center; width: 100%; padding: 14px 18px; background: none; border: none; color: #ff6b6b; text-align: left; cursor: pointer; font-size: 0.95rem;">
+                        <i data-lucide="log-out" style="width: 18px; height: 18px; margin-right: 10px;"></i>Log Keluar
+                    </button>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -383,6 +409,84 @@
             const item = button.parentElement;
             item.classList.toggle('open');
         }
+
+        // User Profile Functions
+        function toggleUserMenu(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('userDropdown');
+            const userMenu = document.getElementById('userMenu');
+            if (dropdown && userMenu && !userMenu.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        async function handleLogout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                localStorage.removeItem('a2z_user');
+                window.location.href = '/auth/login.html';
+            } catch (error) {
+                localStorage.removeItem('a2z_user');
+                window.location.href = '/auth/login.html';
+            }
+        }
+
+        // Check if user is logged in and update UI
+        async function initUserProfile() {
+            const navLogo = document.getElementById('navLogo');
+            const userMenu = document.getElementById('userMenu');
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+
+            // Helper to show user profile
+            function showUserProfile(user) {
+                if (navLogo) navLogo.style.display = 'none';
+                if (userMenu) userMenu.style.display = 'flex';
+                if (userName) userName.textContent = user.name || user.email || 'User';
+                if (userAvatar) userAvatar.textContent = (user.name || user.email || 'U').charAt(0).toUpperCase();
+                lucide.createIcons();
+            }
+
+            // First try localStorage
+            const userStr = localStorage.getItem('a2z_user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    if (user && (user.name || user.email)) {
+                        showUserProfile(user);
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Error parsing user:', e);
+                }
+            }
+
+            // Fallback: Check session API
+            try {
+                const response = await fetch('/api/auth/session', { credentials: 'include' });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated && data.user) {
+                        // Store for next time
+                        localStorage.setItem('a2z_user', JSON.stringify(data.user));
+                        showUserProfile(data.user);
+                    }
+                }
+            } catch (e) {
+                // Silently fail - not logged in
+            }
+        }
+
+        // Initialize on page load
+        initUserProfile();
     </script>
 </body>
 

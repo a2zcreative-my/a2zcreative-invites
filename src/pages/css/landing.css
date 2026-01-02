@@ -363,6 +363,13 @@
     margin-bottom: var(--space-4);
 }
 
+.event-icon img {
+    background: transparent;
+    object-fit: contain;
+    max-width: 64px;
+    max-height: 64px;
+}
+
 .event-name {
     font-size: var(--text-xl);
     color: var(--color-white);

@@ -864,11 +864,11 @@ input[type="time"] {
 
 /* Time Input Specific Styling */
 .time-input-group {
-    /* Same width as sibling form-groups */
+    width: 100%;
 }
 
 .time-input {
-    text-align: center !important;
+    text-align: left !important;
 }
 
 /* On mobile, time input should match date input width */

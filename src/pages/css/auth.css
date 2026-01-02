@@ -358,6 +358,32 @@
     }
 }
 
+@media (max-width: 380px) {
+    .auth-container {
+        max-width: 100%;
+        padding: 0 0.5rem;
+    }
+
+    .auth-card {
+        padding: 1.25rem;
+    }
+
+    .form-group input {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .auth-submit {
+        padding: 0.875rem;
+        font-size: 0.9rem;
+    }
+
+    .social-btn {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
 /* =============================================
    Full Screen Loading Overlay
    ============================================= */
