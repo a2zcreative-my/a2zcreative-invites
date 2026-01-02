@@ -1253,6 +1253,121 @@ function initFormInputs() {
         });
     }
 
+    // Initialize Flatpickr time picker with matching dark theme
+    const timeInput = document.getElementById('startTime');
+    if (timeInput && typeof flatpickr !== 'undefined') {
+        flatpickr(timeInput, {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: 'H:i',
+            altInput: true,
+            altFormat: 'h:i K',
+            defaultHour: 11,
+            defaultMinute: 0,
+            time_24hr: false,
+            disableMobile: true,
+            appendTo: timeInput.parentElement,
+            onOpen: function (selectedDates, dateStr, instance) {
+                const isMobile = window.innerWidth <= 768;
+                const timePicker = instance.calendarContainer;
+
+                if (isMobile) {
+                    // Mobile: Modal style with backdrop
+                    let backdrop = document.getElementById('calendar-backdrop');
+                    if (!backdrop) {
+                        backdrop = document.createElement('div');
+                        backdrop.id = 'calendar-backdrop';
+                        backdrop.style.cssText = `
+                            position: fixed;
+                            top: 0; left: 0; right: 0; bottom: 0;
+                            background: rgba(0,0,0,0.6);
+                            z-index: 9998;
+                        `;
+                        backdrop.onclick = () => instance.close();
+                        document.body.appendChild(backdrop);
+                    }
+                    backdrop.style.display = 'block';
+
+                    // Center time picker
+                    timePicker.style.position = 'fixed';
+                    timePicker.style.top = '50%';
+                    timePicker.style.left = '50%';
+                    timePicker.style.transform = 'translate(-50%, -50%)';
+                    timePicker.style.zIndex = '9999';
+                }
+            },
+            onClose: function (selectedDates, dateStr, instance) {
+                const backdrop = document.getElementById('calendar-backdrop');
+                if (backdrop) {
+                    backdrop.style.display = 'none';
+                }
+
+                const timePicker = instance.calendarContainer;
+                timePicker.style.position = '';
+                timePicker.style.top = '';
+                timePicker.style.left = '';
+                timePicker.style.transform = '';
+            },
+            onReady: function (selectedDates, dateStr, instance) {
+                // Apply brand styling to Flatpickr time picker
+                const style = document.createElement('style');
+                style.textContent = `
+                    .flatpickr-calendar.noCalendar {
+                        background: #1a2744 !important;
+                        border: 1px solid rgba(212, 175, 55, 0.3) !important;
+                        box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+                        z-index: 9999 !important;
+                        min-width: 200px !important;
+                    }
+                    .flatpickr-time {
+                        background: #1a2744 !important;
+                        border: none !important;
+                        max-height: none !important;
+                        padding: 16px !important;
+                    }
+                    .flatpickr-time input {
+                        background: rgba(255,255,255,0.1) !important;
+                        color: #ffffff !important;
+                        border-radius: 8px !important;
+                        font-size: 1.5rem !important;
+                        padding: 8px !important;
+                    }
+                    .flatpickr-time input:hover,
+                    .flatpickr-time input:focus {
+                        background: rgba(212, 175, 55, 0.2) !important;
+                        border-color: #d4af37 !important;
+                    }
+                    .flatpickr-time .numInputWrapper span {
+                        border-color: rgba(212, 175, 55, 0.3) !important;
+                    }
+                    .flatpickr-time .numInputWrapper span:hover {
+                        background: rgba(212, 175, 55, 0.2) !important;
+                    }
+                    .flatpickr-time .numInputWrapper span svg path {
+                        fill: #d4af37 !important;
+                    }
+                    .flatpickr-time-separator {
+                        color: #d4af37 !important;
+                        font-size: 1.5rem !important;
+                    }
+                    .flatpickr-am-pm {
+                        background: rgba(255,255,255,0.1) !important;
+                        color: #d4af37 !important;
+                        border-radius: 8px !important;
+                        font-weight: 600 !important;
+                    }
+                    .flatpickr-am-pm:hover {
+                        background: rgba(212, 175, 55, 0.3) !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        });
+
+        // Set default time
+        timeInput._flatpickr.setDate('11:00', true);
+    }
+
     // Setup phone number formatting on all contact phone inputs
     document.addEventListener('input', (e) => {
         if (e.target.name === 'contactPhone' || e.target.id?.includes('phone')) {
