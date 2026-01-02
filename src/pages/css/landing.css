@@ -368,6 +368,7 @@
     object-fit: contain;
     max-width: 64px;
     max-height: 64px;
+    mix-blend-mode: screen;
 }
 
 .event-name {
