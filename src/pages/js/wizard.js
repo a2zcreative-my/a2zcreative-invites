@@ -708,6 +708,14 @@ function showStep(step) {
         initializeStep6Slug();
     }
 
+    // Step 7: Preview - Update iframe data
+    if (step === 7) {
+        // Ensure data is collected and sent
+        setTimeout(() => {
+            sendDataToPreview();
+        }, 100);
+    }
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
