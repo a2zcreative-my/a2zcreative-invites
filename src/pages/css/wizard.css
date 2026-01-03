@@ -1509,9 +1509,11 @@ span.flatpickr-weekday {
 }
 
 /* Fix "Today" highlight issue */
+/* Fix "Today" highlight issue */
 .flatpickr-day.today {
-    border-color: rgba(212, 175, 55, 0.5);
-    color: #d4af37;
+    border: 2px solid #d4af37 !important;
+    color: #d4af37 !important;
+    font-weight: 700;
 }
 
 .flatpickr-day.today:hover,
@@ -1546,13 +1548,14 @@ span.flatpickr-weekday {
     }
 
     .flatpickr-day {
-        max-width: 38px !important; /* Fit 7 days cleanly */
+        max-width: 38px !important;
+        /* Fit 7 days cleanly */
         height: 38px !important;
         line-height: 38px !important;
         margin: 1px !important;
         font-size: 0.9rem !important;
     }
-    
+
     .flatpickr-calendar.animate.open {
         animation: fpFadeInDown 300ms cubic-bezier(0.23, 1, 0.32, 1);
     }
