@@ -13,7 +13,7 @@
 }
 
 .auth-container {
-    width: 100%;
+    width: min(420px, calc(100% - 2rem));
     max-width: 420px;
 }
 
@@ -339,17 +339,10 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .auth-container {
-        max-width: 380px;
-    }
 
     .auth-card,
     .loading-card {
         padding: 1.75rem;
-    }
-
-    .loading-card {
-        max-width: 380px;
     }
 }
 
@@ -415,8 +408,8 @@
     border: 1px solid rgba(212, 175, 55, 0.2);
     border-radius: 1rem;
     padding: 2rem;
+    width: min(420px, calc(100% - 2rem));
     max-width: 420px;
-    width: 100%;
     text-align: center;
     backdrop-filter: blur(10px);
 }
