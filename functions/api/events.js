@@ -88,7 +88,7 @@ export async function onRequestPost(context) {
         `).bind(
             data.eventType || 1,
             userId,
-            `${data.hostName1} & ${data.hostName2}`,
+            (data.hostName2 ? `${data.hostName1} & ${data.hostName2}` : data.hostName1),
             data.eventDate,
             data.startTime || '11:00',
             data.venueName || '',

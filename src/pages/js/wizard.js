@@ -1676,11 +1676,13 @@ function collectContactsData() {
     eventData.contacts = [];
     document.querySelectorAll('.contact-item').forEach(item => {
         const inputs = item.querySelectorAll('input');
-        if (inputs[0]?.value && inputs[1]?.value && inputs[2]?.value) {
+        // inputs[0]=Role, inputs[1]=Name, inputs[2]=Phone
+        // Allow if at least Name is present (Phone is optional but good to have)
+        if (inputs[1]?.value) {
             eventData.contacts.push({
-                role: inputs[0].value,
+                role: inputs[0].value || 'Hubungi',
                 name: inputs[1].value,
-                phone: inputs[2].value
+                phone: inputs[2].value || ''
             });
         }
     });
@@ -2096,148 +2098,109 @@ async function proceedToBillplzPayment() {
     const pkg = PACKAGE_INFO[selectedPackage];
     const slug = document.getElementById('customSlug').value;
 
-    closePaymentModal();
+    // Show loading state on the clicked button (card)
+    const optionCard = document.querySelector('.payment-option');
+    if (optionCard) {
+        optionCard.style.opacity = '0.7';
+        optionCard.style.pointerEvents = 'none';
+        optionCard.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 1rem;">
+                <div class="spinner" style="width: 24px; height: 24px; border: 2px solid #d4af37; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <div style="font-weight: 600; color: var(--text-primary);">Memproses Pembayaran...</div>
+            </div>
+        `;
 
-    // Show loading state
-    const payBtn = document.getElementById('btnPublishPaid');
-    if (payBtn) {
-        payBtn.disabled = true;
-        payBtn.innerHTML = '<i data-lucide="loader-2" class="spin"></i> Memproses...';
-        lucide.createIcons();
+        // Add spin animation if not exists
+        if (!document.getElementById('spinStyle')) {
+            const style = document.createElement('style');
+            style.id = 'spinStyle';
+            style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+        }
     }
 
     try {
-        // CRITICAL: Verify session with server first (not just localStorage)
-        const sessionResponse = await fetch('/api/auth/session', {
-            credentials: 'include'
-        });
+        console.log('[Payment] Initiating payment for package:', selectedPackage);
 
-        // Safe JSON parsing for session
-        let sessionData;
-        try {
-            sessionData = await sessionResponse.json();
-        } catch (parseError) {
-            console.error('Session response parse error:', parseError);
-            throw new Error('Ralat pelayan. Sila cuba lagi.');
-        }
+        // 1. Create event first (or update if exists)
+        // Ensure we explicitly collect contact data (even partial) before sending
+        collectContactsData();
+        collectStepData();
+        eventData.slug = slug;
+        eventData.package = selectedPackage; // e.g. 'premium'
 
-        if (!sessionData.authenticated) {
-            // Session expired or invalid - redirect to login
-            alert('Sesi anda telah tamat. Sila log masuk semula.');
-            // Save pending data before redirect
-            sessionStorage.setItem('pendingEventData', JSON.stringify(eventData));
-            sessionStorage.setItem('returnTo', window.location.href);
-            window.location.href = '/auth/login.html';
-            return;
-        }
+        // Check auth session
+        const sessionResponse = await fetch('/api/auth/session', { credentials: 'include' });
+        if (!sessionResponse.ok) throw new Error('Sila log masuk semula.');
 
-        const user = sessionData.user;
-        console.log('[Payment] Session verified for user:', user.email);
-
-        // Create event first
+        // Create Event
         const eventResponse = await fetch('/api/events', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-                ...eventData,
-                slug,
-                package: selectedPackage,
-                status: 'pending_payment'
-            })
+            body: JSON.stringify(eventData)
         });
 
-        // Safe JSON parsing for event response
-        let eventResult;
-        try {
-            eventResult = await eventResponse.json();
-        } catch (parseError) {
-            console.error('Event response parse error:', parseError);
-            if (eventResponse.status === 403) {
-                throw new Error('Akses ditolak. Sila log masuk semula.');
-            }
-            throw new Error('Ralat pelayan. Sila cuba lagi.');
-        }
-
         if (!eventResponse.ok) {
-            if (eventResponse.status === 401) {
-                // Session became invalid during request
-                alert('Sesi anda telah tamat. Sila log masuk semula.');
-                window.location.href = '/auth/login.html';
-                return;
-            }
-            throw new Error(eventResult.error || 'Gagal mencipta jemputan');
+            const err = await eventResponse.json();
+            throw new Error(err.error || 'Gagal mencipta majlis');
         }
 
-        const eventId = eventResult.id || eventResult.eventId;
-        console.log('[Payment] Event created:', eventId);
+        const eventResult = await eventResponse.json();
+        console.log('[Payment] Event created:', eventResult.eventId);
 
-        // Create Billplz payment
+        // 2. Create Payment Order
         const paymentResponse = await fetch('/api/payment/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({
-                eventId: eventId,
+                eventId: eventResult.eventId,
                 packageId: selectedPackage,
                 paymentMethod: 'billplz'
             })
         });
 
-        // Safe JSON parsing for payment response
-        let paymentResult;
-        try {
-            paymentResult = await paymentResponse.json();
-        } catch (parseError) {
-            console.error('Payment response parse error:', parseError);
-            if (paymentResponse.status === 403) {
-                throw new Error('Akses ditolak. Sila log masuk semula.');
-            } else if (paymentResponse.status === 401) {
-                alert('Sesi anda telah tamat. Sila log masuk semula.');
-                window.location.href = '/auth/login.html';
-                return;
-            }
-            throw new Error('Ralat pembayaran. Sila cuba lagi.');
-        }
-
         if (!paymentResponse.ok) {
-            if (paymentResponse.status === 401) {
-                alert('Sesi anda telah tamat. Sila log masuk semula.');
-                window.location.href = '/auth/login.html';
-                return;
-            }
-            throw new Error(paymentResult.error || paymentResult.message || paymentResult.details || 'Gagal mencipta pembayaran');
+            const err = await paymentResponse.json();
+            throw new Error(err.error || 'Gagal memulakan pembayaran');
         }
 
+        const paymentResult = await paymentResponse.json();
+
+        // 3. Redirect to Intermediate Payment Page
         if (paymentResult.paymentUrl) {
-            // Save wizard state for potential restoration (if user cancels payment)
+            // Save wizard state for restoration
             sessionStorage.setItem('wizardEventData', JSON.stringify(eventData));
-            sessionStorage.setItem('wizardStep', '7'); // Remember we were on publish step
+            sessionStorage.setItem('wizardStep', '7');
             sessionStorage.setItem('wizardPackage', selectedPackage);
 
-            // Redirect to intermediate payment confirmation page (not directly to Billplz)
-            const pkg = PACKAGE_INFO[selectedPackage];
-            const slug = document.getElementById('customSlug')?.value || '';
+            // Redirect
             const paymentPageUrl = `/payment/?url=${encodeURIComponent(paymentResult.paymentUrl)}&package=${encodeURIComponent(pkg.name)}&amount=${pkg.price / 100}&slug=${encodeURIComponent(slug)}&start=${Date.now()}`;
-
-            console.log('[Payment] Redirecting to payment confirmation page');
+            console.log('[Payment] Redirecting to confirmation page');
             window.location.href = paymentPageUrl;
         } else {
-            throw new Error(paymentResult.error || 'Gagal mencipta pembayaran - URL tidak dijumpai');
+            throw new Error('Tiada URL pembayaran diterima.');
         }
 
     } catch (error) {
-        console.error('Payment error:', error);
-        alert('Ralat: ' + error.message);
+        console.error('[Payment Error]', error);
+        alert(error.message || 'Ralat semasa memproses pembayaran. Sila cuba lagi.');
 
-        // Reset button
+        // Reset UI
+        closePaymentModal();
+        // Re-enable publish button if needed
+        const payBtn = document.getElementById('btnPublishPaid');
         if (payBtn) {
             payBtn.disabled = false;
-            payBtn.innerHTML = '<i data-lucide="credit-card"></i> Bayar & Terbitkan';
+            payBtn.innerHTML = '<i data-lucide="crown"></i> Bayar & Terbit';
             lucide.createIcons();
         }
     }
 }
+
+// Make handlePayment globally available as alias for openPaymentModal
+window.handlePayment = openPaymentModal;
+
+
 
 function closePaymentModal() {
     const modal = document.getElementById('paymentModal');
