@@ -489,6 +489,36 @@ window.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // Music toggle button
+    const musicToggle = document.getElementById('musicToggle');
+    const audioEl = document.getElementById('background-audio');
+    let isMuted = false;
+
+    if (musicToggle) {
+        musicToggle.addEventListener('click', () => {
+            const icon = musicToggle.querySelector('i');
+            if (icon) {
+                if (isMuted) {
+                    // Unmute - try to play
+                    if (audioEl) {
+                        audioEl.play().catch(e => console.log('Music play error:', e.message));
+                    }
+                    icon.setAttribute('data-lucide', 'music');
+                    isMuted = false;
+                } else {
+                    // Mute - pause audio
+                    if (audioEl) {
+                        audioEl.pause();
+                    }
+                    icon.setAttribute('data-lucide', 'music-off');
+                    isMuted = true;
+                }
+                // Re-render just this icon
+                if (window.lucide) lucide.createIcons();
+            }
+        });
+    }
     // ===== End Nav Button Handlers =====
 
     // Tell parent we're ready

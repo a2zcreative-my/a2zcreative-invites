@@ -628,18 +628,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const audioEl = document.getElementById('background-audio');
     let isMuted = false;
 
-    if (musicToggle && audioEl) {
+    if (musicToggle) {
         musicToggle.addEventListener('click', () => {
-            if (isMuted) {
-                audioEl.play().catch(e => console.log('Music play error:', e.message));
-                musicToggle.innerHTML = '<i data-lucide="music"></i><span>Lagu</span>';
-                isMuted = false;
-            } else {
-                audioEl.pause();
-                musicToggle.innerHTML = '<i data-lucide="music-off"></i><span>Lagu</span>';
-                isMuted = true;
+            const icon = musicToggle.querySelector('i');
+            if (icon) {
+                if (isMuted) {
+                    // Unmute - try to play
+                    if (audioEl) {
+                        audioEl.play().catch(e => console.log('Music play error:', e.message));
+                    }
+                    icon.setAttribute('data-lucide', 'music');
+                    isMuted = false;
+                } else {
+                    // Mute - pause audio
+                    if (audioEl) {
+                        audioEl.pause();
+                    }
+                    icon.setAttribute('data-lucide', 'music-off');
+                    isMuted = true;
+                }
+                // Re-render icons
+                if (window.lucide) lucide.createIcons();
             }
-            if (window.lucide) lucide.createIcons();
         });
     }
 
