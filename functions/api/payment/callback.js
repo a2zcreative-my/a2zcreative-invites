@@ -81,7 +81,32 @@ export async function onRequestGet(context) {
             console.log(`[Payment Callback] Payment successful, redirecting to success page`);
             return Response.redirect(successUrl.toString(), 302);
         } else {
-            // Payment not completed - redirect to failed page
+            // Payment not completed - clean up the unpaid event to release the slug
+            // This allows other users to use this URL
+            console.log(`[Payment Callback] Payment not completed for event ${order.event_id}, cleaning up...`);
+
+            // Update payment order status to failed
+            await env.DB.prepare(`
+                UPDATE payment_orders SET status = 'failed'\r
+                WHERE gateway_ref = ?
+            `).bind(callbackData.billId).run();
+
+            // Delete related data to release the slug
+            if (order.event_id) {
+                // Delete invitation (releases the public_slug)
+                await env.DB.prepare('DELETE FROM invitations WHERE event_id = ?').bind(order.event_id).run();
+                // Delete schedule items
+                await env.DB.prepare('DELETE FROM event_schedule WHERE event_id = ?').bind(order.event_id).run();
+                // Delete contacts
+                await env.DB.prepare('DELETE FROM event_contacts WHERE event_id = ?').bind(order.event_id).run();
+                // Delete event settings
+                await env.DB.prepare('DELETE FROM event_settings WHERE event_id = ?').bind(order.event_id).run();
+                // Delete the event itself
+                await env.DB.prepare('DELETE FROM events WHERE id = ?').bind(order.event_id).run();
+                console.log(`[Payment Callback] Cleaned up event ${order.event_id} and released slug`);
+            }
+
+            // Redirect to failed page
             const failedUrl = new URL('https://a2zcreative.my/payment/failed');
             failedUrl.searchParams.set('order_ref', order.order_ref);
             failedUrl.searchParams.set('reason', 'payment_not_completed');

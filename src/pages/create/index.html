@@ -785,12 +785,14 @@
                     URL Jemputan Anda
                 </label>
                 <div class="slug-input-wrapper"
-                    style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.1);">
-                    <span style="color: var(--text-secondary); font-size: 0.9rem;">a2zcreative.my/inv/</span>
+                    style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 0.75rem 1rem; border: 1px solid rgba(255,255,255,0.1); flex-wrap: nowrap; overflow: hidden;">
+                    <span
+                        style="color: var(--text-secondary); font-size: 0.9rem; white-space: nowrap; flex-shrink: 0;">a2zcreative.my/inv/</span>
                     <input type="text" id="customSlug" name="customSlug" placeholder="nama-majlis-anda"
-                        style="flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 0.9rem; outline: none;"
+                        style="flex: 1; min-width: 80px; background: transparent; border: none; color: var(--text-primary); font-size: 0.9rem; outline: none;"
                         oninput="checkSlugAvailability(this.value)">
-                    <span id="slugStatus" style="font-size: 1.2rem;"></span>
+                    <span id="slugStatus"
+                        style="font-size: 1.2rem; flex-shrink: 0; min-width: 24px; text-align: center;"></span>
                 </div>
                 <p id="slugMessage" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);"></p>
                 <div id="slugSuggestions" style="margin-top: 0.5rem; display: none;">

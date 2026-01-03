@@ -66,9 +66,21 @@ export async function onRequestGet(context) {
             });
         }
 
-        // Check if slug exists in events table
+        // Check if slug exists in invitations table
+        // Only consider invitations with completed payment (paid/published) as "taken"
+        // Events with pending/failed/expired payment should NOT reserve the slug
         const existing = await env.DB.prepare(`
-            SELECT id FROM events WHERE slug = ?
+            SELECT i.id 
+            FROM invitations i
+            LEFT JOIN payment_orders po ON po.event_id = i.event_id
+            WHERE i.public_slug = ? 
+              AND (
+                -- Free package (published successfully with active invitation)
+                (po.id IS NULL AND i.is_active = 1)
+                OR
+                -- Paid package with verified/paid payment
+                (po.status IN ('verified', 'paid'))
+              )
         `).bind(slug).first();
 
         if (existing) {
@@ -125,8 +137,17 @@ async function generateAlternativeSlugs(db, baseSlug) {
 
     for (const suffix of suffixes) {
         const candidate = `${baseSlug}-${suffix}`;
+        // Check if slug is truly taken (only paid/published invitations)
         const exists = await db.prepare(`
-            SELECT id FROM events WHERE slug = ?
+            SELECT i.id 
+            FROM invitations i
+            LEFT JOIN payment_orders po ON po.event_id = i.event_id
+            WHERE i.public_slug = ? 
+              AND (
+                (po.id IS NULL AND i.is_active = 1)
+                OR
+                (po.status IN ('verified', 'paid'))
+              )
         `).bind(candidate).first();
 
         if (!exists) {

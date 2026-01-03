@@ -513,4 +513,135 @@ async function loadInvitation() {
 }
 
 // Load when DOM is ready
-document.addEventListener('DOMContentLoaded', loadInvitation);
+document.addEventListener('DOMContentLoaded', () => {
+    // Load invitation data from API
+    loadInvitation();
+
+    // ===== Setup Bottom Navigation Handlers =====
+
+    // Setup "Buka Jemputan" button handler (cover door animation)
+    const openBtn = document.getElementById('openInvitation');
+    const coverSection = document.querySelector('.cover-section');
+    const mainContent = document.getElementById('mainContent');
+    const bottomNav = document.getElementById('bottomNav');
+
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            if (coverSection) {
+                coverSection.classList.add('open');
+
+                // After animation, hide cover and show content
+                setTimeout(() => {
+                    coverSection.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    if (mainContent) {
+                        mainContent.classList.add('visible');
+                    }
+                    if (bottomNav) {
+                        bottomNav.classList.remove('hidden');
+                    }
+
+                    // Try to play music when invitation opens (user interaction)
+                    const audioEl = document.getElementById('background-audio');
+                    if (audioEl && audioEl.querySelector('source')?.src) {
+                        audioEl.play().catch(e => console.log('Music autoplay blocked:', e.message));
+                    }
+                }, 1200);
+            }
+        });
+    }
+
+    // Prevent cover section scroll until opened
+    if (coverSection) {
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Scroll to section buttons (Lokasi, RSVP)
+    document.querySelectorAll('.nav-item[data-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sectionId = btn.dataset.section;
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // Contact modal button (Hubungi)
+    const contactNavBtn = document.getElementById('contactNavBtn');
+    const contactModal = document.getElementById('contactModal');
+    const closeContactModal = document.getElementById('closeContactModal');
+
+    if (contactNavBtn && contactModal) {
+        contactNavBtn.addEventListener('click', () => {
+            contactModal.classList.add('active');
+        });
+    }
+    if (closeContactModal && contactModal) {
+        closeContactModal.addEventListener('click', () => {
+            contactModal.classList.remove('active');
+        });
+        contactModal.addEventListener('click', (e) => {
+            if (e.target === contactModal) {
+                contactModal.classList.remove('active');
+            }
+        });
+    }
+
+    // Gift modal button (Hadiah)
+    const giftBtn = document.getElementById('giftBtn');
+    const giftModal = document.getElementById('giftModal');
+    const closeGiftModal = document.getElementById('closeGiftModal');
+    const copyAccBtn = document.getElementById('copyAccBtn');
+
+    if (giftBtn && giftModal) {
+        giftBtn.addEventListener('click', () => {
+            giftModal.classList.add('active');
+        });
+    }
+    if (closeGiftModal && giftModal) {
+        closeGiftModal.addEventListener('click', () => {
+            giftModal.classList.remove('active');
+        });
+        giftModal.addEventListener('click', (e) => {
+            if (e.target === giftModal) {
+                giftModal.classList.remove('active');
+            }
+        });
+    }
+    if (copyAccBtn) {
+        copyAccBtn.addEventListener('click', () => {
+            const accNumber = document.getElementById('accNumber')?.textContent || '';
+            navigator.clipboard.writeText(accNumber).then(() => {
+                copyAccBtn.innerHTML = '<i data-lucide="check"></i> Disalin!';
+                if (window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    copyAccBtn.innerHTML = '<i data-lucide="copy"></i> Salin';
+                    if (window.lucide) lucide.createIcons();
+                }, 2000);
+            });
+        });
+    }
+
+    // Music toggle button (Lagu)
+    const musicToggle = document.getElementById('musicToggle');
+    const audioEl = document.getElementById('background-audio');
+    let isMuted = false;
+
+    if (musicToggle && audioEl) {
+        musicToggle.addEventListener('click', () => {
+            if (isMuted) {
+                audioEl.play().catch(e => console.log('Music play error:', e.message));
+                musicToggle.innerHTML = '<i data-lucide="music"></i><span>Lagu</span>';
+                isMuted = false;
+            } else {
+                audioEl.pause();
+                musicToggle.innerHTML = '<i data-lucide="music-off"></i><span>Lagu</span>';
+                isMuted = true;
+            }
+            if (window.lucide) lucide.createIcons();
+        });
+    }
+
+    // ===== End Nav Button Handlers =====
+});

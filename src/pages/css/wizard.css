@@ -591,6 +591,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    color: #d4af37;
 }
 
 .preview-device-toggle {
