@@ -1049,7 +1049,7 @@ function addContactItemWithRole(role) {
     item.innerHTML = `
         <input type="text" placeholder="Peranan" value="${role}">
         <input type="text" placeholder="Nama" value="">
-        <input type="tel" name="contactPhone" placeholder="Contoh: 012-345 6789" inputmode="numeric" value="">
+        <input type="tel" name="contactPhone" placeholder="Contoh: 012-345 6789" inputmode="numeric" value="" oninput="formatPhoneNumber(this)">
         <button class="remove-btn" onclick="removeContactItem(this)">
             <i data-lucide="x"></i>
         </button>
@@ -1614,7 +1614,7 @@ function addContactItem() {
     item.innerHTML = `
         <input type="text" placeholder="Peranan" value="">
         <input type="text" placeholder="Nama" value="">
-        <input type="tel" placeholder="No. Telefon" value="">
+        <input type="tel" placeholder="No. Telefon" value="" oninput="formatPhoneNumber(this)">
         <button class="remove-btn" onclick="removeContactItem(this)">
             <i data-lucide="x"></i>
         </button>
@@ -1628,6 +1628,48 @@ function removeContactItem(btn) {
     if (item && document.querySelectorAll('.contact-item').length > 1) {
         item.remove();
     }
+}
+
+// Format phone number as user types
+// 10 digits: 01X-XXX XXXX (e.g. 012-345 6789)
+// 11 digits: 01X-XXXX XXXX (e.g. 011-5430 0108)
+function formatPhoneNumber(input) {
+    // Remove all non-digits
+    let digits = input.value.replace(/\D/g, '');
+
+    // Limit to 11 digits max
+    if (digits.length > 11) {
+        digits = digits.slice(0, 11);
+    }
+
+    let formatted = '';
+
+    if (digits.length === 0) {
+        formatted = '';
+    } else if (digits.length <= 3) {
+        // Just the prefix
+        formatted = digits;
+    } else if (digits.length <= 10) {
+        // 10-digit format: XXX-XXX XXXX
+        const prefix = digits.slice(0, 3);
+        const middle = digits.slice(3, 6);
+        const end = digits.slice(6);
+
+        if (digits.length <= 6) {
+            formatted = `${prefix}-${middle}`;
+        } else {
+            formatted = `${prefix}-${middle} ${end}`;
+        }
+    } else {
+        // 11-digit format: XXX-XXXX XXXX
+        const prefix = digits.slice(0, 3);
+        const middle = digits.slice(3, 7);
+        const end = digits.slice(7);
+
+        formatted = `${prefix}-${middle} ${end}`;
+    }
+
+    input.value = formatted;
 }
 
 function collectContactsData() {

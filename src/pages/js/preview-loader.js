@@ -287,14 +287,17 @@ function renderPreview(data) {
     if (contactList && data.contacts && data.contacts.length > 0) {
         contactList.innerHTML = data.contacts.map(c => `
             <div class="contact-card">
-                <p class="contact-role">${c.role || ''}</p>
-                <p class="contact-name">${c.name || ''}</p>
-                <a href="tel:${c.phone || ''}" class="contact-btn">
+                <div class="contact-info">
+                    <p class="contact-role">${c.role || ''}</p>
+                    <p class="contact-name">${c.name || ''}</p>
+                </div>
+                <a href="tel:${(c.phone || '').replace(/\s|-/g, '')}" class="contact-btn">
                     <i data-lucide="phone"></i>
-                    ${c.phone || ''}
                 </a>
             </div>
         `).join('');
+    } else if (contactList) {
+        contactList.innerHTML = '<p style="opacity: 0.5; text-align: center; font-size: 0.9rem;">Tiada maklumat hubungi</p>';
     }
 
     // Get event type config

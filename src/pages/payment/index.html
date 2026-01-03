@@ -474,8 +474,8 @@
         }
 
         function proceedToPayment() {
-            // Redirect to Billplz
-            window.location.href = decodeURIComponent(billplzUrl);
+            // Open Billplz in a new tab (so user's template data is preserved)
+            window.open(decodeURIComponent(billplzUrl), '_blank');
         }
 
         function cancelAndReturn() {
