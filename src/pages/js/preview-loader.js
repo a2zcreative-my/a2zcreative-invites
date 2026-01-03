@@ -329,6 +329,18 @@ function renderPreview(data) {
         setText('accNumber', data.giftAccountNumber || '-');
         setText('accHolder', data.giftAccountHolder || '-');
 
+        // QR Code Handling
+        const qrContainer = document.getElementById('qrContainer');
+        const qrImg = document.getElementById('qrPreviewImg');
+        if (qrContainer && qrImg) {
+            if (data.giftQrImage) {
+                qrImg.src = data.giftQrImage;
+                qrContainer.style.display = 'block';
+            } else {
+                qrContainer.style.display = 'none';
+            }
+        }
+
         // Ensure nav button is visible
         const giftNavBtn = document.getElementById('giftBtn');
         if (giftNavBtn) giftNavBtn.style.display = 'flex';
@@ -344,8 +356,55 @@ function renderPreview(data) {
         introText.textContent = config.introText;
     }
 
+    // Initialize Countdown
+    if (data.eventDate) {
+        startCountdown(data.eventDate, data.startTime);
+    }
+
     // Re-init icons
     if (window.lucide) lucide.createIcons();
+}
+
+// Countdown Timer Logic
+let countdownInterval;
+function startCountdown(dateStr, timeStr) {
+    const daysEl = document.getElementById('days');
+    if (!daysEl) return; // Exit if countdown elements don't exist
+
+    // Clear existing interval
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    // Parse target date
+    // format: YYYY-MM-DD + time
+    const targetDate = new Date(`${dateStr}T${timeStr || '00:00'}:00`);
+
+    function updateTimer() {
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            // Event started/passed
+            setText('days', '00');
+            setText('hours', '00');
+            setText('minutes', '00');
+            setText('seconds', '00');
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        setText('days', days.toString().padStart(2, '0'));
+        setText('hours', hours.toString().padStart(2, '0'));
+        setText('minutes', minutes.toString().padStart(2, '0'));
+        setText('seconds', seconds.toString().padStart(2, '0'));
+    }
+
+    updateTimer(); // Run once immediately
+    countdownInterval = setInterval(updateTimer, 1000);
 }
 
 // Listen for messages from parent (wizard)

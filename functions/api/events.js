@@ -36,9 +36,46 @@ export async function onRequestPost(context) {
 
     try {
 
-        // NOTE: Package access control removed - columns don't exist in schema yet
         // All authenticated users can create events, payment happens after
         // ===== END ACCESS CONTROL =====
+
+        // Check for existing slug usage by abandoned/pending events
+        const slug = data.slug || generatePublicSlug(data.hostName1?.toLowerCase());
+
+        // Find if this slug is taken by a pending/failed payment that is old
+        const existingInvite = await env.DB.prepare(`
+            SELECT i.id, i.event_id, po.status, po.created_at
+            FROM invitations i
+            LEFT JOIN payment_orders po ON po.event_id = i.event_id
+            WHERE i.public_slug = ?
+        `).bind(slug).first();
+
+        if (existingInvite) {
+            // Check if actionable (pending/failed/expired and older than 15 mins)
+            // If status is NULL (orphaned) it might be safer to leave or delete? Assuming pending if PO exists.
+
+            const status = existingInvite.status || 'pending'; // Default to pending if join found PO but status weird, or PO missing (free?)
+            // Actually if PO missing, it might be a valid free event. Check logic carefully.
+            // If PO is NULL, it's a free event (valid). Don't delete.
+
+            if (existingInvite.status) { // Only if PO exists
+                const isPendingOrFailed = ['pending', 'failed', 'expired'].includes(existingInvite.status);
+                const createdAt = new Date(existingInvite.created_at).getTime();
+                const now = Date.now();
+                const isOld = (now - createdAt) > (15 * 60 * 1000); // 15 minutes
+
+                if (isPendingOrFailed && isOld) {
+                    console.log(`Cleaning up abandoned slug: ${slug} (Status: ${existingInvite.status})`);
+
+                    // Delete invitation to free the slug
+                    await env.DB.prepare('DELETE FROM invitations WHERE id = ?').bind(existingInvite.id).run();
+
+                    // Optionally cleanup event and payment_order (best effort, to avoid junk)
+                    await env.DB.prepare('DELETE FROM payment_orders WHERE event_id = ?').bind(existingInvite.event_id).run();
+                    await env.DB.prepare('DELETE FROM events WHERE id = ?').bind(existingInvite.event_id).run();
+                }
+            }
+        }
 
         // Create event
         const eventResult = await env.DB.prepare(`
@@ -67,12 +104,23 @@ export async function onRequestPost(context) {
 
         // Create event settings
         await env.DB.prepare(`
-            INSERT INTO event_settings (event_id, theme_name)
-            VALUES (?, ?)
-        `).bind(eventId, data.theme || 'elegant-gold').run();
+            INSERT INTO event_settings (
+                event_id, theme_name,
+                gift_enabled, gift_bank_name, gift_account_number, gift_account_holder, gift_qr_image_url
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+            eventId,
+            data.theme || 'elegant-gold',
+            data.giftEnabled ? 1 : 0,
+            data.giftBankName || '',
+            data.giftAccountNumber || '',
+            data.giftAccountHolder || '',
+            data.giftQrImage || ''
+        ).run();
 
         // Create invitation
-        const slug = data.slug || generatePublicSlug(data.hostName1?.toLowerCase());
+        // const slug = data.slug || ... (Already defined above)
 
         await env.DB.prepare(`
             INSERT INTO invitations (
