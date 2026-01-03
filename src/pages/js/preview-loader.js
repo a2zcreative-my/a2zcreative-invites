@@ -364,6 +364,45 @@ function renderPreview(data) {
         startCountdown(data.eventDate, data.startTime);
     }
 
+    // Background Audio Handling
+    let audio = document.getElementById('background-audio');
+    if (data.musicUrl && data.musicUrl !== '' && data.musicOption !== 'none') {
+        if (!audio) {
+            audio = document.createElement('audio');
+            audio.id = 'background-audio';
+            audio.loop = true;
+            // Preload but don't autoplay (browser policy usually blocks unmuted autoplay)
+            audio.preload = 'auto';
+            document.body.appendChild(audio);
+        }
+
+        // Update source if changed
+        // Check relative or absolute paths match
+        if (!audio.src.endsWith(data.musicUrl)) {
+            audio.src = data.musicUrl;
+            // Reset state if music changed
+            const musicToggle = document.getElementById('musicToggle');
+            if (musicToggle) {
+                musicToggle.classList.remove('active');
+                const icon = musicToggle.querySelector('i');
+                if (icon) icon.setAttribute('data-lucide', 'music-off');
+            }
+        }
+    } else {
+        // Remove audio if set to none
+        if (audio) {
+            audio.pause();
+            audio.remove();
+        }
+        // Reset toggle UI
+        const musicToggle = document.getElementById('musicToggle');
+        if (musicToggle) {
+            musicToggle.classList.remove('active');
+            const icon = musicToggle.querySelector('i');
+            if (icon) icon.setAttribute('data-lucide', 'music-off');
+        }
+    }
+
     // Re-init icons
     if (window.lucide) lucide.createIcons();
 }

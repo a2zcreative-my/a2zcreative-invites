@@ -546,6 +546,11 @@ function goToStep(stepNumber) {
     // Collect current step data before navigating
     collectStepData();
 
+    // Update highest step reached
+    if (stepNumber > highestStepReached) {
+        highestStepReached = stepNumber;
+    }
+
     // Update current step
     currentStep = stepNumber;
 
