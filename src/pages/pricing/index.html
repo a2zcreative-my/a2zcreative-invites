@@ -450,7 +450,7 @@
             function showUserProfile(user) {
                 if (navLogo) navLogo.style.display = 'none';
                 if (userMenu) userMenu.style.display = 'flex';
-                if (userName) userName.textContent = user.name || user.email || 'User';
+                if (userName) userName.textContent = 'Selamat Datang, ' + (user.name || user.email || 'User');
                 if (userAvatar) userAvatar.textContent = (user.name || user.email || 'U').charAt(0).toUpperCase();
 
                 // Show Dashboard link only for admin/super_admin
