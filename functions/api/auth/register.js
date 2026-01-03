@@ -73,6 +73,35 @@ export async function onRequestPost(context) {
             throw new Error('Failed to create user');
         }
 
+        // ===========================================
+        // SUPABASE SHADOW REGISTRATION (For Password Reset)
+        // ===========================================
+        try {
+            // These environment variables must be set in Cloudflare Dashboard
+            if (env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
+                const supabaseResponse = await fetch(`${env.SUPABASE_URL}/auth/v1/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': env.SUPABASE_ANON_KEY
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        data: { name: name }
+                    })
+                });
+
+                if (!supabaseResponse.ok) {
+                    console.warn('Supabase shadow registration warning:', await supabaseResponse.text());
+                }
+            } else {
+                console.warn('Supabase env vars missing. Skipping shadow registration.');
+            }
+        } catch (e) {
+            console.warn('Supabase sync error (non-blocking):', e);
+        }
+
         const userId = result.meta.last_row_id;
 
         // Create session for auto-login
