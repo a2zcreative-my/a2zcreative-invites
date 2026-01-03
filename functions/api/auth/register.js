@@ -88,7 +88,10 @@ export async function onRequestPost(context) {
                     body: JSON.stringify({
                         email: email,
                         password: password,
-                        data: { name: name }
+                        data: { name: name },
+                        options: {
+                            emailRedirectTo: 'https://a2zcreative.my/auth/confirmation-success.html'
+                        }
                     })
                 });
 
