@@ -315,6 +315,49 @@ function populateFormFromEventData() {
     setInputValue('verseRef', eventData.verseRef);
     setInputValue('hashtag', eventData.hashtag);
 
+    // Dynamic Schedule List
+    const scheduleList = document.getElementById('scheduleList');
+    if (scheduleList) {
+        scheduleList.innerHTML = ''; // Clear existing
+        if (eventData.schedule && eventData.schedule.length > 0) {
+            eventData.schedule.forEach(item => {
+                // Manually add item to ensure we populate it
+                addScheduleItem();
+                // Get the last added item
+                const domItems = scheduleList.querySelectorAll('.schedule-item');
+                const lastItem = domItems[domItems.length - 1];
+                const inputs = lastItem.querySelectorAll('input');
+                if (inputs.length >= 2) {
+                    inputs[0].value = item.time || '';
+                    inputs[1].value = item.activity || '';
+                }
+            });
+        }
+    }
+
+    // Dynamic Contacts List
+    const contactsList = document.getElementById('contactsList');
+    if (contactsList) {
+        contactsList.innerHTML = ''; // Clear existing
+        if (eventData.contacts && eventData.contacts.length > 0) {
+            eventData.contacts.forEach(item => {
+                addContactItem();
+                const domItems = contactsList.querySelectorAll('.contact-item');
+                const lastItem = domItems[domItems.length - 1];
+                const inputs = lastItem.querySelectorAll('input');
+                if (inputs.length >= 3) {
+                    inputs[0].value = item.role || '';
+                    inputs[1].value = item.name || '';
+                    inputs[2].value = item.phone || '';
+                    // Trigger format if needed
+                    if (typeof formatPhoneNumber === 'function') {
+                        formatPhoneNumber(inputs[2]);
+                    }
+                }
+            });
+        }
+    }
+
     // Gift settings
     const giftToggle = document.getElementById('giftToggle');
     if (giftToggle) {
