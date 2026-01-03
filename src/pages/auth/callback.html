@@ -17,92 +17,25 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="/css/global.css">
-    <link rel="stylesheet" href="/css/auth.css?v=203">
+    <link rel="stylesheet" href="/css/auth.css?v=204">
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        .callback-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1rem;
-            text-align: center;
-        }
-
-        .callback-logo {
-            margin-bottom: 2rem;
-        }
-
-        .callback-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 420px;
-            width: 100%;
-        }
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid rgba(212, 175, 55, 0.2);
-            border-top-color: var(--gold);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1.5rem;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .callback-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            color: #d4af37;
-            margin-bottom: 0.5rem;
-        }
-
-        .callback-message {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
-        }
-
-        .callback-error {
-            background: rgba(220, 38, 38, 0.1);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            color: #f87171;
-            display: none;
-        }
-
-        .callback-error.visible {
-            display: block;
-        }
-    </style>
 </head>
 
 <body class="auth-page">
-    <div class="callback-container">
+    <div class="auth-container">
         <!-- Logo -->
-        <div class="callback-logo">
+        <div class="auth-logo">
             <a href="/"><img src="/logo.png" alt="A2Z Creative" height="48"></a>
         </div>
 
         <!-- Card -->
-        <div class="callback-card">
-            <div class="spinner" id="spinner"></div>
-            <h2 class="callback-title">Memproses Log Masuk</h2>
-            <p class="callback-message" id="statusMessage">Sila tunggu sebentar...</p>
-            <div class="callback-error" id="errorMessage"></div>
+        <div class="loading-card">
+            <div class="spinner-large" id="spinner"></div>
+            <h2 class="loading-title">Memproses Log Masuk</h2>
+            <p class="loading-text" id="statusMessage">Sila tunggu sebentar...</p>
+            <div class="auth-error" id="errorMessage" style="display: none;"></div>
         </div>
     </div>
 
