@@ -471,6 +471,11 @@ function sendDataToPreview() {
     // Collect latest data
     collectStepData();
 
+    // Explicitly collect data if sections exist (handles non-linear navigation)
+    if (typeof collectGiftData === 'function' && document.getElementById('giftInfoSection')) collectGiftData();
+    if (document.getElementById('scheduleList')) collectScheduleData();
+    if (document.getElementById('contactsList')) collectContactsData();
+
     // Send to preview via postMessage
     iframe.contentWindow.postMessage({
         type: 'preview',
@@ -1426,13 +1431,31 @@ function collectStepData() {
             break;
 
         case 4:
-            collectScheduleData();
+            // Step 4 is Gift (Hadiah)
+            collectGiftData();
             break;
 
         case 5:
+            // Step 5 is Schedule (Atur Cara)
+            collectScheduleData();
+            break;
+
+        case 6:
+            // Step 6 is Contacts (Hubungi)
             collectContactsData();
             break;
     }
+}
+
+// =============================================
+// Gift Data Collection
+// =============================================
+function collectGiftData() {
+    eventData.giftEnabled = document.getElementById('giftEnabled')?.checked || false;
+    eventData.giftBankName = document.getElementById('giftBankName')?.value || '';
+    eventData.giftAccountNumber = document.getElementById('giftAccountNumber')?.value || '';
+    eventData.giftAccountHolder = document.getElementById('giftAccountHolder')?.value || '';
+    // giftQrImage is handled by change listener in initQrUpload
 }
 
 // =============================================
