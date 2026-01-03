@@ -4,10 +4,7 @@
 -- Step 1: Disable foreign key checks
 PRAGMA foreign_keys = OFF;
 
--- Step 2: Convert all event_admin users to admin
-UPDATE users SET role = 'admin' WHERE role = 'event_admin';
-
--- Step 3: Create new users table with simplified constraint
+-- Step 2: Create new users table with simplified constraint
 CREATE TABLE users_new (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -19,9 +16,17 @@ CREATE TABLE users_new (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Step 4: Copy data from old table
+-- Step 3: Copy data from old table and map roles
 INSERT INTO users_new (id, name, email, password_hash, role, company_id, created_at, updated_at)
-SELECT id, name, email, password_hash, role, company_id, created_at, updated_at
+SELECT 
+    id, 
+    name, 
+    email, 
+    password_hash, 
+    CASE WHEN role = 'event_admin' THEN 'admin' ELSE role END, 
+    company_id, 
+    created_at, 
+    updated_at
 FROM users;
 
 -- Step 5: Drop old table
