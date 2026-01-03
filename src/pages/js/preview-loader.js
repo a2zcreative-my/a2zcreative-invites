@@ -475,19 +475,26 @@ window.addEventListener('DOMContentLoaded', () => {
     const backgroundAudio = document.getElementById('background-audio');
     let isMusicPlaying = false;
 
-    if (musicToggle && backgroundAudio) {
+    if (musicToggle) {
         musicToggle.addEventListener('click', () => {
-            if (isMusicPlaying) {
-                backgroundAudio.pause();
-                musicToggle.classList.remove('active');
-                musicToggle.innerHTML = '<i data-lucide="music-off"></i><span>Lagu</span>';
-            } else {
-                backgroundAudio.play().catch(e => console.log('Audio play blocked:', e));
-                musicToggle.classList.add('active');
-                musicToggle.innerHTML = '<i data-lucide="music"></i><span>Lagu</span>';
+            const icon = musicToggle.querySelector('i');
+            if (icon) {
+                if (isMusicPlaying) {
+                    // Pause music
+                    if (backgroundAudio) backgroundAudio.pause();
+                    musicToggle.classList.remove('active');
+                    icon.setAttribute('data-lucide', 'music-off');
+                } else {
+                    // Play music
+                    if (backgroundAudio) {
+                        backgroundAudio.play().catch(e => console.log('Audio play blocked:', e));
+                    }
+                    musicToggle.classList.add('active');
+                    icon.setAttribute('data-lucide', 'music');
+                }
+                isMusicPlaying = !isMusicPlaying;
+                if (window.lucide) lucide.createIcons();
             }
-            isMusicPlaying = !isMusicPlaying;
-            if (window.lucide) lucide.createIcons();
         });
     }
 
@@ -508,13 +515,27 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Scroll Buttons (Lokasi, RSVP)
+    // Scroll Buttons (Lokasi, RSVP) - with toggle to scroll back to top
+    let currentSection = null;
     document.querySelectorAll('[data-section]').forEach(btn => {
         btn.addEventListener('click', () => {
             const sectionId = btn.dataset.section;
             const section = document.getElementById(sectionId);
+
             if (section) {
-                section.scrollIntoView({ behavior: 'smooth' });
+                // If clicking the same section button again, scroll to top (hero)
+                if (currentSection === sectionId) {
+                    const heroSection = document.querySelector('.hero-section');
+                    if (heroSection) {
+                        heroSection.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    currentSection = null;
+                } else {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                    currentSection = sectionId;
+                }
             }
         });
     });
