@@ -573,12 +573,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Music Toggle (mute/unmute)
     const musicToggle = document.getElementById('musicToggle');
-    const backgroundAudio = document.getElementById('background-audio');
+    // background-audio is created dynamically, so we can't cache it here
     let isMusicPlaying = false;
 
     if (musicToggle) {
         musicToggle.addEventListener('click', () => {
+            const backgroundAudio = document.getElementById('background-audio');
             const icon = musicToggle.querySelector('i');
+
             if (icon) {
                 if (isMusicPlaying) {
                     // Pause music

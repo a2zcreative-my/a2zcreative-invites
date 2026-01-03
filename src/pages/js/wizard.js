@@ -259,6 +259,10 @@ function checkForStateRestoration() {
 
                 // Navigate to saved step (defaulting to step 7)
                 const targetStep = parseInt(savedStep) || 7;
+
+                // FORCE: Unlock all steps up to target (usually 7 means all)
+                highestStepReached = Math.max(highestStepReached, targetStep);
+
                 setTimeout(() => {
                     goToStep(targetStep);
                     sendDataToPreview();
