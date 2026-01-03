@@ -225,7 +225,115 @@ document.addEventListener('DOMContentLoaded', () => {
             sendDataToPreview();
         }
     });
+
+    // Check if returning from payment cancellation
+    checkForStateRestoration();
 });
+
+// =============================================
+// State Restoration (for returning from payment page)
+// =============================================
+function checkForStateRestoration() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('restore') === 'true') {
+        console.log('[Wizard] Restoring state from sessionStorage...');
+
+        const savedEventData = sessionStorage.getItem('wizardEventData');
+        const savedStep = sessionStorage.getItem('wizardStep');
+        const savedPackage = sessionStorage.getItem('wizardPackage');
+
+        if (savedEventData) {
+            try {
+                const restoredData = JSON.parse(savedEventData);
+
+                // Merge restored data into eventData
+                Object.assign(eventData, restoredData);
+
+                // Restore package selection
+                if (savedPackage) {
+                    selectedPackage = savedPackage;
+                }
+
+                // Populate form fields with restored data
+                populateFormFromEventData();
+
+                // Navigate to saved step (defaulting to step 7)
+                const targetStep = parseInt(savedStep) || 7;
+                setTimeout(() => {
+                    goToStep(targetStep);
+                    sendDataToPreview();
+
+                    // Clean URL param without refresh
+                    const cleanUrl = window.location.pathname;
+                    window.history.replaceState({}, '', cleanUrl);
+                }, 100);
+
+                console.log('[Wizard] State restored successfully');
+            } catch (e) {
+                console.error('[Wizard] Failed to restore state:', e);
+            }
+        }
+
+        // Clear stored state after restoration attempt
+        sessionStorage.removeItem('wizardEventData');
+        sessionStorage.removeItem('wizardStep');
+        sessionStorage.removeItem('wizardPackage');
+    }
+}
+
+function populateFormFromEventData() {
+    // Event Type
+    const eventTypeRadio = document.querySelector(`input[name="eventType"][value="${eventData.eventType}"]`);
+    if (eventTypeRadio) {
+        eventTypeRadio.checked = true;
+        eventTypeRadio.closest('.event-card')?.classList.add('selected');
+    }
+
+    // Step 2 fields
+    setInputValue('hostName1', eventData.hostName1);
+    setInputValue('hostName2', eventData.hostName2);
+    setInputValue('parentNames1', eventData.parentNames1);
+    setInputValue('parentNames2', eventData.parentNames2);
+    setInputValue('eventDate', eventData.eventDate);
+    setInputValue('startTime', eventData.startTime);
+    setInputValue('venueName', eventData.venueName);
+    setInputValue('venueAddress', eventData.venueAddress);
+    setInputValue('mapLink', eventData.mapLink);
+
+    // Step 3 (Theme)
+    if (eventData.theme) {
+        const themeCard = document.querySelector(`.theme-card[data-theme="${eventData.theme}"]`);
+        if (themeCard) {
+            document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+            themeCard.classList.add('selected');
+        }
+    }
+
+    // Step 3 content
+    setInputValue('inviteTitle', eventData.inviteTitle);
+    setInputValue('verseText', eventData.verseText);
+    setInputValue('verseRef', eventData.verseRef);
+    setInputValue('hashtag', eventData.hashtag);
+
+    // Gift settings
+    const giftToggle = document.getElementById('giftToggle');
+    if (giftToggle) {
+        giftToggle.checked = eventData.giftEnabled !== false;
+    }
+    setInputValue('giftBankName', eventData.giftBankName);
+    setInputValue('giftAccountNumber', eventData.giftAccountNumber);
+    setInputValue('giftAccountHolder', eventData.giftAccountHolder);
+
+    // URL slug
+    setInputValue('customSlug', eventData.slug);
+}
+
+function setInputValue(id, value) {
+    const el = document.getElementById(id);
+    if (el && value !== undefined && value !== null) {
+        el.value = value;
+    }
+}
 
 // =============================================
 // Music Selection Handling
@@ -2060,9 +2168,18 @@ async function proceedToBillplzPayment() {
         }
 
         if (paymentResult.paymentUrl) {
-            // Redirect to Billplz payment page
-            console.log('[Payment] Redirecting to Billplz:', paymentResult.paymentUrl);
-            window.location.href = paymentResult.paymentUrl;
+            // Save wizard state for potential restoration (if user cancels payment)
+            sessionStorage.setItem('wizardEventData', JSON.stringify(eventData));
+            sessionStorage.setItem('wizardStep', '7'); // Remember we were on publish step
+            sessionStorage.setItem('wizardPackage', selectedPackage);
+
+            // Redirect to intermediate payment confirmation page (not directly to Billplz)
+            const pkg = PACKAGE_INFO[selectedPackage];
+            const slug = document.getElementById('customSlug')?.value || '';
+            const paymentPageUrl = `/payment/?url=${encodeURIComponent(paymentResult.paymentUrl)}&package=${encodeURIComponent(pkg.name)}&amount=${pkg.price / 100}&slug=${encodeURIComponent(slug)}&start=${Date.now()}`;
+
+            console.log('[Payment] Redirecting to payment confirmation page');
+            window.location.href = paymentPageUrl;
         } else {
             throw new Error(paymentResult.error || 'Gagal mencipta pembayaran - URL tidak dijumpai');
         }

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembayaran | A2Z Creative</title>
+    <title>Pengesahan Pembayaran | A2Z Creative</title>
 
     <link rel="icon" href="/favicon.png" type="image/png">
 
@@ -24,32 +24,109 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #0a192f 100%);
             padding: 2rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .payment-container {
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 440px;
+            width: 100%;
         }
 
         .payment-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 1rem;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
         }
 
-        .order-summary h2 {
-            font-size: 1.25rem;
-            margin: 0 0 1.5rem 0;
-            color: #ffffff;
+        /* Timer Section */
+        .timer-section {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .timer-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 0.75rem;
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d4af37;
+        }
+
+        .timer-icon i {
+            width: 26px;
+            height: 26px;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #d4af37;
+            font-family: 'Inter', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            color: #8892b0;
+            margin-top: 0.25rem;
+        }
+
+        .timer-warning {
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 0.5rem;
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            animation: pulse 1s infinite;
+        }
+
+        .timer-warning i {
+            width: 16px;
+            height: 16px;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* Order Summary */
+        .order-summary h3 {
+            font-size: 1rem;
+            margin: 0 0 1rem 0;
+            color: #d4af37;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 0.75rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .summary-row:last-child {
@@ -58,82 +135,36 @@
 
         .summary-label {
             color: #8892b0;
+            font-size: 0.9rem;
         }
 
         .summary-value {
             color: #ffffff;
             font-weight: 500;
+            font-size: 0.9rem;
         }
 
-        .summary-total {
-            font-size: 1.5rem;
+        .summary-row.total {
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .summary-row.total .summary-value {
+            font-size: 1.25rem;
             color: #d4af37;
             font-weight: 700;
         }
 
-        .payment-methods h3 {
-            font-size: 1rem;
-            margin: 0 0 1rem 0;
-            color: #ffffff;
-        }
-
-        .method-options {
+        /* Action Buttons */
+        .payment-actions {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
+            margin-top: 1rem;
         }
 
-        .method-option {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .method-option:hover {
-            border-color: rgba(212, 175, 55, 0.3);
-        }
-
-        .method-option.selected {
-            border-color: #d4af37;
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .method-option input {
-            display: none;
-        }
-
-        .method-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #d4af37;
-        }
-
-        .method-details {
-            flex: 1;
-        }
-
-        .method-name {
-            font-weight: 500;
-            color: #ffffff;
-        }
-
-        .method-desc {
-            font-size: 0.875rem;
-            color: #8892b0;
-        }
-
-        .pay-btn {
+        .btn-pay {
             width: 100%;
             padding: 1rem;
             background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
@@ -144,125 +175,151 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .pay-btn:hover:not(:disabled) {
+        .btn-pay:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
         }
 
-        .pay-btn:disabled {
-            opacity: 0.6;
+        .btn-pay:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
 
-        /* DuitNow Modal */
-        .duitnow-modal {
+        .btn-pay i {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn-cancel {
+            width: 100%;
+            padding: 0.875rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            color: #8892b0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cancel:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #ccd6f6;
+        }
+
+        .btn-cancel i {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Info Note */
+        .payment-note {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.875rem;
+            background: rgba(212, 175, 55, 0.08);
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            align-items: flex-start;
+        }
+
+        .payment-note i {
+            color: #d4af37;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .payment-note p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #8892b0;
+            line-height: 1.5;
+        }
+
+        /* Expired State */
+        .expired-overlay {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
+            background: rgba(10, 25, 47, 0.95);
+            z-index: 100;
             align-items: center;
             justify-content: center;
             padding: 1rem;
         }
 
-        .duitnow-modal.open {
+        .expired-overlay.show {
             display: flex;
         }
 
-        .duitnow-content {
-            background: #112240;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 1rem;
-            padding: 2rem;
-            max-width: 400px;
-            width: 100%;
+        .expired-content {
             text-align: center;
+            max-width: 360px;
         }
 
-        .duitnow-content h3 {
-            font-size: 1.25rem;
-            margin: 0 0 1rem 0;
-            color: #d4af37;
-        }
-
-        .qr-placeholder {
-            width: 200px;
-            height: 200px;
-            background: #ffffff;
-            border-radius: 0.5rem;
-            margin: 1rem auto;
+        .expired-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: rgba(255, 107, 107, 0.15);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #0a192f;
-            font-size: 0.875rem;
+            color: #ff6b6b;
         }
 
-        .duitnow-info {
-            text-align: left;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin: 1rem 0;
+        .expired-icon i {
+            width: 40px;
+            height: 40px;
         }
 
-        .duitnow-info p {
-            margin: 0.5rem 0;
-            color: #ccd6f6;
-            font-size: 0.875rem;
+        .expired-content h3 {
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin: 0 0 0.75rem;
         }
 
-        .duitnow-info strong {
-            color: #d4af37;
+        .expired-content p {
+            color: #8892b0;
+            margin: 0 0 1.5rem;
+            line-height: 1.6;
         }
 
-        .whatsapp-btn {
-            width: 100%;
-            padding: 1rem;
-            background: #25d366;
+        .btn-return {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
             border: none;
             border-radius: 0.5rem;
-            color: white;
+            color: #0a192f;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 0.5rem;
-            margin-top: 1rem;
         }
 
-        .close-modal {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            color: #8892b0;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .secure-notice {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            color: #8892b0;
-            font-size: 0.875rem;
-            margin-top: 1rem;
-        }
-
-        .secure-notice i {
-            color: #28a745;
+        .btn-return i {
+            width: 20px;
+            height: 20px;
         }
     </style>
 
@@ -272,57 +329,73 @@
 
 <body class="payment-page">
     <div class="payment-container">
+        <!-- Timer Section -->
+        <div class="timer-section">
+            <div class="timer-icon">
+                <i data-lucide="clock"></i>
+            </div>
+            <div class="timer-display">
+                <span id="timerMinutes">15</span>:<span id="timerSeconds">00</span>
+            </div>
+            <p class="timer-label">Masa berbaki untuk pembayaran</p>
+            <div class="timer-warning" id="timerWarning" style="display: none;">
+                <i data-lucide="alert-triangle"></i>
+                <span>Masa hampir tamat!</span>
+            </div>
+        </div>
+
         <!-- Order Summary -->
         <div class="payment-card order-summary">
-            <h2>Ringkasan Pesanan</h2>
-
+            <h3>Ringkasan Pesanan</h3>
             <div class="summary-row">
                 <span class="summary-label">Pakej</span>
                 <span class="summary-value" id="packageName">Premium</span>
             </div>
             <div class="summary-row">
-                <span class="summary-label">Majlis</span>
-                <span class="summary-value" id="eventName">Majlis Aiman & Rafhanah</span>
+                <span class="summary-label">URL Jemputan</span>
+                <span class="summary-value" id="eventSlug">-</span>
             </div>
-            <div class="summary-row">
-                <span class="summary-label">No. Pesanan</span>
-                <span class="summary-value" id="orderRef">-</span>
-            </div>
-            <div class="summary-row">
+            <div class="summary-row total">
                 <span class="summary-label">Jumlah</span>
-                <span class="summary-value summary-total" id="totalAmount">RM99</span>
+                <span class="summary-value" id="totalAmount">RM 99</span>
             </div>
         </div>
 
-        <!-- Payment Methods -->
-        <div class="payment-card payment-methods">
-            <h3>Kaedah Pembayaran</h3>
-
-            <div class="method-options">
-                <label class="method-option selected" id="methodFpx">
-                    <input type="radio" name="paymentMethod" value="billplz" checked>
-                    <div class="method-icon">
-                        <i data-lucide="credit-card"></i>
-                    </div>
-                    <div class="method-details">
-                        <div class="method-name">Pembayaran Online</div>
-                        <div class="method-desc">FPX, DuitNow QR, TNG, Kad Kredit/Debit</div>
-                    </div>
-                </label>
-            </div>
-
-            <button class="pay-btn" id="payBtn" onclick="processPayment()">
-                <span id="payBtnText">Bayar Sekarang</span>
+        <!-- Action Buttons -->
+        <div class="payment-actions">
+            <button class="btn-pay" id="btnProceedPayment">
+                <i data-lucide="credit-card"></i>
+                Bayar Sekarang
             </button>
+            <button class="btn-cancel" id="btnCancelPayment">
+                <i data-lucide="arrow-left"></i>
+                Batal & Kembali ke Wizard
+            </button>
+        </div>
 
-            <div class="secure-notice">
-                <i data-lucide="shield-check"></i>
-                Pembayaran selamat & terjamin oleh Billplz
-            </div>
+        <!-- Info Note -->
+        <div class="payment-note">
+            <i data-lucide="info"></i>
+            <p>Anda akan dialihkan ke laman pembayaran Billplz yang selamat. Selepas pembayaran berjaya, jemputan anda
+                akan diterbitkan secara automatik.</p>
         </div>
     </div>
 
-
+    <!-- Expired Overlay -->
+    <div class="expired-overlay" id="expiredOverlay">
+        <div class="expired-content">
+            <div class="expired-icon">
+                <i data-lucide="clock-off"></i>
+            </div>
+            <h3>Masa Pembayaran Tamat</h3>
+            <p>Tempahan anda telah luput. URL jemputan anda mungkin telah dibebaskan untuk pengguna lain. Sila kembali
+                dan cuba lagi.</p>
+            <button class="btn-return" id="btnReturnExpired">
+                <i data-lucide="arrow-left"></i>
+                Kembali ke Wizard
+            </button>
+        </div>
+    </div>
 
     <!-- JavaScript -->
     <script>
@@ -330,76 +403,89 @@
 
         // Get URL params
         const urlParams = new URLSearchParams(window.location.search);
-        const eventId = urlParams.get('event_id') || 1;
-        const packageId = urlParams.get('package') || 'premium';
+        const billplzUrl = urlParams.get('url');
+        const packageName = urlParams.get('package') || 'Premium';
+        const amount = urlParams.get('amount') || '99';
+        const slug = urlParams.get('slug') || '-';
+        const startTime = parseInt(urlParams.get('start')) || Date.now();
 
-        const PACKAGES = {
-            basic: { price: 4900, name: 'Asas' },
-            premium: { price: 9900, name: 'Premium' },
-            business: { price: 19900, name: 'Bisnes' }
-        };
+        // Timer duration: 15 minutes
+        const TIMER_DURATION = 15 * 60 * 1000;
+        const WARNING_THRESHOLD = 2 * 60 * 1000; // Show warning at 2 minutes left
 
-        let currentOrder = null;
+        let timerInterval = null;
 
-        // Initialize
+        // Initialize page
         document.addEventListener('DOMContentLoaded', () => {
-            const pkg = PACKAGES[packageId] || PACKAGES.premium;
-            document.getElementById('packageName').textContent = pkg.name;
-            document.getElementById('totalAmount').textContent = `RM${(pkg.price / 100).toFixed(0)}`;
-            document.getElementById('modalAmount').textContent = `RM${(pkg.price / 100).toFixed(0)}`;
+            // Populate summary
+            document.getElementById('packageName').textContent = packageName;
+            document.getElementById('eventSlug').textContent = `a2zcreative.my/inv/${slug}`;
+            document.getElementById('totalAmount').textContent = `RM ${amount}`;
 
-            // Payment method selection
-            document.querySelectorAll('.method-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
-                    option.classList.add('selected');
-                });
-            });
+            // Check if we have a valid Billplz URL
+            if (!billplzUrl) {
+                alert('Ralat: Maklumat pembayaran tidak lengkap. Sila kembali dan cuba lagi.');
+                returnToWizard();
+                return;
+            }
+
+            // Start countdown timer
+            startCountdown();
+
+            // Button handlers
+            document.getElementById('btnProceedPayment').addEventListener('click', proceedToPayment);
+            document.getElementById('btnCancelPayment').addEventListener('click', cancelAndReturn);
+            document.getElementById('btnReturnExpired').addEventListener('click', returnToWizard);
         });
 
-        async function processPayment() {
-            const payBtn = document.getElementById('payBtn');
-            const payBtnText = document.getElementById('payBtnText');
-            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        function startCountdown() {
+            const endTime = startTime + TIMER_DURATION;
 
-            payBtn.disabled = true;
-            payBtnText.textContent = 'Memproses...';
+            function updateTimer() {
+                const now = Date.now();
+                const remaining = endTime - now;
 
-            try {
-                // Create payment order
-                const response = await fetch('/api/payment/create', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        eventId: parseInt(eventId),
-                        packageId: packageId,
-                        paymentMethod: selectedMethod
-                    })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Payment creation failed');
+                if (remaining <= 0) {
+                    // Time's up!
+                    clearInterval(timerInterval);
+                    showExpiredState();
+                    return;
                 }
 
-                currentOrder = data;
-                document.getElementById('orderRef').textContent = data.orderRef;
-                document.getElementById('modalRef').textContent = data.orderRef;
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
 
-                // Redirect to Billplz payment page
-                if (data.paymentUrl) {
-                    window.location.href = data.paymentUrl;
-                } else {
-                    alert('Ralat: URL pembayaran tidak dijumpai. Sila cuba lagi.');
+                document.getElementById('timerMinutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('timerSeconds').textContent = seconds.toString().padStart(2, '0');
+
+                // Show warning when less than 2 minutes left
+                if (remaining <= WARNING_THRESHOLD) {
+                    document.getElementById('timerWarning').style.display = 'flex';
                 }
-
-            } catch (error) {
-                alert('Ralat: ' + error.message);
-            } finally {
-                payBtn.disabled = false;
-                payBtnText.textContent = 'Bayar Sekarang';
             }
+
+            updateTimer(); // Run immediately
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function showExpiredState() {
+            document.getElementById('expiredOverlay').classList.add('show');
+            document.getElementById('btnProceedPayment').disabled = true;
+        }
+
+        function proceedToPayment() {
+            // Redirect to Billplz
+            window.location.href = decodeURIComponent(billplzUrl);
+        }
+
+        function cancelAndReturn() {
+            // Return to wizard with restore flag
+            window.location.href = '/create/?restore=true';
+        }
+
+        function returnToWizard() {
+            // Clear any stored state and return to wizard
+            window.location.href = '/create/?restore=true';
         }
     </script>
 </body>
