@@ -39,41 +39,64 @@ export async function onRequestPost(context) {
         // All authenticated users can create events, payment happens after
         // ===== END ACCESS CONTROL =====
 
+        // TRIGGER GLOBAL CLEANUP
+        // Garbage collect ANY expired unpaid events to keep DB clean
+        // This runs on every event creation to ensure "automatic" deletion
+        await cleanupExpiredEvents(env.DB);
+
         // Check for existing slug usage by abandoned/pending events
         const slug = data.slug || generatePublicSlug(data.hostName1?.toLowerCase());
 
-        // Find if this slug is taken by a pending/failed payment that is old
+        // Find if this slug is taken
+        // We join with payment_orders to check payment status
         const existingInvite = await env.DB.prepare(`
-            SELECT i.id, i.event_id, po.status, po.created_at
-            FROM invitations i
-            LEFT JOIN payment_orders po ON po.event_id = i.event_id
-            WHERE i.public_slug = ?
-        `).bind(slug).first();
+      SELECT i.id, i.event_id, i.created_at, po.status as payment_status
+      FROM invitations i
+      LEFT JOIN payment_orders po ON po.event_id = i.event_id
+      WHERE i.public_slug = ? AND i.is_active = 1
+    `).bind(slug).first();
 
         if (existingInvite) {
-            // Check if actionable (pending/failed/expired and older than 15 mins)
-            // If status is NULL (orphaned) it might be safer to leave or delete? Assuming pending if PO exists.
+            const now = Date.now();
+            const createdAt = new Date(existingInvite.created_at).getTime();
+            const isOld = (now - createdAt) > (15 * 60 * 1000); // 15 minutes
 
-            const status = existingInvite.status || 'pending'; // Default to pending if join found PO but status weird, or PO missing (free?)
-            // Actually if PO missing, it might be a valid free event. Check logic carefully.
-            // If PO is NULL, it's a free event (valid). Don't delete.
+            // Definition of "Abandoned":
+            // 1. Old (> 15 mins) AND
+            // 2. Payment is either NULL (never attempted) OR 'pending'/'failed'/'expired'
+            // Warning: If we have a legit "Free" flow that doesn't create payment_orders, this logic
+            // needs to assume those are "Active" unless we have a specific 'is_paid' flag.
+            // Current Assumption: All events start as "Draft/Pending Payment".
 
-            if (existingInvite.status) { // Only if PO exists
-                const isPendingOrFailed = ['pending', 'failed', 'expired'].includes(existingInvite.status);
-                const createdAt = new Date(existingInvite.created_at).getTime();
-                const now = Date.now();
-                const isOld = (now - createdAt) > (15 * 60 * 1000); // 15 minutes
+            const isPaid = ['verified', 'paid'].includes(existingInvite.payment_status);
+            const isPaymentPending = !existingInvite.payment_status || ['pending', 'failed', 'expired'].includes(existingInvite.payment_status);
 
-                if (isPendingOrFailed && isOld) {
-                    console.log(`Cleaning up abandoned slug: ${slug} (Status: ${existingInvite.status})`);
+            if (isOld && !isPaid && isPaymentPending) {
+                console.log(`Cleaning up abandoned slug: ${slug} (Event: ${existingInvite.event_id})`);
 
-                    // Delete invitation to free the slug
-                    await env.DB.prepare('DELETE FROM invitations WHERE id = ?').bind(existingInvite.id).run();
+                // Explicit cleanup of all related tables to prevent foreign key issues or orphans
+                // Note: DELETE CASCADE on Foreign Keys might handle some, but explicit is safer for D1
+                const eventId = existingInvite.event_id;
 
-                    // Optionally cleanup event and payment_order (best effort, to avoid junk)
-                    await env.DB.prepare('DELETE FROM payment_orders WHERE event_id = ?').bind(existingInvite.event_id).run();
-                    await env.DB.prepare('DELETE FROM events WHERE id = ?').bind(existingInvite.event_id).run();
-                }
+                await env.DB.batch([
+                    env.DB.prepare('DELETE FROM payment_orders WHERE event_id = ?').bind(eventId),
+                    env.DB.prepare('DELETE FROM event_access WHERE event_id = ?').bind(eventId),
+                    env.DB.prepare('DELETE FROM download_tokens WHERE event_id = ?').bind(eventId),
+                    // Event deletion will cascade to invitations, guests, etc if FK cascade is on.
+                    // schema.sql defines ON DELETE CASCADE for most, so deleting event should suffice for children.
+                    env.DB.prepare('DELETE FROM events WHERE id = ?').bind(eventId)
+                ]);
+
+                // Proceed to create new event (slug is now free)
+            } else {
+                // Slug is taken by a valid or recent event
+                return new Response(JSON.stringify({
+                    error: 'URL sudah digunakan',
+                    message: 'URL jemputan ini sudah digunakan. Sila pilih URL yang berbeza atau cuba sebentar lagi.'
+                }), {
+                    status: 409,
+                    headers: { 'Content-Type': 'application/json' }
+                });
             }
         }
 
@@ -232,5 +255,55 @@ export async function onRequestGet(context) {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });
+    }
+}
+
+/**
+ * Global Cleanup Helper
+ * Deletes all events that are:
+ * 1. Older than 15 minutes
+ * 2. Have NO verified payment (orphaned or pending/failed)
+ */
+async function cleanupExpiredEvents(db) {
+    try {
+        const now = new Date();
+        const fifteenMinutesAgo = new Date(now.getTime() - (15 * 60 * 1000)).toISOString();
+
+        // 1. Identify Expired Event IDs
+        // We select events created < 15 mins ago
+        // AND match against payment_orders to ensure we don't delete PAID events
+        const expired = await db.prepare(`
+            SELECT e.id 
+            FROM events e
+            LEFT JOIN payment_orders po ON po.event_id = e.id
+            WHERE e.created_at < ? 
+            AND e.status != 'paid' -- Safety check on event status
+            AND (
+                po.id IS NULL -- No payment order at all
+                OR 
+                po.status IN ('pending', 'failed', 'expired') -- Payment not successful
+            )
+        `).bind(fifteenMinutesAgo).all();
+
+        const idsToDelete = expired.results?.map(r => r.id) || [];
+
+        if (idsToDelete.length > 0) {
+            console.log(`[Cleanup] Found ${idsToDelete.length} expired events to delete: ${idsToDelete.join(',')}`);
+
+            // 2. Batch Delete
+            for (const id of idsToDelete) {
+                await db.batch([
+                    db.prepare('DELETE FROM payment_orders WHERE event_id = ?').bind(id),
+                    db.prepare('DELETE FROM event_access WHERE event_id = ?').bind(id),
+                    db.prepare('DELETE FROM download_tokens WHERE event_id = ?').bind(id),
+                    db.prepare('DELETE FROM events WHERE id = ?').bind(id)
+                ]);
+            }
+
+            console.log('[Cleanup] Expired events deleted successfully');
+        }
+    } catch (error) {
+        console.error('[Cleanup] Failed to cleanup expired events:', error);
+        // Don't block the main request if cleanup fails
     }
 }

@@ -69,17 +69,23 @@ export async function onRequestGet(context) {
         // Check if slug exists in invitations table
         // Only consider invitations with completed payment (paid/published) as "taken"
         // Events with pending/failed/expired payment should NOT reserve the slug
+        // Check if slug exists in invitations table
+        // Only consider invitations as "taken" if:
+        // 1. They are PAID/VERIFIED
+        // 2. OR they are recent (< 15 mins old) pending events
         const existing = await env.DB.prepare(`
             SELECT i.id 
             FROM invitations i
             LEFT JOIN payment_orders po ON po.event_id = i.event_id
             WHERE i.public_slug = ? 
+              AND i.is_active = 1
               AND (
-                -- Free package (published successfully with active invitation)
-                (po.id IS NULL AND i.is_active = 1)
-                OR
-                -- Paid package with verified/paid payment
+                -- It IS taken if:
+                -- 1. Payment is verified/paid
                 (po.status IN ('verified', 'paid'))
+                OR
+                -- 2. It is recent (< 15 mins ago), regardless of payment status (User still has time to pay)
+                (strftime('%s', 'now') - strftime('%s', i.created_at) < 900)
               )
         `).bind(slug).first();
 
