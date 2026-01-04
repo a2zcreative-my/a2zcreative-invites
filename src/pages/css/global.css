@@ -608,3 +608,16 @@ a:hover {
         flex-direction: column;
     }
 }
+
+/* =============================================
+   Logo Gradient Text
+   ============================================= */
+.logo-text-gradient {
+    background: linear-gradient(90deg, #FF10F0 0%, #FFD700 33%, #00E5FF 66%, #7B1FA2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
