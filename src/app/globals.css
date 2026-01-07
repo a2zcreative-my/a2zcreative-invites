@@ -2146,6 +2146,9 @@ a:hover {
 .loading-card {
     position: relative;
     overflow: hidden;
+    /* Compact width */
+    max-width: 360px;
+    width: 100%;
     /* Real Glassmorphism - matching auth-card */
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(20px) saturate(150%);
