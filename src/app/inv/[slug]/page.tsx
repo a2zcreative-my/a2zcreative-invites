@@ -11,6 +11,7 @@ export async function generateStaticParams() {
     ];
 }
 
-export default function InvitationDemoPage({ params }: { params: { slug: string } }) {
-    return <InvitationDemoClient slug={params.slug} />;
+export default async function InvitationDemoPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    return <InvitationDemoClient slug={slug} />;
 }
