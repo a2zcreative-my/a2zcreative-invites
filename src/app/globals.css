@@ -2144,12 +2144,59 @@ a:hover {
 }
 
 .loading-card {
-    background: var(--glass-bg-light);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--border-glass);
+    position: relative;
+    overflow: hidden;
+    /* Real Glassmorphism - matching auth-card */
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    /* Border + Depth */
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: var(--radius-2xl);
     padding: var(--space-10);
     text-align: center;
+    /* Premium shadow depth */
+    box-shadow:
+        0 8px 32px -8px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 1px 0 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Glossy diagonal shine (top-left → center) */
+.loading-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 50%;
+    bottom: 50%;
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            transparent 100%);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Soft radial highlight at top */
+.loading-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 25%;
+    width: 50%;
+    height: 100%;
+    background: radial-gradient(ellipse at center,
+            rgba(255, 255, 255, 0.08) 0%,
+            transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.loading-card>* {
+    position: relative;
+    z-index: 2;
 }
 
 .spinner-large {
