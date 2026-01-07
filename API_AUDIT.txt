@@ -1,0 +1,247 @@
+================================================================================
+COMPREHENSIVE API ENDPOINT AUDIT - A2Z Creative Invites
+================================================================================
+
+Total Unique API Endpoints: 33
+Total Implementations: 40+ handler functions
+Public Endpoints: 11
+Protected Endpoints: 22
+Admin-Only Endpoints: 7
+
+================================================================================
+GROUPED BY FEATURE
+================================================================================
+
+AUTHENTICATION (5 endpoints)
+====================
+1. POST /api/auth/login
+   Line: functions/api/auth/login.js:8
+   Calls: src/app/auth/login/page.tsx:44, src/pages/js/auth.js:233, src/pages/js/wizard.js
+   Sends: {email, password}
+   
+2. POST /api/auth/register  
+   Line: functions/api/auth/register.js:8
+   Calls: src/app/auth/register/page.tsx:56, src/pages/js/auth.js:301
+   Sends: {name, email, password}
+
+3. POST /api/auth/oauth-callback
+   Line: functions/api/auth/oauth-callback.js:8
+   Calls: src/app/auth/callback/page.tsx:36, src/pages/js/auth.js:180
+   Sends: {access_token}
+
+4. GET /api/auth/session
+   Line: functions/api/auth/session.js:7
+   Calls: src/app/page.tsx:50, src/app/auth/login/page.tsx:22, src/app/auth/register/page.tsx:26,
+           src/pages/js/auth.js:90, src/pages/js/wizard.js:2198,2467,2518
+   
+5. POST /api/auth/logout
+   Line: functions/api/auth/logout.js:7
+   Calls: src/app/page.tsx:69, src/pages/js/auth.js:333
+
+EVENTS (3 endpoints)
+===================
+1. POST /api/events
+   Line: functions/api/events.js:19
+   Calls: src/pages/js/wizard.js:1762
+   
+2. GET /api/events
+   Line: functions/api/events.js:inferred
+   Calls: src/pages/js/wizard.js:2202
+   
+3. POST /api/events/publish
+   Line: functions/api/events/publish.js:8
+   Calls: src/pages/js/wizard.js:2074
+
+INVITATIONS & PUBLIC ACCESS (1 endpoint)
+========================================
+1. GET /api/invitation/[slug]
+   Line: functions/api/invitation/[slug].js:9
+   Calls: src/pages/js/rsvp.js:389, src/pages/js/dashboard.js:119,
+           src/pages/js/invitation-loader.js:487
+
+RSVP & GUESTS (3 endpoints)
+============================
+1. POST /api/rsvp
+   Line: functions/api/rsvp.js:22
+   Calls: src/pages/js/rsvp.js:182
+   
+2. GET /api/guests
+   Line: functions/api/guests.js:10
+   Query: event_id (required), q (search)
+   Calls: src/pages/js/dashboard.js:138
+   
+3. GET /api/export/guests
+   Line: functions/api/export/guests.js:12
+   Query: event_id (required), format (optional)
+
+CHECK-IN (2 endpoints)
+======================
+1. POST /api/checkin
+   Line: functions/api/checkin.js:13
+   Calls: src/pages/js/checkin.js:140
+   
+2. GET /api/checkin
+   Line: functions/api/checkin.js
+   Query: event_id
+   Calls: src/pages/js/dashboard.js:110, src/pages/js/checkin.js:258,282
+
+MESSAGES/WISHES (2 endpoints)
+=============================
+1. GET /api/messages/[slug]
+   Line: functions/api/messages/[slug].js:12
+   Calls: src/pages/js/rsvp.js:483
+   
+2. POST /api/messages/[slug]
+   Line: functions/api/messages/[slug].js:60
+
+ANALYTICS (1 endpoint)
+=====================
+1. GET /api/analytics/[event_id]
+   Line: functions/api/analytics/[event_id].js:11
+
+PAYMENT (4 endpoints)
+====================
+1. POST /api/payment/create
+   Line: functions/api/payment/create.js:26
+   Calls: src/pages/js/wizard.js:2217,2482,2533
+   Pricing: basic:RM49, premium:RM99, business:RM199
+   
+2. POST /api/payment/verify
+   Line: functions/api/payment/verify.js:6
+   
+3. GET /api/payment/status
+   Line: functions/api/payment/status.js:6
+   Query: order_ref
+   
+4. POST /api/webhook/billplz
+   Line: functions/api/webhook/billplz.js:14
+   (Billplz server → our webhook)
+
+TEMPLATES (5 endpoints)
+======================
+1. GET /api/templates
+   Line: functions/api/templates.js:15
+   Query: event_type_id (optional)
+   
+2. POST /api/templates
+   Line: functions/api/templates.js
+   
+3. GET /api/templates/[id]
+   Line: functions/api/templates/[id].js:28
+   
+4. PUT /api/templates/[id]
+   Line: functions/api/templates/[id].js:89
+   
+5. DELETE /api/templates/[id]
+   Line: functions/api/templates/[id].js:194
+
+UTILITIES (1 endpoint)
+=====================
+1. GET /api/slug/check
+   Line: functions/api/slug/check.js:6
+   Query: slug (required)
+   Calls: src/pages/js/wizard.js:1937-1941
+
+ADMIN (7 endpoints)
+==================
+1. GET /api/admin/dashboard
+   Line: functions/api/admin/dashboard.js:17
+   Calls: src/pages/admin/admin.js:80
+   
+2. GET /api/admin/events
+   Line: functions/api/admin/events.js:10
+   Calls: src/pages/admin/admin.js:257
+   
+3. GET /api/admin/clients
+   Line: functions/api/admin/clients.js
+   Calls: src/pages/admin/admin.js:305
+   
+4. GET /api/admin/stats
+   Line: functions/api/admin/stats.js:10
+   
+5. POST /api/admin/actions
+   Line: functions/api/admin/actions.js:18
+   Calls: src/pages/admin/admin.js:562
+   Actions: restore_user, restore_event, archive_event, purge_event, unflag_user, rate_limit_user
+   
+6. PUT /api/admin/events/[id]
+   Line: functions/api/admin/events/[id].js
+   
+7. POST /api/admin/kill-switch
+   Line: functions/api/admin/kill-switch.js
+   Calls: src/pages/admin/admin.js:559
+
+================================================================================
+SECURITY & AUTHENTICATION SUMMARY
+================================================================================
+
+Authentication Methods:
+- Session cookies (D1 database)
+- Supabase OAuth tokens
+- QR check-in tokens
+- Billplz webhook signatures
+
+Authorization Levels:
+- Public (no auth): /api/auth/login, register, oauth, session, /api/rsvp, /api/invitation/*, /api/messages/*, /api/slug/check
+- User (D1 session): /api/events*, /api/guests, /api/checkin (GET), /api/templates*, /api/analytics/*, /api/payment/*
+- Admin (admin role): /api/admin/events, /api/admin/stats, /api/admin/clients
+- Super Admin only: /api/admin/dashboard, /api/admin/actions, /api/admin/kill-switch
+
+Rate Limiting:
+- IP-based: Public endpoints (invitations, RSVP, messages)
+- Multi-factor (IP+event+phone): RSVP submissions
+- Per-user: Event creation, exports
+- Package-based: Check-in, exports
+
+Input Validation:
+- Email format (RFC)
+- Slug format (alphanumeric-only, 3-50 chars)
+- Numeric IDs
+- Text sanitization
+- JSON parsing
+
+================================================================================
+PAYMENT GATEWAY INTEGRATION
+================================================================================
+
+Provider: Billplz
+Order Workflow:
+1. POST /api/payment/create -> Creates Billplz bill
+2. Bill sent to Billplz server
+3. Billplz calls POST /api/webhook/billplz (server-to-server)
+4. We verify signature and mark payment verified
+5. User upgrades to 'admin' role (paid status)
+
+Pricing Tiers:
+- Basic (Asas): RM49 → 100 guests, 500 views, QR check-in
+- Premium: RM99 → 300 guests, 2000 views, CSV export
+- Business (Bisnes): RM199 → 1000 guests, 10000 views, multiple events
+
+Order Expiry: 24 hours (auto-cleanup)
+
+================================================================================
+KEY FILE LOCATIONS
+================================================================================
+
+API Implementation:
+- Authentication: functions/api/auth/
+- Events: functions/api/events.js, functions/api/events/publish.js
+- Guests: functions/api/guests.js, functions/api/rsvp.js
+- Check-in: functions/api/checkin.js
+- Messages: functions/api/messages/[slug].js
+- Analytics: functions/api/analytics/[event_id].js
+- Payment: functions/api/payment/create.js, verify.js, status.js, webhook/billplz.js
+- Templates: functions/api/templates.js, functions/api/templates/[id].js
+- Admin: functions/api/admin/dashboard.js, events.js, clients.js, stats.js, actions.js, kill-switch.js
+- Utilities: functions/api/slug/check.js
+
+Frontend Usage:
+- Landing/Auth: src/app/page.tsx, src/app/auth/*/page.tsx
+- Event Creation: src/pages/js/wizard.js
+- RSVP/Invitations: src/pages/js/rsvp.js, invitation-loader.js
+- Dashboard: src/pages/js/dashboard.js
+- Check-in: src/pages/js/checkin.js
+- Admin: src/pages/admin/admin.js
+
+Security Middleware:
+- functions/_middleware.js (authenticat

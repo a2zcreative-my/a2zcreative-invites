@@ -1,0 +1,55 @@
+{
+  "name": "a2zcreative-invites",
+  "version": "1.0.0",
+  "description": "Multi-Purpose Digital Invitation & Attendance Management Platform",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "pages:deploy": "wrangler pages deploy .vercel/output/static",
+    "preview": "npm run pages:build && wrangler pages dev .vercel/output/static",
+    "lint": "next lint",
+    "db:init": "wrangler d1 execute DB --file=./schema.sql",
+    "db:seed": "wrangler d1 execute DB --file=./seed.sql",
+    "lint:css": "stylelint \"src/**/*.css\" --ignore-pattern \"**/invitation.css\" --ignore-pattern \"**/wizard.css\"",
+    "lint:css:fix": "stylelint \"src/**/*.css\" --fix --ignore-pattern \"**/invitation.css\" --ignore-pattern \"**/wizard.css\"",
+    "prepare": "husky"
+  },
+  "keywords": [
+    "invitation",
+    "rsvp",
+    "wedding",
+    "corporate",
+    "cloudflare",
+    "d1"
+  ],
+  "author": "A2Z Creative",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260103.0",
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.1",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.0",
+    "stylelint-declaration-strict-value": "^1.10.0",
+    "typescript": "^5.9.3",
+    "wrangler": "^3.0.0"
+  },
+  "lint-staged": {
+    "*.css": "stylelint --fix"
+  },
+  "dependencies": {
+    "@cloudflare/next-on-pages": "^1.13.16",
+    "lucide-react": "^0.562.0",
+    "next": "^16.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  }
+}

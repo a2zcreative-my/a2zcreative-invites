@@ -1,0 +1,80 @@
+name = "a2zcreative-invites"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "out"
+
+# For Cloudflare Pages with Workers functions in /functions:
+# - Next.js exports static HTML pages to "out/" directory
+# - Cloudflare Pages serves the static HTML
+# - /functions folder contains Cloudflare Workers API routes
+# This hybrid approach allows both static pages and dynamic API endpoints
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "invites-db-prod"
+database_id = "51caac18-287a-4094-87da-51c56621755c"
+
+# Environment Variables (set via Cloudflare Dashboard > Settings > Environment Variables)
+# NOTE: These are for development only. Production values must be set in Cloudflare Dashboard.
+[vars]
+ENVIRONMENT = "production"
+APP_URL = "https://a2zcreative-invites.pages.dev"
+EMAIL_FROM = "A2Z Creative <noreply@a2zcreative.my>"
+GOOGLE_CLIENT_ID = "420627138596-cf9hh4javk6pm0fs5nbvek178te978fq.apps.googleusercontent.com"
+BILLPLZ_COLLECTION_ID = "xyb0ub45"
+# SUPABASE_URL = "https://your-project.supabase.co"
+# SUPABASE_ANON_KEY = "your-anon-key"
+
+
+# =============================================
+# SCHEDULED TRIGGERS (Cron Jobs)
+# =============================================
+# Payment expiration: Every 5 minutes
+# Lifecycle transitions: Every hour
+#
+# NOTE: For Cloudflare Pages Functions, scheduled triggers require
+# a separate Worker. Create these as standalone workers if needed:
+#
+# Payment Expiration Worker (functions/scheduled/payment-expiration.js)
+# - Cron: */5 * * * *
+# - Expires pending payments after 15 minutes
+# - Updates payment_state and lifecycle_state
+# - Tracks abuse patterns
+#
+# Lifecycle Transition Worker (functions/scheduled/lifecycle-transitions.js)
+# - Cron: 0 * * * *
+# - SCHEDULED → LIVE (event started)
+# - LIVE → ENDED (event finished)
+# - COOLING → DISABLED (14-day cooldown expired)
+#
+# To deploy as standalone workers:
+# npx wrangler deploy functions/scheduled/payment-expiration.js --name a2z-payment-expiration
+# npx wrangler deploy functions/scheduled/lifecycle-transitions.js --name a2z-lifecycle-transitions
+
+# =============================================
+# REQUIRED SECRETS (set via `npx wrangler pages secret put <NAME>`)
+# =============================================
+# SUPABASE_URL = "https://your-project.supabase.co"
+# SUPABASE_ANON_KEY = "your-supabase-anon-key"
+# ADMIN_PASSWORD = "your-admin-api-password"
+#
+# Billplz Payment Gateway
+# BILLPLZ_API_KEY = "your-billplz-api-key"
+# BILLPLZ_COLLECTION_ID = "your-collection-id"
+# BILLPLZ_XSIGNATURE_KEY = "your-xsignature-key"
+
+# =============================================
+# PLACEHOLDER VALUES TO UPDATE BEFORE LAUNCH
+# =============================================
+# In src/js/wizard.js line 1267:
+#   DUITNOW_ID = '0123456789' -> Your actual DuitNow phone number
+#   DUITNOW_NAME = 'A2Z CREATIVE' -> Your registered name
+#
+# In src/js/wizard.js line ~1240 (manual payment):
+#   Bank: Maybank -> Your actual bank
+#   Account: 1234-5678-9012 -> Your actual account number
+#   Name: A2Z CREATIVE SDN BHD -> Your actual registered name
+#
+# In functions/api/payment.js line 147:
+#   60123456789 -> Your actual WhatsApp number
+

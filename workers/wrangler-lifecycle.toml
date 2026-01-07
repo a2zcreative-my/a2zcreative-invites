@@ -1,0 +1,13 @@
+name = "a2z-lifecycle-transitions"
+main = "lifecycle-transitions.js"
+compatibility_date = "2024-01-01"
+
+# D1 Database Binding (same as main project)
+[[d1_databases]]
+binding = "DB"
+database_name = "invites-db-prod"
+database_id = "51caac18-287a-4094-87da-51c56621755c"
+
+# Scheduled trigger: Every hour at minute 0
+[triggers]
+crons = ["0 * * * *"]
