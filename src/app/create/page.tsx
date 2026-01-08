@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Check, X, Heart, Building2, Users, Cake, TreePine, ArrowRight, Loader2 } from 'lucide-react';
-import GlassCard from '../../components/GlassCard';
+import { Check, Heart, Building2, Users, Cake, TreePine, ArrowRight, Loader2 } from 'lucide-react';
 
 // --- CONFIGURATION CONSTANTS ---
 const EVENT_TYPES = [
@@ -15,14 +14,15 @@ const EVENT_TYPES = [
     { id: 'community', label: 'Komuniti', icon: TreePine, description: 'Persatuan & kelab' }
 ];
 
-const PLANS = {
+const PLANS: Record<string, { name: string; price: string; allowedEvents: string[] }> = {
     free: { name: 'Percuma', price: 'RM0', allowedEvents: ['wedding', 'birthday', 'family', 'business', 'community'] },
     basic: { name: 'Asas', price: 'RM49', allowedEvents: ['wedding', 'birthday', 'family', 'business', 'community'] },
     premium: { name: 'Premium', price: 'RM99', allowedEvents: ['wedding', 'birthday', 'family'] },
     business: { name: 'Bisnes', price: 'RM199', allowedEvents: ['business', 'community'] }
 };
 
-export default function CreateEventPage() {
+// Inner component that uses useSearchParams
+function CreateEventContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -34,12 +34,11 @@ export default function CreateEventPage() {
 
     // Get package from URL query parameter
     const selectedPackage = searchParams.get('package') || 'free';
-    const planInfo = PLANS[selectedPackage as keyof typeof PLANS] || PLANS.free;
+    const planInfo = PLANS[selectedPackage] || PLANS.free;
 
-    // Auth Check - runs once on mount
+    // Auth Check
     useEffect(() => {
         const checkAuth = async () => {
-            // First check localStorage
             const storedUser = localStorage.getItem('a2z_user');
             if (storedUser) {
                 try {
@@ -51,7 +50,6 @@ export default function CreateEventPage() {
                 }
             }
 
-            // Check session API
             try {
                 const res = await fetch('/api/auth/session', { credentials: 'include' });
                 if (res.ok) {
@@ -67,7 +65,6 @@ export default function CreateEventPage() {
                 console.error('Session check failed:', e);
             }
 
-            // Not authenticated - redirect to login with package preserved
             const currentUrl = `/create?package=${selectedPackage}`;
             router.push(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`);
         };
@@ -75,7 +72,6 @@ export default function CreateEventPage() {
         checkAuth();
     }, [router, selectedPackage]);
 
-    // Filter allowed event types based on selected package
     const allowedEventTypes = EVENT_TYPES.filter(type =>
         planInfo.allowedEvents.includes(type.id)
     );
@@ -108,7 +104,6 @@ export default function CreateEventPage() {
         }
     };
 
-    // Show loading while checking auth
     if (!authChecked) {
         return (
             <div className="landing-page flex items-center justify-center min-h-screen">
@@ -119,7 +114,6 @@ export default function CreateEventPage() {
 
     return (
         <div className="landing-page min-h-screen pb-20">
-            {/* Header */}
             <nav className="nav scrolled" style={{ background: 'rgba(2, 6, 23, 0.95)' }}>
                 <div className="nav-container">
                     <Link href="/" className="nav-logo flex items-center gap-2 no-underline">
@@ -133,7 +127,6 @@ export default function CreateEventPage() {
             </nav>
 
             <div className="container pt-32">
-                {/* Selected Package Badge */}
                 <div className="text-center mb-8">
                     <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand-gold)]/10 border border-[var(--brand-gold)]/30 rounded-full text-[var(--brand-gold)] text-sm">
                         <Check size={16} />
@@ -141,15 +134,13 @@ export default function CreateEventPage() {
                     </span>
                 </div>
 
-                {/* Error Banner */}
                 {error && (
                     <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-center">
                         {error}
                     </div>
                 )}
 
-                {/* Event Type Selection */}
-                <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-10">
                         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">Apakah jenis majlis anda?</h1>
                         <p className="text-slate-400">Pilih jenis majlis yang sesuai dengan pakej <span className="text-[var(--brand-gold)]">{planInfo.name}</span> anda.</p>
@@ -163,18 +154,14 @@ export default function CreateEventPage() {
                                 <div
                                     key={type.id}
                                     onClick={() => setEventType(type.id)}
-                                    className={`
-                                        cursor-pointer group relative p-6 rounded-2xl border transition-all duration-300
+                                    className={`cursor-pointer group relative p-6 rounded-2xl border transition-all duration-300
                                         ${isSelected
                                             ? 'bg-[var(--brand-gold)]/10 border-[var(--brand-gold)] shadow-[0_0_30px_rgba(255,215,0,0.15)]'
                                             : 'bg-slate-900/40 border-slate-800 hover:border-slate-600 hover:bg-slate-800/60'
-                                        }
-                                    `}
+                                        }`}
                                 >
-                                    <div className={`
-                                        w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors
-                                        ${isSelected ? 'bg-[var(--brand-gold)] text-black' : 'bg-slate-800 text-slate-300 group-hover:text-white'}
-                                    `}>
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors
+                                        ${isSelected ? 'bg-[var(--brand-gold)] text-black' : 'bg-slate-800 text-slate-300 group-hover:text-white'}`}>
                                         <Icon size={24} />
                                     </div>
                                     <h3 className={`text-lg font-bold mb-2 ${isSelected ? 'text-[var(--brand-gold)]' : 'text-white'}`}>
@@ -183,7 +170,7 @@ export default function CreateEventPage() {
                                     <p className="text-sm text-slate-400">{type.description}</p>
 
                                     {isSelected && (
-                                        <div className="absolute top-4 right-4 text-[var(--brand-gold)]">
+                                        <div className="absolute top-4 right-4">
                                             <div className="bg-[var(--brand-gold)] text-black rounded-full p-1">
                                                 <Check size={12} strokeWidth={3} />
                                             </div>
@@ -194,7 +181,6 @@ export default function CreateEventPage() {
                         })}
                     </div>
 
-                    {/* Show message if package limits event types */}
                     {allowedEventTypes.length < EVENT_TYPES.length && (
                         <p className="text-center text-slate-500 text-sm mt-6">
                             Beberapa jenis majlis tidak tersedia untuk pakej {planInfo.name}.
@@ -206,23 +192,30 @@ export default function CreateEventPage() {
                         <button
                             disabled={!eventType || loading}
                             onClick={handleCreateEvent}
-                            className={`
-                                flex items-center gap-2 px-8 py-4 rounded-full font-bold transition-all
+                            className={`flex items-center gap-2 px-8 py-4 rounded-full font-bold transition-all
                                 ${eventType && !loading
                                     ? 'bg-[var(--brand-gold)] text-[var(--bg-base)] hover:scale-105 shadow-[0_0_20px_rgba(255,215,0,0.3)]'
                                     : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                                }
-                            `}
+                                }`}
                         >
-                            {loading ? (
-                                <Loader2 size={18} className="animate-spin" />
-                            ) : (
-                                <>Cipta Jemputan <ArrowRight size={18} /></>
-                            )}
+                            {loading ? <Loader2 size={18} className="animate-spin" /> : <>Cipta Jemputan <ArrowRight size={18} /></>}
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+    );
+}
+
+// Main export with Suspense wrapper
+export default function CreateEventPage() {
+    return (
+        <Suspense fallback={
+            <div className="landing-page flex items-center justify-center min-h-screen">
+                <Loader2 className="animate-spin text-white" size={48} />
+            </div>
+        }>
+            <CreateEventContent />
+        </Suspense>
     );
 }
