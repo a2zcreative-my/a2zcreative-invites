@@ -136,9 +136,18 @@ export default function PricingPage() {
                         <span className="logo-text-gradient" style={{ fontSize: '1.25rem' }}>A2ZCreative</span>
                     </Link>
                     <div className="nav-links">
-                        <Link href="/#features" className="nav-link">Ciri-ciri</Link>
-                        <Link href="/#events" className="nav-link">Jenis Majlis</Link>
-                        <Link href="/#pricing" className="nav-link">Harga</Link>
+                        {!user ? (
+                            <>
+                                <Link href="/#features" className="nav-link">Ciri-ciri</Link>
+                                <Link href="/#events" className="nav-link">Jenis Majlis</Link>
+                                <Link href="/#pricing" className="nav-link">Harga</Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/" className="nav-link">Utama</Link>
+                                <Link href="/dashboard" className="nav-link">Dashboard</Link>
+                            </>
+                        )}
 
                         {!user ? (
                             <Link href="/auth/login" className="nav-link">Log Masuk</Link>
