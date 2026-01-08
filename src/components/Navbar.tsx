@@ -4,7 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { LayoutDashboard, PlusCircle, LogOut, Menu, X } from 'lucide-react';
 
-export default function Navbar() {
+interface NavbarProps {
+    customLinks?: { label: string; href: string; onClick?: () => void }[];
+}
+
+export default function Navbar({ customLinks }: NavbarProps) {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -76,10 +80,20 @@ export default function Navbar() {
                     <span className="logo-text-gradient" style={{ fontSize: '1.25rem' }}>A2ZCreative</span>
                 </Link>
                 <div className={`nav-links ${isMobileNavOpen ? 'active' : ''}`}>
-                    <Link href="/#features" className="nav-link">Ciri-ciri</Link>
-                    <Link href="/#events" className="nav-link">Jenis Majlis</Link>
-                    <Link href="/pricing" className="nav-link">Harga</Link>
-                    <Link href="/#how-it-works" className="nav-link">Cara Guna</Link>
+                    {customLinks ? (
+                        customLinks.map((link, index) => (
+                            <Link key={index} href={link.href} className="nav-link" onClick={link.onClick}>
+                                {link.label}
+                            </Link>
+                        ))
+                    ) : (
+                        <>
+                            <Link href="/#features" className="nav-link">Ciri-ciri</Link>
+                            <Link href="/#events" className="nav-link">Jenis Majlis</Link>
+                            <Link href="/pricing" className="nav-link">Harga</Link>
+                            <Link href="/#how-it-works" className="nav-link">Cara Guna</Link>
+                        </>
+                    )}
 
                     {!user ? (
                         <a href="/auth/login" className="nav-link">Log Masuk</a>
@@ -91,7 +105,7 @@ export default function Navbar() {
                             ref={userMenuRef}
                         >
                             <span className="nav-user-name" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                Hi, {user.name || user.email?.split('@')[0]}
+                                Hi, Selamat Datang - {user.name || user.email?.split('@')[0]}
                             </span>
                             <div className="nav-user-avatar" style={{ width: '36px', height: '36px', background: 'var(--brand-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: 'var(--bg-base)', fontSize: '0.875rem' }}>
                                 {(user.name || user.email || 'U').charAt(0).toUpperCase()}
