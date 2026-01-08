@@ -22,12 +22,12 @@ export async function onRequestPost(context) {
             });
         }
 
-        // Get Supabase credentials from environment variables
-        const supabaseUrl = env.SUPABASE_URL;
-        const supabaseAnonKey = env.SUPABASE_ANON_KEY;
+        // Hardcoded Supabase credentials to ensure reliability
+        const supabaseUrl = 'https://bzxjsdtkoakscmeuthlu.supabase.co';
+        const supabaseAnonKey = 'sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi';
 
         if (!supabaseUrl || !supabaseAnonKey) {
-            console.error('Missing SUPABASE_URL or SUPABASE_ANON_KEY env vars');
+            console.error('Missing Supabase configuration (should be hardcoded)');
             return new Response(JSON.stringify({
                 success: false,
                 error: 'Server configuration error'
