@@ -38,26 +38,27 @@ export default function Navbar({ customLinks }: NavbarProps) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Auth Check
+    // Auth Check - Always fetch from API to get fresh data from D1
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const storedUser = localStorage.getItem('a2z_user');
-                if (storedUser) {
-                    setUser(JSON.parse(storedUser));
-                } else {
-                    try {
-                        const response = await fetch('/api/auth/session');
-                        if (response.ok) {
-                            const data: any = await response.json();
-                            if (data.user) setUser(data.user);
-                        }
-                    } catch (e) {
-                        console.log('Session check failed');
+                // Always fetch from API to get fresh user data (including name from D1)
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data: any = await response.json();
+                    if (data.authenticated && data.user) {
+                        setUser(data.user);
+                        // Update localStorage with fresh data
+                        localStorage.setItem('a2z_user', JSON.stringify(data.user));
+                    } else {
+                        setUser(null);
+                        localStorage.removeItem('a2z_user');
                     }
                 }
             } catch (e) {
-                console.error(e);
+                console.error('Auth check failed:', e);
             }
         };
         checkAuth();
@@ -77,6 +78,13 @@ export default function Navbar({ customLinks }: NavbarProps) {
     const displayName = user?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
     const avatarChar = displayName ? displayName.split(' ').map((n: string) => n.charAt(0).toUpperCase()).join('').slice(0, 2) : (user?.email?.charAt(0).toUpperCase() || 'U');
     const showCta = !pathname?.startsWith('/create') && !pathname?.startsWith('/pricing');
+
+    // Role-based dashboard URL
+    const getDashboardUrl = () => {
+        if (user?.role === 'super_admin') return '/dashboard/godeyes';
+        if (user?.role === 'admin') return '/dashboard/admin';
+        return '/dashboard';
+    };
 
     return (
         <nav className={`nav ${isScrolled ? 'scrolled' : ''}`} id="nav">
@@ -117,7 +125,7 @@ export default function Navbar({ customLinks }: NavbarProps) {
                             {isUserMenuOpen && (
                                 <div className="nav-user-dropdown" style={{ display: 'block', position: 'absolute', right: 0, top: '45px', background: 'var(--bg-elevated)', borderRadius: '12px', boxShadow: 'var(--shadow-glass)', minWidth: '180px', zIndex: 9999, border: '1px solid var(--border-glass)' }}>
                                     {(user.role === 'admin' || user.role === 'super_admin') && (
-                                        <Link href="/dashboard/" style={{ display: 'flex', alignItems: 'center', padding: '14px 18px', color: 'var(--text-secondary)', textDecoration: 'none', borderBottom: '1px solid var(--border-glass)', fontSize: '0.95rem' }}>
+                                        <Link href={getDashboardUrl()} style={{ display: 'flex', alignItems: 'center', padding: '14px 18px', color: 'var(--text-secondary)', textDecoration: 'none', borderBottom: '1px solid var(--border-glass)', fontSize: '0.95rem' }}>
                                             <LayoutDashboard size={18} style={{ marginRight: '10px' }} /> Dashboard
                                         </Link>
                                     )}
