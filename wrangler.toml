@@ -23,8 +23,8 @@ EMAIL_FROM = "A2Z Creative <noreply@a2zcreative.my>"
 GOOGLE_CLIENT_ID = "420627138596-cf9hh4javk6pm0fs5nbvek178te978fq.apps.googleusercontent.com"
 BILLPLZ_COLLECTION_ID = "xyb0ub45"
 # Next.js public vars (available at build time for static export)
-NEXT_PUBLIC_SUPABASE_URL = "https://bzxjsdtkoakscmeuthlu.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi"
+# NEXT_PUBLIC_SUPABASE_URL = "https://bzxjsdtkoakscmeuthlu.supabase.co"
+# NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_ksSZeGQ4toGfqLttrL7Vsw_8Vq2AVxi"
 # Server-side Supabase vars (for Workers/Functions)
 # SUPABASE_URL = "https://your-project.supabase.co"
 # SUPABASE_ANON_KEY = "your-anon-key"
