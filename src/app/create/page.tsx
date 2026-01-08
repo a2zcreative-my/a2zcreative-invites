@@ -212,7 +212,7 @@ function CreateEventContent() {
                                     onClick={handleCreateEvent}
                                     className="flex items-center gap-2 px-8 py-4 rounded-full font-bold transition-all bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                                 >
-                                    {loading ? <Loader2 size={18} className="animate-spin" /> : <>Cipta Jemputan <ArrowRight size={18} /></>}
+                                    {loading ? <Loader2 size={18} className="animate-spin" /> : <>Cipta Sekarang <ArrowRight size={18} /></>}
                                 </button>
                             </div>
                         )}

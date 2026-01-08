@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { LayoutDashboard, PlusCircle, LogOut, Menu, X } from 'lucide-react';
 
 interface NavbarProps {
@@ -13,6 +14,7 @@ export default function Navbar({ customLinks }: NavbarProps) {
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const pathname = usePathname();
 
     const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +74,10 @@ export default function Navbar({ customLinks }: NavbarProps) {
         }
     };
 
+    const displayName = user?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+    const avatarChar = (displayName || user?.email || 'U').charAt(0).toUpperCase();
+    const showCta = !pathname?.startsWith('/create') && !pathname?.startsWith('/pricing');
+
     return (
         <nav className={`nav ${isScrolled ? 'scrolled' : ''}`} id="nav">
             <div className="nav-container">
@@ -105,10 +111,10 @@ export default function Navbar({ customLinks }: NavbarProps) {
                             ref={userMenuRef}
                         >
                             <span className="nav-user-name" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                Hi, Selamat Datang - {user.name || user.email?.split('@')[0]}
+                                Hi, Selamat Datang - {displayName}
                             </span>
                             <div className="nav-user-avatar" style={{ width: '36px', height: '36px', background: 'var(--brand-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: 'var(--bg-base)', fontSize: '0.875rem' }}>
-                                {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                                {avatarChar}
                             </div>
 
                             {isUserMenuOpen && (
@@ -129,9 +135,11 @@ export default function Navbar({ customLinks }: NavbarProps) {
                         </div>
                     )}
 
-                    <Link href="/pricing/" className="btn btn-primary nav-cta">
-                        {user ? 'Cipta Jemputan' : 'Mula Sekarang'}
-                    </Link>
+                    {showCta && (
+                        <Link href="/pricing/" className="btn btn-primary nav-cta">
+                            {user ? 'Cipta Jemputan' : 'Mula Sekarang'}
+                        </Link>
+                    )}
                 </div>
                 <button
                     className="nav-toggle"
