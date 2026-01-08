@@ -97,26 +97,41 @@ export default function CreateEventPage() {
     // Initial Auth Check
     useEffect(() => {
         const checkAuth = async () => {
+            // First check localStorage for cached user
             const storedUser = localStorage.getItem('a2z_user');
             if (storedUser) {
-                setUser(JSON.parse(storedUser));
-            } else {
-                // If not in localStorage, try API (double check)
                 try {
-                    const res = await fetch('/api/auth/session');
-                    if (res.ok) {
-                        const data = await res.json() as any;
-                        if (data.user) {
-                            setUser(data.user);
-                            return; // User found
-                        }
-                    }
-                } catch (e) { console.error(e); }
-
-                // If definitely no user, redirect to login
-                router.push('/auth/login?redirect=/create');
+                    setUser(JSON.parse(storedUser));
+                    return; // User found in localStorage
+                } catch (e) {
+                    console.error('Failed to parse stored user:', e);
+                    localStorage.removeItem('a2z_user'); // Clear invalid data
+                }
             }
+
+            // If not in localStorage, check session from server
+            try {
+                const res = await fetch('/api/auth/session', {
+                    credentials: 'include' // Important: send cookies
+                });
+
+                if (res.ok) {
+                    const data = await res.json() as any;
+                    if (data.authenticated && data.user) {
+                        setUser(data.user);
+                        // Cache in localStorage for faster subsequent loads
+                        localStorage.setItem('a2z_user', JSON.stringify(data.user));
+                        return; // User is authenticated
+                    }
+                }
+            } catch (e) {
+                console.error('Session check failed:', e);
+            }
+
+            // Only redirect if definitely not authenticated
+            router.push('/auth/login?redirect=/create');
         };
+
         checkAuth();
     }, [router]);
 
