@@ -92,7 +92,7 @@ export default function Navbar({ customLinks }: NavbarProps) {
     };
 
     return (
-        <nav className={`nav ${isScrolled ? 'scrolled' : ''}`} id="nav">
+        <nav className={`nav ${isScrolled ? 'scrolled' : ''}`} id="nav" data-deploy-version="2026-01-08-v2">
             <div className="nav-container">
                 <Link href="/" className="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
                     <img src="/logo.png" alt="A2Z Creative" height="36" />
