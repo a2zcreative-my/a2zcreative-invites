@@ -21,7 +21,7 @@ If you haven't connected this repo to Cloudflare Pages yet:
    - **Project name:** `a2zcreative-invites`
    - **Production branch:** `main`
    - **Build command:** (leave empty)
-   - **Build output directory:** `src/pages`
+   - **Build output directory:** `out`
 6. Click **Save and Deploy**
 
 ### 3. Create D1 Database (Production)
