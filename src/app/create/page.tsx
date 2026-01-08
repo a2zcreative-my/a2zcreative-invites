@@ -142,7 +142,15 @@ function CreateEventContent() {
                                 return (
                                     <div
                                         key={type.id}
-                                        onClick={() => setEventType(type.id)}
+                                        onClick={() => {
+                                            if (eventType === type.id) {
+                                                // Second click on same card - trigger creation
+                                                handleCreateEvent();
+                                            } else {
+                                                // First click - select the card
+                                                setEventType(type.id);
+                                            }
+                                        }}
                                         className={`event-card cursor-pointer ${isSelected ? 'selected' : ''}`}
                                         style={{
                                             position: 'relative',
@@ -174,23 +182,52 @@ function CreateEventContent() {
                                         </h3>
                                         <p className="event-desc">{type.description}</p>
 
-                                        {/* Selection checkmark */}
+                                        {/* Selection checkmark with pulse animation */}
                                         {isSelected && (
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: '1rem',
-                                                right: '1rem',
-                                                width: '28px',
-                                                height: '28px',
-                                                background: 'var(--brand-gold)',
-                                                borderRadius: '50%',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                boxShadow: '0 0 15px rgba(212, 175, 55, 0.4)'
-                                            }}>
-                                                <Check size={16} strokeWidth={3} color="var(--bg-base)" />
-                                            </div>
+                                            <>
+                                                <div
+                                                    className="pulse-ring"
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: '1rem',
+                                                        right: '1rem',
+                                                        width: '28px',
+                                                        height: '28px',
+                                                        background: 'var(--brand-gold)',
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        boxShadow: '0 0 15px rgba(212, 175, 55, 0.4)',
+                                                        animation: 'pulse-glow 1.5s ease-in-out infinite'
+                                                    }}>
+                                                    <Check size={16} strokeWidth={3} color="var(--bg-base)" />
+                                                </div>
+                                                {/* Double-click hint */}
+                                                <div
+                                                    className="double-click-hint"
+                                                    style={{
+                                                        marginTop: '1rem',
+                                                        padding: '0.5rem 1rem',
+                                                        background: 'rgba(212, 175, 55, 0.15)',
+                                                        borderRadius: '8px',
+                                                        border: '1px solid rgba(212, 175, 55, 0.3)',
+                                                        animation: 'pulse-hint 1.5s ease-in-out infinite'
+                                                    }}
+                                                >
+                                                    <span style={{
+                                                        color: 'var(--brand-gold)',
+                                                        fontSize: '0.85rem',
+                                                        fontWeight: 500,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '0.5rem'
+                                                    }}>
+                                                        👆 Klik sekali lagi untuk teruskan
+                                                    </span>
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 );
@@ -204,18 +241,7 @@ function CreateEventContent() {
                             </p>
                         )}
 
-                        {/* CTA Button - Only show when event type is selected */}
-                        {eventType && (
-                            <div className="mt-12 flex justify-center">
-                                <button
-                                    disabled={loading}
-                                    onClick={handleCreateEvent}
-                                    className="flex items-center gap-2 px-8 py-4 rounded-full font-bold transition-all bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-                                >
-                                    {loading ? <Loader2 size={18} className="animate-spin" /> : <>Cipta Sekarang <ArrowRight size={18} /></>}
-                                </button>
-                            </div>
-                        )}
+
                     </div>
                 </section>
             </div>

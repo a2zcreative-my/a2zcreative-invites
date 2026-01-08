@@ -74,8 +74,8 @@ export default function Navbar({ customLinks }: NavbarProps) {
         }
     };
 
-    const displayName = user?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
-    const avatarChar = (displayName || user?.email || 'U').charAt(0).toUpperCase();
+    const displayName = user?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
+    const avatarChar = displayName ? displayName.split(' ').map((n: string) => n.charAt(0).toUpperCase()).join('').slice(0, 2) : (user?.email?.charAt(0).toUpperCase() || 'U');
     const showCta = !pathname?.startsWith('/create') && !pathname?.startsWith('/pricing');
 
     return (
@@ -110,9 +110,6 @@ export default function Navbar({ customLinks }: NavbarProps) {
                             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                             ref={userMenuRef}
                         >
-                            <span className="nav-user-name" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                Hi, Selamat Datang - {displayName}
-                            </span>
                             <div className="nav-user-avatar" style={{ width: '36px', height: '36px', background: 'var(--brand-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: 'var(--bg-base)', fontSize: '0.875rem' }}>
                                 {avatarChar}
                             </div>
