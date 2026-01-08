@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, X, Sparkles, Heart, Building2, Users, Cake, TreePine, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
-import GlassCard from '../components/GlassCard';
+import GlassCard from '../../components/GlassCard';
 
 // --- CONFIGURATION CONSTANTS (Strictly enforced) ---
 
