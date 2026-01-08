@@ -19,7 +19,7 @@ const packages = [
             { text: 'Kod QR check-in', included: false },
         ],
         ctaText: 'Cuba Percuma',
-        ctaLink: '/auth/register',
+        ctaLink: '/create',
         ctaStyle: 'secondary',
     },
     {
@@ -35,7 +35,7 @@ const packages = [
             { text: 'Kod QR untuk tetamu', included: true },
         ],
         ctaText: 'Pilih Asas',
-        ctaLink: '/auth/register?package=basic',
+        ctaLink: '/create',
         ctaStyle: 'secondary',
     },
     {
@@ -52,7 +52,7 @@ const packages = [
             { text: 'Eksport CSV', included: true },
         ],
         ctaText: 'Pilih Premium',
-        ctaLink: '/auth/register?package=premium',
+        ctaLink: '/create',
         ctaStyle: 'primary',
     },
     {
@@ -69,7 +69,7 @@ const packages = [
             { text: 'Sokongan prioriti', included: true },
         ],
         ctaText: 'Pilih Bisnes',
-        ctaLink: '/auth/register?package=business',
+        ctaLink: '/create',
         ctaStyle: 'secondary',
     },
 ];
