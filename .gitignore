@@ -7,3 +7,7 @@ Thumbs.db
 .mf/
 *.sqlite
 *.sqlite-journal
+
+# Environment variables
+.env*.local
+.env

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/lib/supabase/client';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -76,30 +77,23 @@ export default function LoginPage() {
         setLoadingText('Penyambungan dengan Google...');
 
         try {
-            // Initialize Supabase if available
-            const w = window as any;
-            if (w.supabase) {
-                const { data, error } = await w.supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: {
-                        redirectTo: `${window.location.origin}/auth/callback`
-                    }
-                });
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/api/auth/oauth-callback`
+                }
+            });
 
-                if (error) throw error;
-            } else {
-                setError('Google OAuth tidak tersedia.');
-                setIsLoadingOverlay(false);
-                setLoading(false);
-            }
+            if (error) throw error;
         } catch (error) {
-            setError('Ralat Google OAuth.');
+            console.error('Google login error:', error);
+            setError('Ralat Google OAuth. Sila cuba lagi.');
             setIsLoadingOverlay(false);
             setLoading(false);
         }
     };
 
-return (
+    return (
         <div className="auth-page">
             <div className="auth-container">
                 {/* Logo */}
