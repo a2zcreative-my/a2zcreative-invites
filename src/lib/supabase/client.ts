@@ -8,7 +8,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(
-    supabaseUrl || '',
-    supabaseAnonKey || ''
-);
+// Provide fallback values for build time to prevent "supabaseUrl is required" error
+// The client checks significantly rely on these being present at runtime in the browser
+const url = supabaseUrl || 'https://placeholder.supabase.co';
+const key = supabaseAnonKey || 'placeholder-key';
+
+export const supabase = createClient(url, key);
