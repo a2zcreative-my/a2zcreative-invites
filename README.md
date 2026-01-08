@@ -84,3 +84,5 @@ Multi-Purpose Digital Invitation & Attendance Management Platform
 
 ## License
 MIT © A2Z Creative Enterprise
+
+<!-- Trigger rebuild -->

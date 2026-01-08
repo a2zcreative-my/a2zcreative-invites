@@ -49,9 +49,11 @@ export default function Navbar({ customLinks }: NavbarProps) {
                 if (response.ok) {
                     const data: any = await response.json();
                     if (data.authenticated && data.user) {
+                        console.log('Navbar auth fetched:', data.user);
                         setUser(data.user);
                         // Update localStorage with fresh data
                         localStorage.setItem('a2z_user', JSON.stringify(data.user));
+
                     } else {
                         setUser(null);
                         localStorage.removeItem('a2z_user');
@@ -76,11 +78,14 @@ export default function Navbar({ customLinks }: NavbarProps) {
     };
 
     const displayName = user?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
+    console.log('Navbar displayName:', displayName);
     const avatarChar = displayName ? displayName.split(' ').map((n: string) => n.charAt(0).toUpperCase()).join('').slice(0, 2) : (user?.email?.charAt(0).toUpperCase() || 'U');
     const showCta = !pathname?.startsWith('/create') && !pathname?.startsWith('/pricing');
 
     // Role-based dashboard URL
     const getDashboardUrl = () => {
+        console.log('Navbar role:', user?.role);
+
         if (user?.role === 'super_admin') return '/dashboard/godeyes';
         if (user?.role === 'admin') return '/dashboard/admin';
         return '/dashboard';
