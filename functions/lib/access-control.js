@@ -1,58 +1,45 @@
 /**
  * Access Control Middleware
  * Checks payment status and feature access for protected endpoints
+ * 
+ * IMPORTANT: Uses packageRules.js as the single source of truth.
+ * Never duplicate package rules here.
  */
 
-// Package feature definitions
-const PACKAGE_FEATURES = {
-    free: {
-        maxGuests: 10,
-        maxViews: 50,
-        maxRsvps: 10,
-        qr: false,
-        checkin: false,
-        export: false,
-        customSlug: false,
-        watermark: true
-    },
-    basic: {
-        maxGuests: 100,
-        maxViews: 500,
-        maxRsvps: 100,
-        qr: true,
-        checkin: false,
-        export: false,
-        customSlug: false,
-        watermark: false
-    },
-    premium: {
-        maxGuests: 300,
-        maxViews: 2000,
-        maxRsvps: 300,
-        qr: true,
-        checkin: true,
-        export: true,
-        customSlug: true,
-        watermark: false
-    },
-    business: {
-        maxGuests: 1000,
-        maxViews: 10000,
-        maxRsvps: 1000,
-        qr: true,
-        checkin: true,
-        export: true,
-        customSlug: true,
-        watermark: false
+import { PACKAGE_RULES, parseFeatures, hasFeature } from './packageRules.js';
+
+/**
+ * Get package features by package ID
+ * Falls back to free tier if package not found
+ */
+function getPackageFeatures(packageId) {
+    const pkg = PACKAGE_RULES[packageId];
+    if (!pkg) {
+        return {
+            guestLimit: PACKAGE_RULES.free.guestLimit,
+            viewLimit: PACKAGE_RULES.free.viewLimit,
+            watermark: PACKAGE_RULES.free.watermark,
+            ...PACKAGE_RULES.free.features
+        };
     }
-};
+    return {
+        guestLimit: pkg.guestLimit,
+        viewLimit: pkg.viewLimit,
+        watermark: pkg.watermark,
+        ...pkg.features
+    };
+}
 
 /**
  * Check if user has access to a specific feature for an event
+ * @param {object} env - Environment with DB binding
+ * @param {number} eventId - Event ID
+ * @param {string|null} feature - Feature to check (qr, qrScanner, exportCsv, etc.)
+ * @returns {Promise<object>} Access check result
  */
 export async function checkAccess(env, eventId, feature = null) {
     try {
-        // Get event access record
+        // Get event access record with all relevant data
         const access = await env.DB.prepare(`
             SELECT 
                 ea.*,
@@ -63,9 +50,9 @@ export async function checkAccess(env, eventId, feature = null) {
             WHERE ea.event_id = ?
         `).bind(eventId).first();
 
-        // No access record = free tier
+        // No access record = fall back to free tier defaults
         if (!access) {
-            const freeFeatures = PACKAGE_FEATURES.free;
+            const freeFeatures = getPackageFeatures('free');
 
             // Check feature access for free tier
             if (feature) {
@@ -80,16 +67,29 @@ export async function checkAccess(env, eventId, feature = null) {
                 tier: 'free',
                 features: freeFeatures,
                 limits: {
-                    maxGuests: freeFeatures.maxGuests,
-                    maxViews: freeFeatures.maxViews,
-                    maxRsvps: freeFeatures.maxRsvps
+                    maxGuests: freeFeatures.guestLimit,
+                    maxViews: freeFeatures.viewLimit,
+                    guestLimit: freeFeatures.guestLimit,
+                    viewLimit: freeFeatures.viewLimit
                 },
                 isPaid: false
             };
         }
 
         const packageId = access.package_id || 'free';
-        const features = PACKAGE_FEATURES[packageId] || PACKAGE_FEATURES.free;
+        
+        // Parse features from features_json (authoritative source from DB)
+        const featuresFromDb = parseFeatures(access.features_json);
+        
+        // Merge with package defaults for any missing features
+        const packageDefaults = getPackageFeatures(packageId);
+        const features = {
+            ...packageDefaults,
+            ...featuresFromDb,
+            // Always use DB values for limits if present
+            guestLimit: access.guest_limit ?? access.max_guests ?? packageDefaults.guestLimit,
+            viewLimit: access.view_limit ?? access.max_views ?? packageDefaults.viewLimit
+        };
 
         // Check if payment is verified
         const isPaid = access.paid_at !== null;
@@ -117,14 +117,17 @@ export async function checkAccess(env, eventId, feature = null) {
             tier: packageId,
             features: features,
             limits: {
-                maxGuests: access.max_guests,
-                maxViews: access.max_views,
-                maxRsvps: access.max_rsvps,
-                currentGuests: access.current_guests,
-                currentViews: access.current_views,
-                currentRsvps: access.current_rsvps
+                maxGuests: features.guestLimit,
+                maxViews: features.viewLimit,
+                guestLimit: features.guestLimit,
+                viewLimit: features.viewLimit,
+                currentGuests: access.guest_count ?? access.current_guests ?? 0,
+                currentViews: access.view_count ?? access.current_views ?? 0,
+                guestCount: access.guest_count ?? access.current_guests ?? 0,
+                viewCount: access.view_count ?? access.current_views ?? 0
             },
             isPaid: isPaid,
+            hasWatermark: access.has_watermark === 1,
             expiresAt: access.expires_at
         };
 
@@ -140,6 +143,7 @@ export async function checkAccess(env, eventId, feature = null) {
 
 /**
  * Check access to a specific feature
+ * Uses features_json from event_access as the source of truth
  */
 function checkFeatureAccess(feature, packageId, features, access) {
     switch (feature) {
@@ -155,50 +159,88 @@ function checkFeatureAccess(feature, packageId, features, access) {
             }
             break;
 
+        case 'qrScanner':
         case 'checkin':
-            if (!features.checkin) {
+            if (!features.qrScanner) {
                 return {
                     allowed: false,
-                    reason: 'Check-in requires Premium package or higher',
-                    reasonMs: 'Check-in memerlukan pakej Premium atau lebih tinggi',
+                    reason: 'QR Scanner requires Popular package or higher',
+                    reasonMs: 'Pengimbas QR memerlukan pakej Popular atau lebih tinggi',
                     code: 'UPGRADE_REQUIRED',
-                    requiredPackage: 'premium'
+                    requiredPackage: 'popular'
                 };
             }
             break;
 
+        case 'exportCsv':
         case 'export':
-            if (!features.export) {
+            if (!features.exportCsv) {
                 return {
                     allowed: false,
-                    reason: 'Export requires Premium package or higher',
-                    reasonMs: 'Eksport memerlukan pakej Premium atau lebih tinggi',
+                    reason: 'CSV Export requires Popular package or higher',
+                    reasonMs: 'Eksport CSV memerlukan pakej Popular atau lebih tinggi',
                     code: 'UPGRADE_REQUIRED',
-                    requiredPackage: 'premium'
+                    requiredPackage: 'popular'
+                };
+            }
+            break;
+
+        case 'multipleEvents':
+            if (!features.multipleEvents) {
+                return {
+                    allowed: false,
+                    reason: 'Multiple events requires Business package',
+                    reasonMs: 'Majlis berganda memerlukan pakej Bisnes',
+                    code: 'UPGRADE_REQUIRED',
+                    requiredPackage: 'business'
                 };
             }
             break;
 
         case 'guests':
-            if (access && access.current_guests >= access.max_guests) {
+            // Check guest count limit
+            const guestCount = access?.guest_count ?? access?.current_guests ?? 0;
+            const guestLimit = features.guestLimit;
+            if (guestCount >= guestLimit) {
                 return {
                     allowed: false,
-                    reason: `Guest limit reached (${access.max_guests})`,
-                    reasonMs: `Had tetamu dicapai (${access.max_guests})`,
+                    reason: `Guest limit reached (${guestLimit})`,
+                    reasonMs: `Had tetamu dicapai (${guestLimit})`,
                     code: 'LIMIT_REACHED',
-                    limit: access.max_guests
+                    limit: guestLimit,
+                    current: guestCount
+                };
+            }
+            break;
+
+        case 'views':
+            // Check view count limit
+            const viewCount = access?.view_count ?? access?.current_views ?? 0;
+            const viewLimit = features.viewLimit;
+            if (viewCount >= viewLimit) {
+                return {
+                    allowed: false,
+                    reason: `View limit reached (${viewLimit})`,
+                    reasonMs: `Had paparan dicapai (${viewLimit})`,
+                    code: 'LIMIT_REACHED',
+                    limit: viewLimit,
+                    current: viewCount
                 };
             }
             break;
 
         case 'rsvp':
-            if (access && access.current_rsvps >= access.max_rsvps) {
+            // Alias for guests check
+            const rsvpGuestCount = access?.guest_count ?? access?.current_guests ?? 0;
+            const rsvpGuestLimit = features.guestLimit;
+            if (rsvpGuestCount >= rsvpGuestLimit) {
                 return {
                     allowed: false,
-                    reason: `RSVP limit reached (${access.max_rsvps})`,
-                    reasonMs: `Had RSVP dicapai (${access.max_rsvps})`,
+                    reason: `RSVP limit reached (${rsvpGuestLimit})`,
+                    reasonMs: `Had RSVP dicapai (${rsvpGuestLimit})`,
                     code: 'LIMIT_REACHED',
-                    limit: access.max_rsvps
+                    limit: rsvpGuestLimit,
+                    current: rsvpGuestCount
                 };
             }
             break;
@@ -208,22 +250,25 @@ function checkFeatureAccess(feature, packageId, features, access) {
 }
 
 /**
- * Increment usage counter
+ * Increment usage counter (for backwards compatibility)
+ * Note: For atomic enforcement, use direct UPDATE with WHERE condition instead
  */
 export async function incrementUsage(env, eventId, field) {
     const columnMap = {
-        guests: 'current_guests',
-        views: 'current_views',
-        rsvps: 'current_rsvps'
+        guests: ['guest_count', 'current_guests'],
+        views: ['view_count', 'current_views'],
+        rsvps: ['guest_count', 'current_guests'] // rsvps alias to guests
     };
 
-    const column = columnMap[field];
-    if (!column) return;
+    const columns = columnMap[field];
+    if (!columns) return;
 
     try {
+        // Update both old and new column names for compatibility
         await env.DB.prepare(`
             UPDATE event_access 
-            SET ${column} = ${column} + 1,
+            SET ${columns[0]} = ${columns[0]} + 1,
+                ${columns[1]} = ${columns[1]} + 1,
                 updated_at = CURRENT_TIMESTAMP
             WHERE event_id = ?
         `).bind(eventId).run();
@@ -255,25 +300,56 @@ export async function logAudit(env, action, details = {}) {
 }
 
 /**
- * Create initial free access for new event
+ * Create initial access record for new event
+ * Uses packageRules as the source of truth
  */
-export async function createFreeAccess(env, eventId) {
+export async function createEventAccess(env, eventId, packageId) {
+    const pkg = PACKAGE_RULES[packageId] || PACKAGE_RULES.free;
+    const featuresJson = JSON.stringify(pkg.features);
+    const isPaid = pkg.autoPublish;
+
     try {
-        await env.DB.prepare(`
-            INSERT OR IGNORE INTO event_access (event_id, package_id, package_name, max_guests, max_views, max_rsvps)
-            VALUES (?, 'free', 'Free Trial', 10, 50, 10)
-        `).bind(eventId).run();
+        if (isPaid) {
+            await env.DB.prepare(`
+                INSERT OR IGNORE INTO event_access (
+                    event_id, package_id, 
+                    guest_limit, view_limit, has_watermark, features_json,
+                    max_guests, max_views,
+                    paid_at, guest_count, view_count, current_guests, current_views
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 0, 0, 0, 0)
+            `).bind(
+                eventId, packageId,
+                pkg.guestLimit, pkg.viewLimit, pkg.watermark ? 1 : 0, featuresJson,
+                pkg.guestLimit, pkg.viewLimit
+            ).run();
+        } else {
+            await env.DB.prepare(`
+                INSERT OR IGNORE INTO event_access (
+                    event_id, package_id,
+                    guest_limit, view_limit, has_watermark, features_json,
+                    max_guests, max_views,
+                    paid_at, guest_count, view_count, current_guests, current_views
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, 0, 0, 0)
+            `).bind(
+                eventId, packageId,
+                pkg.guestLimit, pkg.viewLimit, pkg.watermark ? 1 : 0, featuresJson,
+                pkg.guestLimit, pkg.viewLimit
+            ).run();
+        }
     } catch (error) {
-        console.error('Create free access error:', error);
+        console.error('Create event access error:', error);
     }
 }
 
 /**
  * Upgrade event access after payment
+ * Uses packageRules as the source of truth
  */
 export async function upgradeAccess(env, eventId, packageId, paymentOrderId) {
-    const pkg = PACKAGE_FEATURES[packageId];
+    const pkg = PACKAGE_RULES[packageId];
     if (!pkg) throw new Error('Invalid package');
+
+    const featuresJson = JSON.stringify(pkg.features);
 
     // Calculate expiry (30 days after event date or 90 days from now)
     const event = await env.DB.prepare(`
@@ -293,15 +369,20 @@ export async function upgradeAccess(env, eventId, packageId, paymentOrderId) {
 
     await env.DB.prepare(`
         INSERT INTO event_access (
-            event_id, payment_order_id, package_id, package_name,
+            event_id, payment_order_id, package_id,
+            guest_limit, view_limit, has_watermark, features_json,
             max_guests, max_views, max_rsvps,
             qr_enabled, checkin_enabled, export_enabled, custom_slug, remove_watermark,
-            paid_at, activated_at, expires_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)
+            paid_at, activated_at, expires_at,
+            guest_count, view_count, current_guests, current_views
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, 0, 0, 0, 0)
         ON CONFLICT(event_id) DO UPDATE SET
             payment_order_id = excluded.payment_order_id,
             package_id = excluded.package_id,
-            package_name = excluded.package_name,
+            guest_limit = excluded.guest_limit,
+            view_limit = excluded.view_limit,
+            has_watermark = excluded.has_watermark,
+            features_json = excluded.features_json,
             max_guests = excluded.max_guests,
             max_views = excluded.max_views,
             max_rsvps = excluded.max_rsvps,
@@ -318,15 +399,23 @@ export async function upgradeAccess(env, eventId, packageId, paymentOrderId) {
         eventId,
         paymentOrderId,
         packageId,
-        packageId.charAt(0).toUpperCase() + packageId.slice(1),
-        pkg.maxGuests,
-        pkg.maxViews,
-        pkg.maxRsvps,
-        pkg.qr ? 1 : 0,
-        pkg.checkin ? 1 : 0,
-        pkg.export ? 1 : 0,
-        pkg.customSlug ? 1 : 0,
-        pkg.watermark ? 0 : 1,
+        pkg.guestLimit,
+        pkg.viewLimit,
+        pkg.watermark ? 1 : 0,
+        featuresJson,
+        pkg.guestLimit,
+        pkg.viewLimit,
+        pkg.guestLimit, // max_rsvps = guest_limit
+        pkg.features.qr ? 1 : 0,
+        pkg.features.qrScanner ? 1 : 0,
+        pkg.features.exportCsv ? 1 : 0,
+        0, // custom_slug - not in current requirements
+        pkg.watermark ? 0 : 1, // remove_watermark is inverse
         expiresAt
     ).run();
+
+    // Also update event status to published
+    await env.DB.prepare(`
+        UPDATE events SET status = 'published' WHERE id = ?
+    `).bind(eventId).run();
 }

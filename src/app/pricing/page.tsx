@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Check, X, Sparkles, LayoutDashboard, PlusCircle, LogOut } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
 
@@ -39,7 +40,7 @@ const packages = [
         ctaStyle: 'secondary',
     },
     {
-        name: 'Premium',
+        name: 'Popular',
         desc: 'Paling popular untuk majlis perkahwinan',
         price: 'RM99',
         period: 'sekali bayar',
@@ -51,8 +52,8 @@ const packages = [
             { text: 'Check-in QR scanner', included: true },
             { text: 'Eksport CSV', included: true },
         ],
-        ctaText: 'Pilih Premium',
-        ctaLink: '/create?package=premium',
+        ctaText: 'Pilih Popular',
+        ctaLink: '/create?package=popular',
         ctaStyle: 'primary',
     },
     {
@@ -196,12 +197,8 @@ export default function PricingPage() {
                     <div className="section-header">
                         <span className="section-label">
                             <Sparkles size={14} style={{ marginRight: '6px' }} />
-                            Harga
+                            Pakej
                         </span>
-                        <h2 className="section-title">Pakej Berpatutan</h2>
-                        <p className="section-description">
-                            Pilih pakej yang sesuai untuk majlis anda. Sekali bayar, tiada yuran tersembunyi.
-                        </p>
                     </div>
 
                     <div className="pricing-grid-landing">

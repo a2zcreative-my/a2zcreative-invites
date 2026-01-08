@@ -51,69 +51,69 @@ export async function createSession(db, userId) {
  * @returns {Promise<{valid: boolean, user?: object, newToken?: string, newTokenExpiry?: string}>}
  */
 export async function validateSession(db, token) {
-     if (!token) {
-         return { valid: false };
-     }
+    if (!token) {
+        return { valid: false };
+    }
 
-     try {
-         const result = await db.prepare(`
+    try {
+        const result = await db.prepare(`
              SELECT s.*, u.id as user_id, u.name, u.email, u.role
              FROM sessions s
              JOIN users u ON s.user_id = u.id
              WHERE s.token = ? AND s.expires_at > CURRENT_TIMESTAMP
          `).bind(token).first();
 
-         if (!result) {
-             return { valid: false };
-         }
+        if (!result) {
+            return { valid: false };
+        }
 
-         // CRITICAL SECURITY FIX: Implement token rotation
-         // Generate a new token and invalidate the old one
-         // This prevents session hijacking from stolen tokens
-         const newToken = generateSessionToken();
-         const expiresAt = new Date();
-         expiresAt.setHours(expiresAt.getHours() + SESSION_DURATION_HOURS);
+        // CRITICAL SECURITY FIX: Implement token rotation
+        // Generate a new token and invalidate the old one
+        // This prevents session hijacking from stolen tokens
+        const newToken = generateSessionToken();
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + SESSION_DURATION_HOURS);
 
-         // Delete old token and create new one in a transaction
-         try {
-             await db.batch([
-                 db.prepare('DELETE FROM sessions WHERE token = ?').bind(token),
-                 db.prepare(`
+        // Delete old token and create new one in a transaction
+        try {
+            await db.batch([
+                db.prepare('DELETE FROM sessions WHERE token = ?').bind(token),
+                db.prepare(`
                      INSERT INTO sessions (user_id, token, expires_at)
                      VALUES (?, ?, ?)
                  `).bind(result.user_id, newToken, expiresAt.toISOString())
-             ]);
+            ]);
 
-             return {
-                 valid: true,
-                 user: {
-                     id: result.user_id,
-                     name: result.name,
-                     email: result.email,
-                     role: result.role
-                 },
-                 // Return new token so client can update cookie
-                 newToken: newToken,
-                 newTokenExpiry: expiresAt.toISOString()
-             };
-         } catch (rotationError) {
-             console.error('Session rotation error:', rotationError);
-             // Session is still valid, just rotation failed
-             // Return the old user info without rotation
-             return {
-                 valid: true,
-                 user: {
-                     id: result.user_id,
-                     name: result.name,
-                     email: result.email,
-                     role: result.role
-                 }
-             };
-         }
-     } catch (error) {
-         console.error('Session validation error:', error);
-         return { valid: false };
-     }
+            return {
+                valid: true,
+                user: {
+                    id: result.user_id,
+                    name: result.name,
+                    email: result.email,
+                    role: result.role
+                },
+                // Return new token so client can update cookie
+                newToken: newToken,
+                newTokenExpiry: expiresAt.toISOString()
+            };
+        } catch (rotationError) {
+            console.error('Session rotation error:', rotationError);
+            // Session is still valid, just rotation failed
+            // Return the old user info without rotation
+            return {
+                valid: true,
+                user: {
+                    id: result.user_id,
+                    name: result.name,
+                    email: result.email,
+                    role: result.role
+                }
+            };
+        }
+    } catch (error) {
+        console.error('Session validation error:', error);
+        return { valid: false };
+    }
 }
 
 /**
@@ -132,7 +132,7 @@ export async function getCurrentUser(db, request) {
     }
 
     const session = await validateSession(db, token);
-    return session.valid ? session.user : null;
+    return session;
 }
 
 /**

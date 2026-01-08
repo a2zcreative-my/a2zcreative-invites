@@ -10,7 +10,7 @@ export async function onRequestPost(context) {
     const db = env.DB;
 
     try {
-        const { email, password } = await request.json();
+        const { email, password, redirect: customRedirect } = await request.json();
 
         if (!email || !password) {
             return new Response(JSON.stringify({
@@ -61,16 +61,20 @@ export async function onRequestPost(context) {
         // Create session
         const session = await createSession(db, user.id);
 
-        // Determine redirect based on role
+        // Determine redirect - prioritize custom redirect from login page
         let redirect = '/pricing/';  // Default for 'user' role
 
-        if (user.role === 'super_admin') {
+        // If custom redirect was provided (e.g., from /create?package=basic), use it
+        if (customRedirect && customRedirect.startsWith('/')) {
+            // Security: Only allow internal redirects (starting with /)
+            redirect = customRedirect;
+        } else if (user.role === 'super_admin') {
             redirect = '/admin/';
         } else if (user.role === 'admin') {
             // Paid users go to dashboard
             redirect = '/dashboard/';
         }
-        // 'user' role stays at /pricing/
+        // 'user' role without custom redirect stays at /pricing/
 
         // Prepare safe user object (never include password)
         const safeUser = {

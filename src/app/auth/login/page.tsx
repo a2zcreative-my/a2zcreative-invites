@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 
-export default function LoginPage() {
+function LoginContent() {
+    const searchParams = useSearchParams();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -13,10 +15,13 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [isLoadingOverlay, setIsLoadingOverlay] = useState(false);
     const [loadingText, setLoadingText] = useState('Menyegerakkan akaun...');
+    
+    // Get redirect URL from query parameter
+    const redirectUrl = searchParams.get('redirect') || '';
 
     useEffect(() => {
         checkSession();
-    }, []);
+    }, [redirectUrl]);
 
     const checkSession = async () => {
         try {
@@ -26,8 +31,10 @@ export default function LoginPage() {
 
             if (response.ok) {
                 const data = await response.json() as any;
-                if (data.authenticated && data.redirect) {
-                    window.location.href = data.redirect;
+                if (data.authenticated) {
+                    // If already logged in, redirect to the intended destination or default
+                    const destination = redirectUrl || data.redirect || '/pricing/';
+                    window.location.href = destination;
                 }
             }
         } catch (error) {
@@ -45,7 +52,7 @@ export default function LoginPage() {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, redirect: redirectUrl }),
                 credentials: 'include'
             });
 
@@ -59,7 +66,7 @@ export default function LoginPage() {
             }
 
             if (data?.redirect) {
-                setLoadingText(data?.message || 'Penjawaban log masuk berjaya...');
+                setLoadingText(data?.message || 'Log masuk berjaya...');
                 setTimeout(() => {
                     window.location.href = data?.redirect;
                 }, 1000);
@@ -77,6 +84,11 @@ export default function LoginPage() {
         setLoadingText('Penyambungan dengan Google...');
 
         try {
+            // Store redirect URL in sessionStorage for callback to use
+            if (redirectUrl) {
+                sessionStorage.setItem('a2z_redirect', redirectUrl);
+            }
+            
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
@@ -212,5 +224,17 @@ export default function LoginPage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="auth-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+                <Loader2 className="animate-spin" size={48} style={{ color: 'var(--brand-gold)' }} />
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }

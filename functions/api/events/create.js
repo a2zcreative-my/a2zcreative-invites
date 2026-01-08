@@ -1,25 +1,36 @@
 /**
  * Event Create API
  * POST /api/events/create - Create a new event draft
+ * 
+ * SECURITY: Uses packageRules.js as single source of truth
+ * Package IDs: free | basic | popular | business
  */
 
 import { getCurrentUser } from '../../lib/session.js';
+import { 
+    getPackageOrThrow, 
+    validateEventTypeForPackage,
+    getFeaturesJson,
+    VALID_PACKAGE_IDS,
+    canCreateMultipleEvents
+} from '../../lib/packageRules.js';
 
-// Strict Plan Availability Rules (Must match frontend)
-const PLAN_AVAILABILITY = {
-    wedding: ['free', 'basic', 'premium'],
-    birthday: ['free', 'basic', 'premium'],
-    family: ['free', 'basic', 'premium'],
-    business: ['free', 'basic', 'business'],
-    community: ['free', 'basic', 'business']
+// Event type mapping (frontend ID -> DB event_type_id)
+const EVENT_TYPE_MAPPING = {
+    wedding: 1,
+    birthday: 4,
+    family: 3,
+    business: 2,
+    community: 5
 };
 
-// Plan Entitlements (Server-side 'Truth')
-const PLAN_ENTITLEMENTS = {
-    free: { guest_limit: 10, view_limit: 50, has_watermark: 1 },
-    basic: { guest_limit: 100, view_limit: 500, has_watermark: 0 },
-    premium: { guest_limit: 300, view_limit: 2000, has_watermark: 0 },
-    business: { guest_limit: 1000, view_limit: 10000, has_watermark: 0 }
+// Event type name mapping for validation
+const EVENT_TYPE_NAMES = {
+    wedding: 'Perkahwinan',
+    birthday: 'Hari Lahir',
+    family: 'Keluarga',
+    business: 'Bisnes',
+    community: 'Komuniti'
 };
 
 export async function onRequestPost(context) {
@@ -27,7 +38,9 @@ export async function onRequestPost(context) {
     const db = env.DB;
 
     // 1. Auth Check
-    const user = await getCurrentUser(db, request);
+    const sessionResult = await getCurrentUser(db, request);
+    const user = sessionResult?.valid ? sessionResult.user : null;
+
     if (!user) {
         return new Response(JSON.stringify({
             success: false,
@@ -57,29 +70,80 @@ export async function onRequestPost(context) {
         }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // 3. Strict Rule Enforcement
-    const allowedPlans = PLAN_AVAILABILITY[eventType];
-    if (!allowedPlans) {
+    // 3. Validate packageId (MUST be one of: free|basic|popular|business)
+    if (!VALID_PACKAGE_IDS.includes(planId)) {
+        return new Response(JSON.stringify({
+            success: false,
+            error: `Pakej tidak sah: "${planId}". Pakej yang sah: ${VALID_PACKAGE_IDS.join(', ')}`
+        }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    // Get package rules (single source of truth)
+    let pkg;
+    try {
+        pkg = getPackageOrThrow(planId);
+    } catch (error) {
+        return new Response(JSON.stringify({
+            success: false,
+            error: error.message
+        }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    // 4. Validate event type exists
+    const eventTypeId = EVENT_TYPE_MAPPING[eventType];
+    if (!eventTypeId) {
         return new Response(JSON.stringify({
             success: false,
             error: 'Jenis majlis tidak sah'
         }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    if (!allowedPlans.includes(planId)) {
+    // 5. Validate event type is allowed for this package
+    const eventTypeName = EVENT_TYPE_NAMES[eventType];
+    const eventTypeValidation = validateEventTypeForPackage(planId, eventTypeName);
+    if (!eventTypeValidation.valid) {
         return new Response(JSON.stringify({
             success: false,
-            error: `Pakej '${planId}' tidak tersedia untuk majlis '${eventType}'`
+            error: eventTypeValidation.error
         }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // 4. Generate Draft Slug (Temporary)
-    // Use random string + timestamp to ensure uniqueness
+    // 6. Check multiple events restriction
+    if (!canCreateMultipleEvents(planId)) {
+        try {
+            const activeEventCount = await db.prepare(`
+                SELECT COUNT(*) as count 
+                FROM events 
+                WHERE created_by = ? 
+                AND status IN ('draft', 'pending_payment', 'published', 'active')
+                AND deleted_at IS NULL
+            `).bind(user.id).first();
+
+            if (activeEventCount && activeEventCount.count >= 1) {
+                return new Response(JSON.stringify({
+                    success: false,
+                    error: 'Pakej anda hanya membenarkan 1 majlis aktif. Sila naik taraf ke pakej Bisnes untuk majlis berganda.',
+                    code: 'MULTIPLE_EVENTS_NOT_ALLOWED',
+                    upgradeRequired: 'business'
+                }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+            }
+        } catch (error) {
+            console.error('Multiple events check error:', error);
+        }
+    }
+
+    // 7. Generate Draft Slug
     const randomStr = crypto.randomUUID().split('-')[0];
     const slug = `draft-${randomStr}-${Date.now()}`;
 
+    // 8. Server-derived values from package rules
+    const hasWatermark = pkg.watermark ? 1 : 0;
+    const guestLimit = pkg.guestLimit;
+    const viewLimit = pkg.viewLimit;
+    const featuresJson = getFeaturesJson(planId);
+
     try {
-        // 5. Create Event (Draft Status)
+        // 9. Create Event (Draft Status)
         const result = await db.prepare(`
             INSERT INTO events (
                 event_name,
@@ -90,45 +154,61 @@ export async function onRequestPost(context) {
                 created_at
             ) VALUES (?, ?, ?, ?, 'draft', CURRENT_TIMESTAMP)
         `).bind(
-            'Majlis Baru', // Default name
+            'Majlis Baru',
             slug,
-            eventType,
+            eventTypeId,
             user.id
         ).run();
 
         const eventId = result.meta?.last_row_id;
         if (!eventId) throw new Error('Failed to create event record');
 
-        // 6. Set Entitlements in event_access
-        const limits = PLAN_ENTITLEMENTS[planId];
+        // 10. Set Entitlements in event_access (using packageRules as source of truth)
         await db.prepare(`
             INSERT INTO event_access (
                 event_id,
                 package_id,
                 guest_limit,
                 view_limit,
-                has_watermark
-            ) VALUES (?, ?, ?, ?, ?)
+                has_watermark,
+                features_json,
+                max_guests,
+                max_views,
+                guest_count,
+                view_count,
+                current_guests,
+                current_views
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0)
         `).bind(
             eventId,
             planId,
-            limits.guest_limit,
-            limits.view_limit,
-            limits.has_watermark
+            guestLimit,
+            viewLimit,
+            hasWatermark,
+            featuresJson,
+            guestLimit,
+            viewLimit
         ).run();
 
-        // 7. Initialize Metadata (Empty but ready)
+        // 11. Initialize Metadata
         await db.prepare(`
-            INSERT INTO event_metadata (event_id) VALUES (?)
-        `).bind(eventId).run();
+            INSERT INTO event_metadata (event_id, has_watermark) VALUES (?, ?)
+        `).bind(eventId, hasWatermark).run();
 
-        // 8. Audit Log
+        // 12. Audit Log
         await db.prepare(`
             INSERT INTO audit_logs (event_id, action, details, ip_address)
             VALUES (?, 'event_created', ?, ?)
         `).bind(
             eventId,
-            JSON.stringify({ userId: user.id, planId, eventType }),
+            JSON.stringify({ 
+                userId: user.id, 
+                planId, 
+                eventType,
+                guestLimit,
+                viewLimit,
+                hasWatermark
+            }),
             request.headers.get('CF-Connecting-IP') || 'unknown'
         ).run();
 
@@ -136,7 +216,13 @@ export async function onRequestPost(context) {
             success: true,
             eventId,
             slug,
-            redirect: `/dashboard/edit/${slug}` // Future proofing
+            package: planId,
+            limits: {
+                guests: guestLimit,
+                views: viewLimit
+            },
+            hasWatermark: hasWatermark === 1,
+            redirect: `/dashboard/edit/${slug}`
         }), {
             status: 201,
             headers: { 'Content-Type': 'application/json' }

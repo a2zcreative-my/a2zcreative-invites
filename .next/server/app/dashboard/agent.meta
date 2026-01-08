@@ -3,14 +3,5 @@
     "x-nextjs-stale-time": "300",
     "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/dashboard/layout,_N_T_/dashboard/agent/layout,_N_T_/dashboard/agent/page,_N_T_/dashboard/agent/"
-  },
-  "segmentPaths": [
-    "/_tree",
-    "/_full",
-    "/dashboard/agent/__PAGE__",
-    "/dashboard/agent",
-    "/dashboard",
-    "/_index",
-    "/_head"
-  ]
+  }
 }

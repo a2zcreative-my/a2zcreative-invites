@@ -125,10 +125,13 @@ export async function onRequestPost(context) {
 
         const userId = result.meta.last_row_id;
 
-        // Create session for auto-login
-        const session = await createSession(db, userId);
+        const validSession = await createSession(db, userId);
+        const cookieValue = createSessionCookie(validSession.token, validSession.expiresAt);
 
-        // Return success with session cookie
+        const headers = new Headers();
+        headers.set('Content-Type', 'application/json');
+        headers.set('Set-Cookie', cookieValue);
+
         return new Response(JSON.stringify({
             success: true,
             message: "Akaun berjaya didaftarkan!",
@@ -141,10 +144,7 @@ export async function onRequestPost(context) {
             }
         }), {
             status: 201,
-            headers: {
-                'Content-Type': 'application/json',
-                'Set-Cookie': createSessionCookie(session.token, session.expiresAt)
-            }
+            headers: headers
         });
 
     } catch (error) {

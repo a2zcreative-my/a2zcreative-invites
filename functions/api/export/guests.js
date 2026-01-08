@@ -34,13 +34,16 @@ export async function onRequestGet(context) {
         return errorResponse(rateCheck.message, 429, 'RATE_LIMITED');
     }
 
-    // Check access - export requires premium
-    const accessCheck = await checkAccess(env, eventId, 'export');
+    // Check access - CSV export requires Popular package or higher
+    // Uses features_json from event_access as source of truth
+    const accessCheck = await checkAccess(env, eventId, 'exportCsv');
     if (!accessCheck.allowed) {
         return new Response(JSON.stringify({
             error: accessCheck.reasonMs || accessCheck.reason,
+            errorEn: accessCheck.reason,
             code: accessCheck.code,
-            requiredPackage: accessCheck.requiredPackage
+            requiredPackage: accessCheck.requiredPackage,
+            upgradeMessage: 'Sila naik taraf ke pakej Popular atau lebih tinggi untuk mengeksport data'
         }), {
             status: 403,
             headers: { 'Content-Type': 'application/json' }

@@ -3,14 +3,5 @@
     "x-nextjs-stale-time": "300",
     "x-nextjs-prerender": "1",
     "x-next-cache-tags": "_N_T_/layout,_N_T_/inv/layout,_N_T_/inv/[slug]/layout,_N_T_/inv/[slug]/page,_N_T_/inv/demo-korporat/"
-  },
-  "segmentPaths": [
-    "/_tree",
-    "/_full",
-    "/inv/$d$slug/__PAGE__",
-    "/inv/$d$slug",
-    "/inv",
-    "/_index",
-    "/_head"
-  ]
+  }
 }

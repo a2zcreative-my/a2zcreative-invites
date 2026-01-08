@@ -4,20 +4,22 @@ import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Check, Heart, Building2, Users, Cake, TreePine, ArrowRight, Loader2 } from 'lucide-react';
+import LandingBackground from '../../components/landing/LandingBackground';
+import Navbar from '../../components/Navbar';
 
 // --- CONFIGURATION CONSTANTS ---
 const EVENT_TYPES = [
-    { id: 'wedding', label: 'Perkahwinan', icon: Heart, description: 'Tema romantik & elegan' },
-    { id: 'birthday', label: 'Hari Jadi', icon: Cake, description: 'Ceria & menyeronokkan' },
-    { id: 'family', label: 'Keluarga', icon: Users, description: 'Reunion & kenduri' },
-    { id: 'business', label: 'Korporat', icon: Building2, description: 'Profesional & rasmi' },
-    { id: 'community', label: 'Komuniti', icon: TreePine, description: 'Persatuan & kelab' }
+    { id: 'wedding', label: 'Perkahwinan', icon: Heart, description: 'Tema romantik dengan RSVP, ucapan tetamu, dan galeri foto.' },
+    { id: 'birthday', label: 'Hari Jadi', icon: Cake, description: 'Tema ceria untuk sambutan ulang tahun yang meriah.' },
+    { id: 'family', label: 'Keluarga', icon: Users, description: 'Kenduri, aqiqah, reunion — kumpul keluarga dengan mudah.' },
+    { id: 'business', label: 'Korporat', icon: Building2, description: 'Seminar, AGM, majlis makan malam syarikat dengan daftar masuk QR.' },
+    { id: 'community', label: 'Komuniti', icon: TreePine, description: 'Gotong-royong, hari sukan, atau aktiviti kemasyarakatan.' }
 ];
 
 const PLANS: Record<string, { name: string; price: string; allowedEvents: string[] }> = {
     free: { name: 'Percuma', price: 'RM0', allowedEvents: ['wedding', 'birthday', 'family', 'business', 'community'] },
     basic: { name: 'Asas', price: 'RM49', allowedEvents: ['wedding', 'birthday', 'family', 'business', 'community'] },
-    premium: { name: 'Premium', price: 'RM99', allowedEvents: ['wedding', 'birthday', 'family'] },
+    popular: { name: 'Popular', price: 'RM99', allowedEvents: ['wedding', 'birthday', 'family'] },
     business: { name: 'Bisnes', price: 'RM199', allowedEvents: ['business', 'community'] }
 };
 
@@ -30,47 +32,33 @@ function CreateEventContent() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [user, setUser] = useState<any>(null);
-    const [authChecked, setAuthChecked] = useState(false);
 
     // Get package from URL query parameter
     const selectedPackage = searchParams.get('package') || 'free';
     const planInfo = PLANS[selectedPackage] || PLANS.free;
 
-    // Auth Check
+    // Auth Check - Non-blocking, just to pre-fetch user info
     useEffect(() => {
         const checkAuth = async () => {
-            const storedUser = localStorage.getItem('a2z_user');
-            if (storedUser) {
-                try {
-                    setUser(JSON.parse(storedUser));
-                    setAuthChecked(true);
-                    return;
-                } catch (e) {
-                    localStorage.removeItem('a2z_user');
-                }
-            }
-
             try {
-                const res = await fetch('/api/auth/session', { credentials: 'include' });
+                const res = await fetch('/api/auth/me', {
+                    headers: { 'Cache-Control': 'no-store' },
+                    credentials: 'include'
+                });
+
                 if (res.ok) {
-                    const data = await res.json() as any;
-                    if (data.authenticated && data.user) {
+                    const data = await res.json();
+                    if (data.authenticated) {
                         setUser(data.user);
-                        localStorage.setItem('a2z_user', JSON.stringify(data.user));
-                        setAuthChecked(true);
-                        return;
                     }
                 }
             } catch (e) {
                 console.error('Session check failed:', e);
             }
-
-            const currentUrl = `/create?package=${selectedPackage}`;
-            router.push(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`);
         };
 
         checkAuth();
-    }, [router, selectedPackage]);
+    }, [selectedPackage]);
 
     const allowedEventTypes = EVENT_TYPES.filter(type =>
         planInfo.allowedEvents.includes(type.id)
@@ -95,6 +83,11 @@ function CreateEventContent() {
             if (response.ok && data.success) {
                 router.push(data.redirect || '/dashboard?new=true');
             } else {
+                if (response.status === 401) {
+                    localStorage.removeItem('a2z_user');
+                    window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                    return;
+                }
                 throw new Error(data.error || 'Gagal mencipta jemputan');
             }
         } catch (err: any) {
@@ -104,106 +97,123 @@ function CreateEventContent() {
         }
     };
 
-    if (!authChecked) {
-        return (
-            <div className="landing-page flex items-center justify-center min-h-screen">
-                <Loader2 className="animate-spin text-white" size={48} />
-            </div>
-        );
-    }
-
     return (
-        <div className="landing-page min-h-screen pb-20">
-            <nav className="nav scrolled" style={{ background: 'rgba(2, 6, 23, 0.95)' }}>
-                <div className="nav-container">
-                    <Link href="/" className="nav-logo flex items-center gap-2 no-underline">
-                        <img src="/logo.png" alt="A2Z" height="32" />
-                        <span className="logo-text-gradient text-xl">A2ZCreative</span>
-                    </Link>
-                    <div className="nav-links">
-                        <Link href="/pricing" className="nav-link text-sm">Tukar Pakej</Link>
-                    </div>
-                </div>
-            </nav>
+        <LandingBackground>
+            <div className="landing-page h-screen flex flex-col relative overflow-y-auto">
+                <Navbar />
 
-            <div className="container pt-32">
-                <div className="text-center mb-8">
-                    <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand-gold)]/10 border border-[var(--brand-gold)]/30 rounded-full text-[var(--brand-gold)] text-sm">
-                        <Check size={16} />
-                        Pakej Dipilih: <strong>{planInfo.name}</strong> ({planInfo.price})
-                    </span>
-                </div>
+                <div className="flex-grow flex flex-col justify-center items-center w-full px-4 pt-32 pb-24">
+                    <div className="w-full max-w-6xl">
 
-                {error && (
-                    <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-center">
-                        {error}
-                    </div>
-                )}
+                        {/* Package Badge */}
+                        <div className="text-center mb-8">
+                            <span className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand-gold)]/10 border border-[var(--brand-gold)]/30 rounded-full text-[var(--brand-gold)] text-sm">
+                                <Check size={16} />
+                                Pakej Dipilih: <strong>{planInfo.name}</strong> ({planInfo.price})
+                            </span>
+                        </div>
 
-                <div className="max-w-5xl mx-auto">
-                    <div className="text-center mb-10">
-                        <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">Apakah jenis majlis anda?</h1>
-                        <p className="text-slate-400">Pilih jenis majlis yang sesuai dengan pakej <span className="text-[var(--brand-gold)]">{planInfo.name}</span> anda.</p>
-                    </div>
+                        {error && (
+                            <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-center">
+                                {error}
+                            </div>
+                        )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {allowedEventTypes.map((type) => {
-                            const Icon = type.icon;
-                            const isSelected = eventType === type.id;
-                            return (
-                                <div
-                                    key={type.id}
-                                    onClick={() => setEventType(type.id)}
-                                    className={`cursor-pointer group relative p-6 rounded-2xl border transition-all duration-300
-                                        ${isSelected
-                                            ? 'bg-[var(--brand-gold)]/10 border-[var(--brand-gold)] shadow-[0_0_30px_rgba(255,215,0,0.15)]'
-                                            : 'bg-slate-900/40 border-slate-800 hover:border-slate-600 hover:bg-slate-800/60'
-                                        }`}
-                                >
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors
-                                        ${isSelected ? 'bg-[var(--brand-gold)] text-black' : 'bg-slate-800 text-slate-300 group-hover:text-white'}`}>
-                                        <Icon size={24} />
-                                    </div>
-                                    <h3 className={`text-lg font-bold mb-2 ${isSelected ? 'text-[var(--brand-gold)]' : 'text-white'}`}>
-                                        {type.label}
-                                    </h3>
-                                    <p className="text-sm text-slate-400">{type.description}</p>
-
-                                    {isSelected && (
-                                        <div className="absolute top-4 right-4">
-                                            <div className="bg-[var(--brand-gold)] text-black rounded-full p-1">
-                                                <Check size={12} strokeWidth={3} />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {allowedEventTypes.length < EVENT_TYPES.length && (
-                        <p className="text-center text-slate-500 text-sm mt-6">
-                            Beberapa jenis majlis tidak tersedia untuk pakej {planInfo.name}.
-                            <Link href="/pricing" className="text-[var(--brand-gold)] ml-1 hover:underline">Tukar pakej</Link>
-                        </p>
-                    )}
-
-                    <div className="mt-12 flex justify-center">
-                        <button
-                            disabled={!eventType || loading}
-                            onClick={handleCreateEvent}
-                            className={`flex items-center gap-2 px-8 py-4 rounded-full font-bold transition-all
-                                ${eventType && !loading
-                                    ? 'bg-[var(--brand-gold)] text-[var(--bg-base)] hover:scale-105 shadow-[0_0_20px_rgba(255,215,0,0.3)]'
-                                    : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                                }`}
+                        {/* Glass Cards Grid - 3 columns on desktop, 2 on tablet, 1 on mobile */}
+                        <div
+                            className="event-grid"
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(3, 1fr)',
+                                gap: '1.5rem',
+                                maxWidth: '1100px',
+                                margin: '0 auto'
+                            }}
                         >
-                            {loading ? <Loader2 size={18} className="animate-spin" /> : <>Cipta Jemputan <ArrowRight size={18} /></>}
-                        </button>
+                            {allowedEventTypes.map((type) => {
+                                const Icon = type.icon;
+                                const isSelected = eventType === type.id;
+                                return (
+                                    <div
+                                        key={type.id}
+                                        onClick={() => setEventType(type.id)}
+                                        className={`event-card cursor-pointer ${isSelected ? 'selected' : ''}`}
+                                        style={{
+                                            position: 'relative',
+                                            ...(isSelected ? {
+                                                borderColor: 'var(--brand-gold)',
+                                                boxShadow: '0 0 30px rgba(212, 175, 55, 0.25)'
+                                            } : {})
+                                        }}
+                                    >
+                                        {/* Icon Wrap with glassmorphism */}
+                                        <div
+                                            className="event-icon-wrap"
+                                            style={isSelected ? {
+                                                borderColor: 'rgba(212, 175, 55, 0.5)',
+                                                boxShadow: '0 0 20px rgba(212, 175, 55, 0.3)'
+                                            } : {}}
+                                        >
+                                            <Icon
+                                                className="event-icon"
+                                                style={isSelected ? {
+                                                    color: 'var(--brand-gold)',
+                                                    filter: 'drop-shadow(0 0 12px rgba(212, 175, 55, 0.5))'
+                                                } : {}}
+                                            />
+                                        </div>
+
+                                        <h3 className="event-name" style={isSelected ? { color: 'var(--brand-gold)' } : {}}>
+                                            {type.label}
+                                        </h3>
+                                        <p className="event-desc">{type.description}</p>
+
+                                        {/* Selection checkmark */}
+                                        {isSelected && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: '1rem',
+                                                right: '1rem',
+                                                width: '28px',
+                                                height: '28px',
+                                                background: 'var(--brand-gold)',
+                                                borderRadius: '50%',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                boxShadow: '0 0 15px rgba(212, 175, 55, 0.4)'
+                                            }}>
+                                                <Check size={16} strokeWidth={3} color="var(--bg-base)" />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {allowedEventTypes.length < EVENT_TYPES.length && (
+                            <p className="text-center text-slate-500 text-sm mt-6">
+                                Beberapa jenis majlis tidak tersedia untuk pakej {planInfo.name}.
+                                <Link href="/pricing" className="text-[var(--brand-gold)] ml-1 hover:underline">Tukar pakej</Link>
+                            </p>
+                        )}
+
+                        {/* CTA Button - Only show when event type is selected */}
+                        {eventType && (
+                            <div className="mt-12 flex justify-center">
+                                <button
+                                    disabled={loading}
+                                    onClick={handleCreateEvent}
+                                    className="flex items-center gap-2 px-8 py-4 rounded-full font-bold transition-all bg-[var(--brand-gold)] text-[var(--bg-base)] hover:scale-105 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+                                >
+                                    {loading ? <Loader2 size={18} className="animate-spin" /> : <>Cipta Jemputan <ArrowRight size={18} /></>}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-        </div>
+        </LandingBackground>
     );
 }
 

@@ -1,15 +1,15 @@
 {
-  "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/auth/callback/page": "app/auth/callback/page.js",
-  "/auth/forgot-password/page": "app/auth/forgot-password/page.js",
-  "/auth/login/page": "app/auth/login/page.js",
-  "/auth/register/page": "app/auth/register/page.js",
-  "/auth/reset-password/page": "app/auth/reset-password/page.js",
-  "/dashboard/admin/page": "app/dashboard/admin/page.js",
+  "/create/page": "app/create/page.js",
+  "/pricing/page": "app/pricing/page.js",
+  "/page": "app/page.js",
+  "/inv/[slug]/page": "app/inv/[slug]/page.js",
   "/dashboard/agent/page": "app/dashboard/agent/page.js",
   "/dashboard/godeyes/page": "app/dashboard/godeyes/page.js",
-  "/inv/[slug]/page": "app/inv/[slug]/page.js",
-  "/page": "app/page.js",
-  "/pricing/page": "app/pricing/page.js"
+  "/auth/register/page": "app/auth/register/page.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/auth/reset-password/page": "app/auth/reset-password/page.js",
+  "/dashboard/admin/page": "app/dashboard/admin/page.js",
+  "/auth/callback/page": "app/auth/callback/page.js",
+  "/auth/forgot-password/page": "app/auth/forgot-password/page.js"
 }

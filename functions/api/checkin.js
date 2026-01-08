@@ -47,13 +47,16 @@ export async function onRequestPost(context) {
             });
         }
 
-        // Check if check-in is enabled for this event
-        const accessCheck = await checkAccess(env, guest.event_id, 'checkin');
+        // Check if QR scanner/check-in is enabled for this event
+        // Uses features_json from event_access as source of truth
+        const accessCheck = await checkAccess(env, guest.event_id, 'qrScanner');
         if (!accessCheck.allowed) {
             return new Response(JSON.stringify({
                 error: accessCheck.reasonMs || accessCheck.reason,
+                errorEn: accessCheck.reason,
                 code: accessCheck.code,
-                requiredPackage: accessCheck.requiredPackage
+                requiredPackage: accessCheck.requiredPackage,
+                upgradeMessage: 'Sila naik taraf ke pakej Popular atau lebih tinggi untuk menggunakan pengimbas QR'
             }), {
                 status: 403,
                 headers: { 'Content-Type': 'application/json' }

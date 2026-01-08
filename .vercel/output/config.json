@@ -1,0 +1,164 @@
+{
+  "version": 3,
+  "routes": [
+    {
+      "src": "/_next/__private/trace",
+      "dest": "/404",
+      "status": 404,
+      "continue": true
+    },
+    {
+      "src": "/404/?",
+      "status": 404,
+      "continue": true
+    },
+    {
+      "src": "^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/]+\\.\\w+))/$",
+      "headers": {
+        "Location": "/$1"
+      },
+      "status": 308,
+      "missing": [
+        {
+          "type": "header",
+          "key": "x-nextjs-data"
+        }
+      ]
+    },
+    {
+      "src": "^(?:/((?!\\.well-known(?:/.*)?)(?:[^/]+/)*[^/\\.]+))$",
+      "headers": {
+        "Location": "/$1/"
+      },
+      "status": 308
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/_next/data/(.*)",
+      "dest": "/_next/data/$1",
+      "check": true
+    },
+    {
+      "src": "/_next/data/(.*)",
+      "status": 404
+    },
+    {
+      "handle": "resource"
+    },
+    {
+      "src": "/.*",
+      "status": 404
+    },
+    {
+      "handle": "miss"
+    },
+    {
+      "src": "/_next/static/.+",
+      "status": 404,
+      "check": true,
+      "dest": "/_next/static/not-found.txt",
+      "headers": {
+        "content-type": "text/plain; charset=utf-8"
+      }
+    },
+    {
+      "handle": "hit"
+    },
+    {
+      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|WV4vdRM1UFUABM6cLwA\\-y)/.+",
+      "headers": {
+        "cache-control": "public,max-age=31536000,immutable"
+      },
+      "continue": true,
+      "important": true
+    },
+    {
+      "handle": "error"
+    },
+    {
+      "status": 404,
+      "src": ".*",
+      "dest": "/404"
+    }
+  ],
+  "overrides": {
+    "404.html": {
+      "path": "404",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "404/index.html": {
+      "path": "404/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "auth/callback/index.html": {
+      "path": "auth/callback/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "auth/forgot-password/index.html": {
+      "path": "auth/forgot-password/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "auth/login/index.html": {
+      "path": "auth/login/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "auth/register/index.html": {
+      "path": "auth/register/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "auth/reset-password/index.html": {
+      "path": "auth/reset-password/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "create/index.html": {
+      "path": "create/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "dashboard/admin/index.html": {
+      "path": "dashboard/admin/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "dashboard/agent/index.html": {
+      "path": "dashboard/agent/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "dashboard/godeyes/index.html": {
+      "path": "dashboard/godeyes/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "index.html": {
+      "path": "index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "inv/demo-hari-jadi/index.html": {
+      "path": "inv/demo-hari-jadi/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "inv/demo-keluarga/index.html": {
+      "path": "inv/demo-keluarga/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "inv/demo-komuniti/index.html": {
+      "path": "inv/demo-komuniti/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "inv/demo-korporat/index.html": {
+      "path": "inv/demo-korporat/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "inv/demo-perkahwinan/index.html": {
+      "path": "inv/demo-perkahwinan/index",
+      "contentType": "text/html; charset=utf-8"
+    },
+    "pricing/index.html": {
+      "path": "pricing/index",
+      "contentType": "text/html; charset=utf-8"
+    }
+  },
+  "framework": {
+    "version": "15.4.10"
+  },
+  "crons": []
+}

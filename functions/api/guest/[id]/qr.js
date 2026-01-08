@@ -31,14 +31,17 @@ export async function onRequestGet(context) {
             return errorResponse('No check-in token available for this guest', 400);
         }
 
-        // Check if QR is enabled for this event
+        // Check if QR code generation is enabled for this event
+        // Uses features_json from event_access as source of truth
         const accessCheck = await checkAccess(env, guest.event_id, 'qr');
         if (!accessCheck.allowed) {
             return new Response(JSON.stringify({
                 error: accessCheck.reasonMs || accessCheck.reason,
+                errorEn: accessCheck.reason,
                 code: accessCheck.code,
                 requiredPackage: accessCheck.requiredPackage,
-                upgradeUrl: `/pricing/?event_id=${guest.event_id}`
+                upgradeUrl: `/pricing/?event_id=${guest.event_id}`,
+                upgradeMessage: 'Sila naik taraf ke pakej Asas atau lebih tinggi untuk menggunakan kod QR'
             }), {
                 status: 403,
                 headers: { 'Content-Type': 'application/json' }
