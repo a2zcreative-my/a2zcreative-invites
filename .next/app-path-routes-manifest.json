@@ -1,15 +1,15 @@
 {
   "/_not-found/page": "/_not-found",
   "/create/page": "/create",
-  "/pricing/page": "/pricing",
   "/page": "/",
-  "/inv/[slug]/page": "/inv/[slug]",
+  "/pricing/page": "/pricing",
+  "/dashboard/admin/page": "/dashboard/admin",
   "/dashboard/agent/page": "/dashboard/agent",
+  "/inv/[slug]/page": "/inv/[slug]",
   "/dashboard/godeyes/page": "/dashboard/godeyes",
-  "/auth/register/page": "/auth/register",
+  "/auth/callback/page": "/auth/callback",
   "/auth/login/page": "/auth/login",
   "/auth/reset-password/page": "/auth/reset-password",
-  "/dashboard/admin/page": "/dashboard/admin",
-  "/auth/callback/page": "/auth/callback",
+  "/auth/register/page": "/auth/register",
   "/auth/forgot-password/page": "/auth/forgot-password"
 }

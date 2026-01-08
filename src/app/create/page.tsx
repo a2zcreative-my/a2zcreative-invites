@@ -99,10 +99,13 @@ function CreateEventContent() {
 
     return (
         <LandingBackground>
-            <div className="landing-page h-screen flex flex-col relative overflow-y-auto">
+            <div className="landing-page relative">
                 <Navbar />
 
-                <div className="flex-grow flex flex-col justify-center items-center w-full px-4 pt-32 pb-24">
+                <section
+                    className="pricing flex flex-col items-center w-full px-4 pb-24"
+                    style={{ paddingTop: '120px', minHeight: '100vh' }}
+                >
                     <div className="w-full max-w-6xl">
 
                         {/* Package Badge */}
@@ -211,9 +214,9 @@ function CreateEventContent() {
                             </div>
                         )}
                     </div>
-                </div>
+                </section>
             </div>
-        </LandingBackground>
+        </LandingBackground >
     );
 }
 
