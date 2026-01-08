@@ -131,19 +131,25 @@ export default function CreateEventPage() {
         setError('');
 
         try {
-            // In a real app, we would POST to API here to create the event draft.
-            // For now, we simulate success and would redirect to an editor or dashboard.
-            console.log('Creating event:', { eventType, planId, user: user?.email });
+            const response = await fetch('/api/events/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventType, planId }),
+                credentials: 'include' // Important: Send session cookie
+            });
 
-            // Mock API delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const data = await response.json() as any;
 
-            // Redirect to dashboard (or editor in future)
-            router.push('/dashboard?new=true');
+            if (response.ok && data.success) {
+                // Redirect to dashboard or editor
+                router.push(data.redirect || '/dashboard?new=true');
+            } else {
+                throw new Error(data.error || 'Gagal mencipta jemputan');
+            }
 
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError('Gagal mencipta jemputan. Sila cuba lagi.');
+            setError(err.message || 'Gagal mencipta jemputan. Sila cuba lagi.');
             setLoading(false);
         }
     };
