@@ -1,0 +1,2 @@
+# Rewrite all /inv/* to /inv/index.html (200 OK)
+/inv/*  /inv/index.html  200

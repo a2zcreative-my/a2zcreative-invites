@@ -6,32 +6,21 @@
  * Package IDs: free | basic | popular | business
  */
 
-import { getCurrentUser } from '../../lib/session.js';
-import { 
-    getPackageOrThrow, 
+import { getCurrentUser, createSessionCookie } from '../../lib/session.js';
+import {
+    getPackageOrThrow,
     validateEventTypeForPackage,
     getFeaturesJson,
     VALID_PACKAGE_IDS,
     canCreateMultipleEvents
 } from '../../lib/packageRules.js';
+import {
+    EVENT_TYPES,
+    VALID_EVENT_TYPE_KEYS,
+    getEventTypeId,
+    getEventTypeName
+} from '../../lib/eventConfig.js';
 
-// Event type mapping (frontend ID -> DB event_type_id)
-const EVENT_TYPE_MAPPING = {
-    wedding: 1,
-    birthday: 4,
-    family: 3,
-    business: 2,
-    community: 5
-};
-
-// Event type name mapping for validation
-const EVENT_TYPE_NAMES = {
-    wedding: 'Perkahwinan',
-    birthday: 'Hari Lahir',
-    family: 'Keluarga',
-    business: 'Bisnes',
-    community: 'Komuniti'
-};
 
 export async function onRequestPost(context) {
     const { request, env } = context;
@@ -89,17 +78,17 @@ export async function onRequestPost(context) {
         }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // 4. Validate event type exists
-    const eventTypeId = EVENT_TYPE_MAPPING[eventType];
+    // 4. Validate event type exists (using shared eventConfig)
+    const eventTypeId = getEventTypeId(eventType);
     if (!eventTypeId) {
         return new Response(JSON.stringify({
             success: false,
-            error: 'Jenis majlis tidak sah'
+            error: `Jenis majlis tidak sah: "${eventType}". Jenis yang sah: ${VALID_EVENT_TYPE_KEYS.join(', ')}`
         }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // 5. Validate event type is allowed for this package
-    const eventTypeName = EVENT_TYPE_NAMES[eventType];
+    // 5. Validate event type is allowed for this package (name from shared eventConfig)
+    const eventTypeName = getEventTypeName(eventType);
     const eventTypeValidation = validateEventTypeForPackage(planId, eventTypeName);
     if (!eventTypeValidation.valid) {
         return new Response(JSON.stringify({
@@ -108,8 +97,9 @@ export async function onRequestPost(context) {
         }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // 6. Check multiple events restriction
-    if (!canCreateMultipleEvents(planId)) {
+    // 6. Check multiple events restriction - LIMIT ONLY APPLIES TO FREE TIER
+    // Paid packages (Basic/Popular/Business) can always create new events (Pay Per Event model)
+    if (planId === 'free') {
         try {
             const activeEventCount = await db.prepare(`
                 SELECT COUNT(*) as count 
@@ -122,9 +112,9 @@ export async function onRequestPost(context) {
             if (activeEventCount && activeEventCount.count >= 1) {
                 return new Response(JSON.stringify({
                     success: false,
-                    error: 'Pakej anda hanya membenarkan 1 majlis aktif. Sila naik taraf ke pakej Bisnes untuk majlis berganda.',
-                    code: 'MULTIPLE_EVENTS_NOT_ALLOWED',
-                    upgradeRequired: 'business'
+                    error: 'Pakej Percuma terhad kepada 1 majlis sahaja. Sila pilih pakej berbayar untuk majlis seterusnya.',
+                    code: 'FREE_TIER_LIMIT_REACHED',
+                    upgradeRequired: 'basic'
                 }), { status: 403, headers: { 'Content-Type': 'application/json' } });
             }
         } catch (error) {
@@ -143,7 +133,9 @@ export async function onRequestPost(context) {
     const featuresJson = getFeaturesJson(planId);
 
     try {
-        // 9. Create Event (Draft Status)
+        // 9. Create Event (Draft Status) - event_date is required by schema, use placeholder
+        const placeholderDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
         const result = await db.prepare(`
             INSERT INTO events (
                 event_name,
@@ -151,13 +143,15 @@ export async function onRequestPost(context) {
                 event_type_id,
                 created_by,
                 status,
+                event_date,
                 created_at
-            ) VALUES (?, ?, ?, ?, 'draft', CURRENT_TIMESTAMP)
+            ) VALUES (?, ?, ?, ?, 'draft', ?, CURRENT_TIMESTAMP)
         `).bind(
             'Majlis Baru',
             slug,
             eventTypeId,
-            user.id
+            user.id,
+            placeholderDate
         ).run();
 
         const eventId = result.meta?.last_row_id;
@@ -201,9 +195,9 @@ export async function onRequestPost(context) {
             VALUES (?, 'event_created', ?, ?)
         `).bind(
             eventId,
-            JSON.stringify({ 
-                userId: user.id, 
-                planId, 
+            JSON.stringify({
+                userId: user.id,
+                planId,
                 eventType,
                 guestLimit,
                 viewLimit,
@@ -211,6 +205,12 @@ export async function onRequestPost(context) {
             }),
             request.headers.get('CF-Connecting-IP') || 'unknown'
         ).run();
+
+        // 13. Return Success Response (with optional session refresh)
+        const headers = { 'Content-Type': 'application/json' };
+        if (sessionResult?.newToken) {
+            headers['Set-Cookie'] = createSessionCookie(sessionResult.newToken, sessionResult.newTokenExpiry);
+        }
 
         return new Response(JSON.stringify({
             success: true,
@@ -222,10 +222,10 @@ export async function onRequestPost(context) {
                 views: viewLimit
             },
             hasWatermark: hasWatermark === 1,
-            redirect: `/dashboard/edit/${slug}`
+            redirect: `/dashboard/edit/${slug}` // Redirect to dashboard edit
         }), {
             status: 201,
-            headers: { 'Content-Type': 'application/json' }
+            headers: headers
         });
 
     } catch (error) {

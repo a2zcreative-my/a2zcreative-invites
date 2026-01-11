@@ -33,12 +33,60 @@
   },
   "dynamicRoutes": [
     {
-      "page": "/inv/[slug]",
-      "regex": "^/inv/([^/]+?)(?:/)?$",
+      "page": "/create/agenda/[type]",
+      "regex": "^/create/agenda/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtype": "nxtPtype"
+      },
+      "namedRegex": "^/create/agenda/(?<nxtPtype>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/create/contact/[type]",
+      "regex": "^/create/contact/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtype": "nxtPtype"
+      },
+      "namedRegex": "^/create/contact/(?<nxtPtype>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/create/form/[type]",
+      "regex": "^/create/form/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtype": "nxtPtype"
+      },
+      "namedRegex": "^/create/form/(?<nxtPtype>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/create/gift/[type]",
+      "regex": "^/create/gift/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtype": "nxtPtype"
+      },
+      "namedRegex": "^/create/gift/(?<nxtPtype>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/create/preview/[type]",
+      "regex": "^/create/preview/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtype": "nxtPtype"
+      },
+      "namedRegex": "^/create/preview/(?<nxtPtype>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/create/theme/[type]",
+      "regex": "^/create/theme/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtype": "nxtPtype"
+      },
+      "namedRegex": "^/create/theme/(?<nxtPtype>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/inv/[[...slug]]",
+      "regex": "^/inv(?:/(.+?))?(?:/)?$",
       "routeKeys": {
         "nxtPslug": "nxtPslug"
       },
-      "namedRegex": "^/inv/(?<nxtPslug>[^/]+?)(?:/)?$"
+      "namedRegex": "^/inv(?:/(?<nxtPslug>.+?))?(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -85,10 +133,22 @@
       "namedRegex": "^/auth/reset\\-password(?:/)?$"
     },
     {
+      "page": "/calendar-demo",
+      "regex": "^/calendar\\-demo(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/calendar\\-demo(?:/)?$"
+    },
+    {
       "page": "/create",
       "regex": "^/create(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/create(?:/)?$"
+    },
+    {
+      "page": "/create/payment",
+      "regex": "^/create/payment(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/create/payment(?:/)?$"
     },
     {
       "page": "/dashboard/admin",
@@ -113,6 +173,12 @@
       "regex": "^/pricing(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/pricing(?:/)?$"
+    },
+    {
+      "page": "/style-guide",
+      "regex": "^/style\\-guide(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/style\\-guide(?:/)?$"
     }
   ],
   "dataRoutes": [],

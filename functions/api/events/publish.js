@@ -9,15 +9,21 @@
  * - Limits and features derived from packageRules, not client input
  */
 
-import { getCurrentUser } from '../../lib/session.js';
-import { 
-    getPackageOrThrow, 
-    validateEventTypeForPackage, 
+import { getCurrentUser, createSessionCookie } from '../../lib/session.js';
+import {
+    getPackageOrThrow,
+    validateEventTypeForPackage,
     getFeaturesJson,
     getEventStatus,
     VALID_PACKAGE_IDS,
     canCreateMultipleEvents
 } from '../../lib/packageRules.js';
+import {
+    EVENT_TYPES,
+    getEventTypeById,
+    EVENT_TYPE_ID_TO_KEY,
+    validatePublishFields
+} from '../../lib/eventConfig.js';
 
 export async function onRequestPost(context) {
     const { request, env } = context;
@@ -154,6 +160,38 @@ export async function onRequestPost(context) {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
+    }
+
+    // ===========================================
+    // STEP 3.5: Validate publish required fields based on event type
+    // ===========================================
+    const eventTypeKey = EVENT_TYPE_ID_TO_KEY[eventType];
+    if (eventTypeKey) {
+        // Build validation data object from the request payload
+        const validationData = {
+            groom_name: hostName1,
+            bride_name: hostName2,
+            celebrant_name: hostName1,
+            host_name: hostName1,
+            company_name: hostName1,
+            organizer_name: hostName1,
+            event_title: inviteTitle,
+            event_date: eventDate,
+            event_time: startTime,
+            location: venueName
+        };
+
+        const publishValidation = validatePublishFields(eventTypeKey, validationData);
+        if (!publishValidation.valid) {
+            return new Response(JSON.stringify({
+                success: false,
+                error: publishValidation.error,
+                missingFields: publishValidation.missingFields
+            }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
     }
 
     // ===========================================
@@ -363,9 +401,9 @@ export async function onRequestPost(context) {
             VALUES (?, 'event_created', ?, ?)
         `).bind(
             eventId,
-            JSON.stringify({ 
-                userId: user.id, 
-                slug, 
+            JSON.stringify({
+                userId: user.id,
+                slug,
                 packageId,
                 eventTypeName,
                 guestLimit,
@@ -375,6 +413,13 @@ export async function onRequestPost(context) {
             }),
             request.headers.get('CF-Connecting-IP') || 'unknown'
         ).run();
+
+        // Return Success Response (with optional session refresh)
+        const headers = { 'Content-Type': 'application/json' };
+        if (sessionResult?.newToken) {
+            headers['Set-Cookie'] = createSessionCookie(sessionResult.newToken, sessionResult.newTokenExpiry);
+            headers['X-Session-Refreshed'] = 'true';
+        }
 
         return new Response(JSON.stringify({
             success: true,
@@ -393,7 +438,7 @@ export async function onRequestPost(context) {
                 : 'Jemputan disimpan. Menunggu pembayaran.'
         }), {
             status: 201,
-            headers: { 'Content-Type': 'application/json' }
+            headers: headers
         });
 
     } catch (error) {

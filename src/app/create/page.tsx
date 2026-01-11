@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Check, Heart, Building2, Users, Cake, TreePine, ArrowRight, Loader2 } from 'lucide-react';
 import LandingBackground from '../../components/landing/LandingBackground';
 import Navbar from '../../components/Navbar';
+import GlassCard from '../../components/ui/GlassCard';
 
 // --- CONFIGURATION CONSTANTS ---
 const EVENT_TYPES = [
@@ -37,7 +38,7 @@ function CreateEventContent() {
     const selectedPackage = searchParams.get('package') || 'free';
     const planInfo = PLANS[selectedPackage] || PLANS.free;
 
-    // Auth Check - Non-blocking, just to pre-fetch user info
+    // Auth Check - BLOCKING: Redirect unauthenticated users immediately
     useEffect(() => {
         const checkAuth = async () => {
             try {
@@ -48,12 +49,23 @@ function CreateEventContent() {
 
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.authenticated) {
+                    if (data.authenticated && data.user) {
                         setUser(data.user);
+                    } else {
+                        // Not authenticated - redirect to login
+                        console.log('Not authenticated, redirecting to login...');
+                        localStorage.removeItem('a2z_user');
+                        window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
                     }
+                } else {
+                    // API error - redirect to login
+                    console.error('Auth API error:', res.status);
+                    localStorage.removeItem('a2z_user');
+                    window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
                 }
             } catch (e) {
                 console.error('Session check failed:', e);
+                // Network error - still try to show page, let create handle auth
             }
         };
 
@@ -81,18 +93,31 @@ function CreateEventContent() {
             const data = await response.json() as any;
 
             if (response.ok && data.success) {
-                router.push(data.redirect || '/dashboard?new=true');
+                // Redirect to the event-specific setup form
+                router.push(`/create/form/${eventType}?slug=${data.slug}&package=${selectedPackage}`);
             } else {
+                // Handle authentication errors - always redirect to login
                 if (response.status === 401) {
+                    console.error('Auth failed - clearing session and redirecting...');
                     localStorage.removeItem('a2z_user');
+                    // Force full redirect to ensure clean state
                     window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
                     return;
                 }
-                throw new Error(data.error || 'Gagal mencipta jemputan');
+                // Show specific error from server (including details for debugging)
+                const errorMsg = data.details
+                    ? `${data.error || 'Error'}: ${data.details}`
+                    : (data.error || `Ralat (${response.status}): Gagal mencipta jemputan`);
+                throw new Error(errorMsg);
             }
         } catch (err: any) {
-            console.error(err);
-            setError(err.message || 'Gagal mencipta jemputan. Sila cuba lagi.');
+            console.error('Create event error:', err);
+            // Check if it's a network error vs API error
+            if (err.message.includes('fetch')) {
+                setError('Ralat rangkaian. Sila periksa sambungan internet anda.');
+            } else {
+                setError(err.message || 'Gagal mencipta jemputan. Sila cuba lagi.');
+            }
             setLoading(false);
         }
     };
@@ -125,111 +150,68 @@ function CreateEventContent() {
                             </div>
                         )}
 
-                        {/* Glass Cards Grid - 3 columns on desktop, 2 on tablet, 1 on mobile */}
-                        <div
-                            className="event-grid"
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(3, 1fr)',
-                                gap: '1.5rem',
-                                maxWidth: '1100px',
-                                margin: '0 auto'
-                            }}
-                        >
+                        {/* Glass Cards Grid - Standardized to use UI components */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                             {allowedEventTypes.map((type) => {
                                 const Icon = type.icon;
                                 const isSelected = eventType === type.id;
                                 return (
-                                    <div
+                                    <GlassCard
                                         key={type.id}
+                                        variant={isSelected ? 'featured' : 'default'}
+                                        padding="md"
                                         onClick={() => {
                                             if (eventType === type.id) {
-                                                // Second click on same card - trigger creation
                                                 handleCreateEvent();
                                             } else {
-                                                // First click - select the card
                                                 setEventType(type.id);
                                             }
                                         }}
-                                        className={`event-card cursor-pointer ${isSelected ? 'selected' : ''}`}
-                                        style={{
-                                            position: 'relative',
-                                            ...(isSelected ? {
-                                                borderColor: 'var(--brand-gold)',
-                                                boxShadow: '0 0 30px rgba(212, 175, 55, 0.25)'
-                                            } : {})
-                                        }}
+                                        className={`
+                                            cursor-pointer transition-all duration-300
+                                            hover:border-white/30 hover:bg-slate-900/50
+                                            ${isSelected ? 'scale-[1.02] ring-1 ring-[var(--brand-gold)]' : 'hover:-translate-y-1'}
+                                        `}
                                     >
-                                        {/* Icon Wrap with glassmorphism */}
-                                        <div
-                                            className="event-icon-wrap"
-                                            style={isSelected ? {
-                                                borderColor: 'rgba(212, 175, 55, 0.5)',
-                                                boxShadow: '0 0 20px rgba(212, 175, 55, 0.3)'
-                                            } : {}}
-                                        >
-                                            <Icon
-                                                className="event-icon"
-                                                style={isSelected ? {
-                                                    color: 'var(--brand-gold)',
-                                                    filter: 'drop-shadow(0 0 12px rgba(212, 175, 55, 0.5))'
-                                                } : {}}
-                                            />
+                                        <div className="flex flex-col items-center text-center gap-4">
+                                            {/* Icon */}
+                                            <div className={`
+                                                p-4 rounded-2xl transition-all duration-300
+                                                ${isSelected
+                                                    ? 'bg-[var(--brand-gold)]/10 text-[var(--brand-gold)] shadow-[0_0_20px_rgba(212,175,55,0.2)]'
+                                                    : 'bg-white/5 text-slate-400 group-hover:text-white'
+                                                }
+                                            `}>
+                                                <Icon size={32} strokeWidth={1.5} />
+                                            </div>
+
+                                            {/* Text */}
+                                            <div>
+                                                <h3 className={`text-xl font-bold mb-2 ${isSelected ? 'text-[var(--brand-gold)]' : 'text-white'}`}>
+                                                    {type.label}
+                                                </h3>
+                                                <p className="text-sm text-slate-400 leading-relaxed">
+                                                    {type.description}
+                                                </p>
+                                            </div>
+
+                                            {/* Selection Indicator */}
+                                            {isSelected && (
+                                                <div className="absolute top-4 right-4 animate-in zoom-in duration-300">
+                                                    <div className="bg-[var(--brand-gold)] rounded-full p-1 shadow-lg shadow-[var(--brand-gold)]/20">
+                                                        <Check size={14} className="text-black stroke-[3]" />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Double Click Hint */}
+                                            {isSelected && (
+                                                <div className="mt-2 text-xs font-medium text-[var(--brand-gold)] bg-[var(--brand-gold)]/10 px-3 py-1.5 rounded-full animate-pulse border border-[var(--brand-gold)]/20">
+                                                    👆 Klik sekali lagi untuk teruskan
+                                                </div>
+                                            )}
                                         </div>
-
-                                        <h3 className="event-name" style={isSelected ? { color: 'var(--brand-gold)' } : {}}>
-                                            {type.label}
-                                        </h3>
-                                        <p className="event-desc">{type.description}</p>
-
-                                        {/* Selection checkmark with pulse animation */}
-                                        {isSelected && (
-                                            <>
-                                                <div
-                                                    className="pulse-ring"
-                                                    style={{
-                                                        position: 'absolute',
-                                                        top: '1rem',
-                                                        right: '1rem',
-                                                        width: '28px',
-                                                        height: '28px',
-                                                        background: 'var(--brand-gold)',
-                                                        borderRadius: '50%',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        boxShadow: '0 0 15px rgba(212, 175, 55, 0.4)',
-                                                        animation: 'pulse-glow 1.5s ease-in-out infinite'
-                                                    }}>
-                                                    <Check size={16} strokeWidth={3} color="var(--bg-base)" />
-                                                </div>
-                                                {/* Double-click hint */}
-                                                <div
-                                                    className="double-click-hint"
-                                                    style={{
-                                                        marginTop: '1rem',
-                                                        padding: '0.5rem 1rem',
-                                                        background: 'rgba(212, 175, 55, 0.15)',
-                                                        borderRadius: '8px',
-                                                        border: '1px solid rgba(212, 175, 55, 0.3)',
-                                                        animation: 'pulse-hint 1.5s ease-in-out infinite'
-                                                    }}
-                                                >
-                                                    <span style={{
-                                                        color: 'var(--brand-gold)',
-                                                        fontSize: '0.85rem',
-                                                        fontWeight: 500,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '0.5rem'
-                                                    }}>
-                                                        👆 Klik sekali lagi untuk teruskan
-                                                    </span>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
+                                    </GlassCard>
                                 );
                             })}
                         </div>

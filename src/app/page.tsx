@@ -298,7 +298,7 @@ export default function LandingPage() {
                         <div className="footer-content">
                             <div className="footer-brand">
                                 <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <img src="/logo.png" alt="A2Z Creative" height="40" />
+                                    <img src="/logo.png" alt="A2Z Creative" height="40" style={{ height: '40px', width: 'auto' }} />
                                     <span className="logo-text-gradient" style={{ fontSize: '1.5rem' }}>A2ZCreative</span>
                                 </div>
                                 <p className="footer-description">

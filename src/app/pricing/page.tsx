@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, X, Sparkles, LayoutDashboard, PlusCircle, LogOut } from 'lucide-react';
 import GlassCard from '../../components/GlassCard';
+import Navbar from '../../components/Navbar';
 
 const packages = [
     {
@@ -76,120 +77,11 @@ const packages = [
 ];
 
 export default function PricingPage() {
-    const [user, setUser] = useState<any>(null);
-    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const userMenuRef = useRef<HTMLDivElement>(null);
-
-    // Auth Check
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const storedUser = localStorage.getItem('a2z_user');
-                if (storedUser) {
-                    setUser(JSON.parse(storedUser));
-                } else {
-                    try {
-                        const response = await fetch('/api/auth/session');
-                        if (response.ok) {
-                            const data: any = await response.json();
-                            if (data.user) setUser(data.user);
-                        }
-                    } catch (e) {
-                        console.log('Session check failed');
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        };
-        checkAuth();
-    }, []);
-
-    // Click Outside Handler
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-                setIsUserMenuOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    const handleLogout = async () => {
-        try {
-            localStorage.removeItem('a2z_user');
-            await fetch('/api/auth/logout', { method: 'POST' });
-            setUser(null);
-            window.location.reload();
-        } catch (e) {
-            console.error('Logout error:', e);
-        }
-    };
 
     return (
         <div className="landing-page">
             {/* Navigation */}
-            <nav className="nav scrolled" style={{ background: 'rgba(2, 6, 23, 0.95)' }}>
-                <div className="nav-container">
-                    <Link href="/" className="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-                        <img src="/logo.png" alt="A2Z Creative" height="36" />
-                        <span className="logo-text-gradient" style={{ fontSize: '1.25rem' }}>A2ZCreative</span>
-                    </Link>
-                    <div className="nav-links">
-                        {!user ? (
-                            <>
-                                <Link href="/#features" className="nav-link">Ciri-ciri</Link>
-                                <Link href="/#events" className="nav-link">Jenis Majlis</Link>
-                                <Link href="/#pricing" className="nav-link">Harga</Link>
-                            </>
-                        ) : (
-                            <>
-                                <Link href="/" className="nav-link">Utama</Link>
-                                <Link href="/dashboard" className="nav-link">Dashboard</Link>
-                            </>
-                        )}
-
-                        {!user ? (
-                            <Link href="/auth/login" className="nav-link">Log Masuk</Link>
-                        ) : (
-                            <div
-                                className="nav-user-menu"
-                                style={{ display: 'flex', position: 'relative', cursor: 'pointer', alignItems: 'center', gap: '0.5rem' }}
-                                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                                ref={userMenuRef}
-                            >
-                                <span className="nav-user-name" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                    Hi, {user.name || user.email?.split('@')[0]}
-                                </span>
-                                <div className="nav-user-avatar" style={{ width: '36px', height: '36px', background: 'var(--brand-gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, color: 'var(--bg-base)', fontSize: '0.875rem' }}>
-                                    {(user.name || user.email || 'U').charAt(0).toUpperCase()}
-                                </div>
-
-                                {isUserMenuOpen && (
-                                    <div className="nav-user-dropdown" style={{ display: 'block', position: 'absolute', right: 0, top: '45px', background: 'var(--bg-elevated)', borderRadius: '12px', boxShadow: 'var(--shadow-glass)', minWidth: '180px', zIndex: 9999, border: '1px solid var(--border-glass)' }}>
-                                        {(user.role === 'admin' || user.role === 'super_admin') && (
-                                            <Link href="/dashboard/" style={{ display: 'flex', alignItems: 'center', padding: '14px 18px', color: 'var(--text-secondary)', textDecoration: 'none', borderBottom: '1px solid var(--border-glass)', fontSize: '0.95rem' }}>
-                                                <LayoutDashboard size={18} style={{ marginRight: '10px' }} /> Dashboard
-                                            </Link>
-                                        )}
-                                        <Link href="/create/" style={{ display: 'flex', alignItems: 'center', padding: '14px 18px', color: 'var(--text-secondary)', textDecoration: 'none', borderBottom: '1px solid var(--border-glass)', fontSize: '0.95rem' }}>
-                                            <PlusCircle size={18} style={{ marginRight: '10px' }} /> Cipta Jemputan
-                                        </Link>
-                                        <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '14px 18px', background: 'none', border: 'none', color: '#ff6b6b', textAlign: 'left', cursor: 'pointer', fontSize: '0.95rem' }}>
-                                            <LogOut size={18} style={{ marginRight: '10px' }} /> Log Keluar
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        <Link href={user ? "/create/" : "/auth/register"} className="btn btn-primary nav-cta">
-                            {user ? 'Cipta Jemputan' : 'Mula Sekarang'}
-                        </Link>
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
 
             {/* Pricing Section */}
             <section className="pricing" style={{ paddingTop: '120px', minHeight: '100vh' }}>

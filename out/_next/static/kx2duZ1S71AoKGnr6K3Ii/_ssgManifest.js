@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fcreate\u002Fagenda\u002F[type]","\u002Fcreate\u002Fcontact\u002F[type]","\u002Fcreate\u002Fform\u002F[type]","\u002Fcreate\u002Fgift\u002F[type]","\u002Fcreate\u002Fpreview\u002F[type]","\u002Fcreate\u002Ftheme\u002F[type]","\u002Finv\u002F[[...slug]]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()

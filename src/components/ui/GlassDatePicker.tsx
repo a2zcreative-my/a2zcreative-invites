@@ -1,8 +1,20 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, isToday, addDays } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import {
+    useFloating,
+    useClick,
+    useDismiss,
+    useInteractions,
+    FloatingPortal,
+    autoUpdate,
+    offset,
+    flip,
+    shift,
+    useId
+} from '@floating-ui/react';
 
 interface GlassDatePickerProps {
     value: string;
@@ -16,7 +28,23 @@ const GlassDatePicker: React.FC<GlassDatePickerProps> = ({ value, onChange, name
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<Date | null>(value ? new Date(value) : null);
-    const containerRef = useRef<HTMLDivElement>(null);
+
+    const { refs, floatingStyles, context } = useFloating({
+        open: isOpen,
+        onOpenChange: setIsOpen,
+        middleware: [
+            offset(8),
+            flip({ fallbackAxisSideDirection: 'end' }),
+            shift()
+        ],
+        whileElementsMounted: autoUpdate,
+        placement: 'bottom-start'
+    });
+
+    const click = useClick(context);
+    const dismiss = useDismiss(context);
+    const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
+    const headingId = useId();
 
     useEffect(() => {
         if (value) {
@@ -27,22 +55,6 @@ const GlassDatePicker: React.FC<GlassDatePickerProps> = ({ value, onChange, name
             }
         }
     }, [value]);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen]);
 
     const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
     const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
@@ -75,7 +87,7 @@ const GlassDatePicker: React.FC<GlassDatePickerProps> = ({ value, onChange, name
             >
                 <ChevronLeft size={18} />
             </button>
-            <div className="text-sm font-bold text-white tracking-wide">
+            <div className="text-sm font-bold text-white tracking-wide" id={headingId}>
                 {format(currentMonth, 'MMMM yyyy')}
             </div>
             <button
@@ -158,9 +170,11 @@ const GlassDatePicker: React.FC<GlassDatePickerProps> = ({ value, onChange, name
     };
 
     return (
-        <div className="relative w-full" ref={containerRef}>
+        <>
             {/* Trigger Input - Premium Glass Style */}
             <div
+                ref={refs.setReference}
+                {...getReferenceProps()}
                 className={`
                     group relative flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-all duration-300
                     bg-slate-950/40 backdrop-blur-sm border
@@ -169,7 +183,6 @@ const GlassDatePicker: React.FC<GlassDatePickerProps> = ({ value, onChange, name
                         : 'border-white/10 hover:border-white/20'
                     }
                 `}
-                onClick={() => setIsOpen(!isOpen)}
             >
                 <div className={`mr-3 transition-colors ${isOpen || value ? 'text-[#d4af37]' : 'text-slate-500'}`}>
                     <CalendarIcon size={18} />
@@ -177,54 +190,60 @@ const GlassDatePicker: React.FC<GlassDatePickerProps> = ({ value, onChange, name
                 <div className={`flex-1 text-base ${value ? 'text-white font-medium' : 'text-slate-400'}`}>
                     {value ? format(new Date(value), 'dd/MM/yyyy') : placeholder}
                 </div>
+                <input type="hidden" name={name} value={value} required={required} />
             </div>
 
-            {/* Dropdown Calendar - SOLID DARK BACKGROUND & HIGH Z-INDEX */}
-            {isOpen && (
-                <div
-                    className="
-                        absolute top-full left-0 mt-2 w-full max-w-[320px] z-popover
-                        p-4 rounded-xl bg-base border border-white/10
-                        shadow-[0_20px_40px_-5px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)]
-                        animate-in fade-in zoom-in-95 duration-200
-                    "
-                >
-                    {renderHeader()}
-                    {renderDays()}
-                    {renderCells()}
+            {/* Dropdown Calendar - Rendered in Portal */}
+            <FloatingPortal>
+                {isOpen && (
+                    <div
+                        ref={refs.setFloating}
+                        style={floatingStyles}
+                        {...getFloatingProps()}
+                        className="
+                            z-[9999] w-[320px]
+                            p-4 rounded-xl border border-white/10
+                            bg-slate-950/70 backdrop-blur-xl
+                            shadow-[0_20px_40px_-5px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)]
+                            animate-in fade-in zoom-in-95 duration-200
+                        "
+                        aria-labelledby={headingId}
+                    >
+                        {renderHeader()}
+                        {renderDays()}
+                        {renderCells()}
 
-                    {/* Footer Actions */}
-                    <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
-                        <button
-                            type="button"
-                            onClick={(e) => { e.preventDefault(); handleClear(); }}
-                            className="text-slate-400 hover:text-white text-xs font-medium transition-colors uppercase tracking-wider"
-                        >
-                            Clear
-                        </button>
-
-                        <div className="flex gap-2">
+                        {/* Footer Actions */}
+                        <div className="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
                             <button
                                 type="button"
-                                onClick={(e) => { e.preventDefault(); setIsOpen(false); }}
-                                className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold transition-colors"
+                                onClick={(e) => { e.preventDefault(); handleClear(); }}
+                                className="text-slate-400 hover:text-white text-xs font-medium transition-colors uppercase tracking-wider"
                             >
-                                Close
+                                Clear
                             </button>
-                            <button
-                                type="button"
-                                onClick={(e) => { e.preventDefault(); handleToday(); }}
-                                className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-gradient-to-br from-brand-gold to-[#b8972e] text-black"
-                            >
-                                Today
-                            </button>
+
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); setIsOpen(false); }}
+                                    className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-semibold transition-colors"
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.preventDefault(); handleToday(); }}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-gradient-to-br from-brand-gold to-[#b8972e] text-black"
+                                >
+                                    Today
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-
-            <input type="hidden" name={name} value={value} required={required} />
-        </div>
+                )}
+            </FloatingPortal>
+        </>
     );
 };
 

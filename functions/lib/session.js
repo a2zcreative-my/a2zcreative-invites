@@ -67,48 +67,47 @@ export async function validateSession(db, token) {
             return { valid: false };
         }
 
-        // CRITICAL SECURITY FIX: Implement token rotation
-        // Generate a new token and invalidate the old one
-        // This prevents session hijacking from stolen tokens
-        const newToken = generateSessionToken();
-        const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + SESSION_DURATION_HOURS);
+        const user = {
+            id: result.user_id,
+            name: result.name,
+            email: result.email,
+            role: result.role
+        };
 
-        // Delete old token and create new one in a transaction
+        // Only rotate token if it's within 1 hour of expiring (to avoid breaking concurrent requests)
+        const expiresAt = new Date(result.expires_at);
+        const now = new Date();
+        const hoursUntilExpiry = (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+        // If token has more than 1 hour left, don't rotate - just return as valid
+        if (hoursUntilExpiry > 1) {
+            return { valid: true, user };
+        }
+
+        // Token is expiring soon - rotate it
+        const newToken = generateSessionToken();
+        const newExpiresAt = new Date();
+        newExpiresAt.setHours(newExpiresAt.getHours() + SESSION_DURATION_HOURS);
+
         try {
             await db.batch([
                 db.prepare('DELETE FROM sessions WHERE token = ?').bind(token),
                 db.prepare(`
                      INSERT INTO sessions (user_id, token, expires_at)
                      VALUES (?, ?, ?)
-                 `).bind(result.user_id, newToken, expiresAt.toISOString())
+                 `).bind(result.user_id, newToken, newExpiresAt.toISOString())
             ]);
 
             return {
                 valid: true,
-                user: {
-                    id: result.user_id,
-                    name: result.name,
-                    email: result.email,
-                    role: result.role
-                },
-                // Return new token so client can update cookie
+                user,
                 newToken: newToken,
-                newTokenExpiry: expiresAt.toISOString()
+                newTokenExpiry: newExpiresAt.toISOString()
             };
         } catch (rotationError) {
             console.error('Session rotation error:', rotationError);
-            // Session is still valid, just rotation failed
-            // Return the old user info without rotation
-            return {
-                valid: true,
-                user: {
-                    id: result.user_id,
-                    name: result.name,
-                    email: result.email,
-                    role: result.role
-                }
-            };
+            // Rotation failed but session is still valid
+            return { valid: true, user };
         }
     } catch (error) {
         console.error('Session validation error:', error);

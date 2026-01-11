@@ -11,3 +11,12 @@ Thumbs.db
 # Environment variables
 .env*.local
 .env
+
+# Security
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+secrets.json
+firebase-service-account.json

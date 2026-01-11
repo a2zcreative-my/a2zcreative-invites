@@ -95,7 +95,7 @@ export default function DashboardLayout({
             <aside className={`dashboard-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
                     <Link href="/" className="sidebar-logo">
-                        <img src="/logo.png" alt="A2Z Creative" height="32" />
+                        <img src="/logo.png" alt="A2Z Creative" height="32" style={{ height: '32px', width: 'auto' }} />
                         <span className="logo-text-gradient">A2ZCreative</span>
                     </Link>
                     <button
@@ -150,7 +150,7 @@ export default function DashboardLayout({
                     <Menu size={24} />
                 </button>
                 <Link href="/" className="mobile-logo">
-                    <img src="/logo.png" alt="A2Z Creative" height="28" />
+                    <img src="/logo.png" alt="A2Z Creative" height="28" style={{ height: '28px', width: 'auto' }} />
                 </Link>
             </header>
 

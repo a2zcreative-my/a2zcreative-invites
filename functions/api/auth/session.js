@@ -9,9 +9,9 @@ export async function onRequestGet(context) {
     const db = env.DB;
 
     try {
-        const user = await getCurrentUser(db, request);
+        const sessionResult = await getCurrentUser(db, request);
 
-        if (!user) {
+        if (!sessionResult || !sessionResult.valid) {
             return new Response(JSON.stringify({
                 authenticated: false
             }), {
@@ -19,6 +19,8 @@ export async function onRequestGet(context) {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
+
+        const user = sessionResult.user;
 
         // Determine redirect based on role
         let redirect = '/pricing/';  // Default for 'user' role

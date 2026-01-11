@@ -1,7 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
+import {
+    useFloating,
+    useClick,
+    useDismiss,
+    useInteractions,
+    FloatingPortal,
+    autoUpdate,
+    offset,
+    flip,
+    shift
+} from '@floating-ui/react';
 
 interface GlassTimePickerProps {
     value: string;
@@ -13,11 +24,26 @@ interface GlassTimePickerProps {
 
 const GlassTimePicker: React.FC<GlassTimePickerProps> = ({ value, onChange, name, placeholder = '--:--', required }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
 
     const [selectedHour, setSelectedHour] = useState('12');
     const [selectedMinute, setSelectedMinute] = useState('00');
     const [period, setPeriod] = useState<'AM' | 'PM'>('PM');
+
+    const { refs, floatingStyles, context } = useFloating({
+        open: isOpen,
+        onOpenChange: setIsOpen,
+        middleware: [
+            offset(8),
+            flip({ fallbackAxisSideDirection: 'end' }),
+            shift()
+        ],
+        whileElementsMounted: autoUpdate,
+        placement: 'bottom-start'
+    });
+
+    const click = useClick(context);
+    const dismiss = useDismiss(context);
+    const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
 
     useEffect(() => {
         if (value) {
@@ -31,16 +57,6 @@ const GlassTimePicker: React.FC<GlassTimePickerProps> = ({ value, onChange, name
             setPeriod(p);
         }
     }, [value]);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     const updateTime = (h: string, m: string, p: 'AM' | 'PM') => {
         let hourInt = parseInt(h);
@@ -58,84 +74,117 @@ const GlassTimePicker: React.FC<GlassTimePickerProps> = ({ value, onChange, name
     const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
 
     return (
-        <div className="relative w-full" ref={containerRef}>
-            <div className="input-group cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
-                <Clock className="input-icon" size={18} />
-                <div
-                    className={`
-                        glass-picker-input min-w-[180px]
-                        ${isOpen ? 'is-open' : ''}
-                        ${!value ? 'placeholder' : ''}
-                    `}
-                >
+        <>
+            {/* Trigger Input - Premium Glass Style (matching DatePicker) */}
+            <div
+                ref={refs.setReference}
+                {...getReferenceProps()}
+                className={`
+                    group relative flex items-center w-full px-4 py-3 rounded-xl cursor-pointer transition-all duration-300
+                    bg-slate-950/40 backdrop-blur-sm border
+                    ${isOpen
+                        ? 'border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)]'
+                        : 'border-white/10 hover:border-white/20'
+                    }
+                `}
+            >
+                <div className={`mr-3 transition-colors ${isOpen || value ? 'text-[#d4af37]' : 'text-slate-500'}`}>
+                    <Clock size={18} />
+                </div>
+                <div className={`flex-1 text-base ${value ? 'text-white font-medium' : 'text-slate-400'}`}>
                     {value ? `${selectedHour}:${selectedMinute} ${period}` : placeholder}
                 </div>
             </div>
 
-            {isOpen && (
-                <div className="glass-picker-dropdown">
-                    <div className="flex gap-2 h-48">
-                        {/* Hours Column */}
-                        <div className="flex-1 overflow-y-auto max-h-48">
-                            <div className="text-xs text-slate-500 text-center mb-2 font-medium sticky top-0 bg-surface py-1">Hour</div>
-                            <div className="flex flex-col gap-1">
-                                {hours.map(h => (
+            <FloatingPortal>
+                {isOpen && (
+                    <div
+                        ref={refs.setFloating}
+                        style={floatingStyles}
+                        {...getFloatingProps()}
+                        className="
+                            z-[9999] w-[280px]
+                            p-4 rounded-xl border border-white/10
+                            bg-slate-950/70 backdrop-blur-xl
+                            shadow-[0_20px_40px_-5px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)]
+                            animate-in fade-in zoom-in-95 duration-200
+                        "
+                    >
+                        <div className="flex gap-2 h-48">
+                            {/* Hours Column */}
+                            <div className="flex-1 overflow-y-auto max-h-48 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                                <div className="text-xs text-slate-500 text-center mb-2 font-medium sticky top-0 bg-slate-950/90 py-1 z-10 backdrop-blur-md">Hour</div>
+                                <div className="flex flex-col gap-1 px-1">
+                                    {hours.map(h => (
+                                        <button
+                                            key={h}
+                                            onClick={(e) => { e.preventDefault(); handleHourSelect(h); }}
+                                            className={`
+                                                w-full p-2 rounded-lg text-sm transition-all duration-200
+                                                ${selectedHour === h
+                                                    ? 'bg-[var(--brand-gold)] text-black font-bold'
+                                                    : 'text-slate-300 hover:bg-white/5'
+                                                }
+                                            `}
+                                        >
+                                            {h}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="w-px bg-white/10 my-2" />
+
+                            {/* Minutes Column */}
+                            <div className="flex-1 overflow-y-auto max-h-48 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                                <div className="text-xs text-slate-500 text-center mb-2 font-medium sticky top-0 bg-slate-950/90 py-1 z-10 backdrop-blur-md">Min</div>
+                                <div className="flex flex-col gap-1 px-1">
+                                    {minutes.map(m => (
+                                        <button
+                                            key={m}
+                                            onClick={(e) => { e.preventDefault(); handleMinuteSelect(m); }}
+                                            className={`
+                                                w-full p-2 rounded-lg text-sm transition-all duration-200
+                                                ${selectedMinute === m
+                                                    ? 'bg-[var(--brand-gold)] text-black font-bold'
+                                                    : 'text-slate-300 hover:bg-white/5'
+                                                }
+                                            `}
+                                        >
+                                            {m}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="w-px bg-white/10 my-2" />
+
+                            {/* AM/PM Column */}
+                            <div className="flex flex-col justify-center gap-2 px-1">
+                                {(['AM', 'PM'] as const).map(p => (
                                     <button
-                                        key={h}
-                                        onClick={(e) => { e.preventDefault(); handleHourSelect(h); }}
-                                        className={`glass-picker-option ${selectedHour === h ? 'selected' : ''}`}
+                                        key={p}
+                                        onClick={(e) => { e.preventDefault(); handlePeriodSelect(p); }}
+                                        className={`
+                                            w-full px-3 py-2 rounded-lg text-sm font-medium transition-all
+                                            ${period === p
+                                                ? 'bg-slate-700 text-white'
+                                                : 'bg-transparent text-slate-500 hover:bg-white/5'
+                                            }
+                                        `}
                                     >
-                                        {h}
+                                        {p}
                                     </button>
                                 ))}
                             </div>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="w-px bg-white/10 my-2" />
-
-                        {/* Minutes Column */}
-                        <div className="flex-1 overflow-y-auto max-h-48">
-                            <div className="text-xs text-slate-500 text-center mb-2 font-medium sticky top-0 bg-surface py-1">Min</div>
-                            <div className="flex flex-col gap-1">
-                                {minutes.map(m => (
-                                    <button
-                                        key={m}
-                                        onClick={(e) => { e.preventDefault(); handleMinuteSelect(m); }}
-                                        className={`glass-picker-option ${selectedMinute === m ? 'selected' : ''}`}
-                                    >
-                                        {m}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Divider */}
-                        <div className="w-px bg-white/10 my-2" />
-
-                        {/* AM/PM Column */}
-                        <div className="flex flex-col justify-center gap-2 px-1">
-                            {(['AM', 'PM'] as const).map(p => (
-                                <button
-                                    key={p}
-                                    onClick={(e) => { e.preventDefault(); handlePeriodSelect(p); }}
-                                    className={`
-                                        w-full px-3 py-2 rounded-lg text-sm font-medium transition-all
-                                        ${period === p
-                                            ? 'bg-slate-700 text-white'
-                                            : 'bg-transparent text-slate-500 hover:bg-white/5'
-                                        }
-                                    `}
-                                >
-                                    {p}
-                                </button>
-                            ))}
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </FloatingPortal>
             <input type="hidden" name={name} value={value} required={required} />
-        </div>
+        </>
     );
 };
 

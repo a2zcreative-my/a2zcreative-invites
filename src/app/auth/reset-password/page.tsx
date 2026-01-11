@@ -225,7 +225,7 @@ export default function ResetPasswordPage() {
             <div className="auth-container">
                 <div className="auth-logo">
                     <Link href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', textDecoration: 'none' }}>
-                        <img src="/logo.png" alt="A2Z Creative" height="48" />
+                        <img src="/logo.png" alt="A2Z Creative" height="48" style={{ height: '48px', width: 'auto' }} />
                         <span className="logo-text-gradient" style={{ fontSize: '1.5rem' }}>A2ZCreative</span>
                     </Link>
                     <p>Jemputan Digital Profesional</p>

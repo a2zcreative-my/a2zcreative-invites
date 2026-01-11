@@ -1,9 +1,10 @@
 /* =============================================
-   Tailwind CSS Directives
+   Tailwind CSS v4 Directives
    ============================================= */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Tell Tailwind v4 where to scan for classes */
+@source "../components/**/*.{js,ts,jsx,tsx}";
 
 /* =============================================
    A2Z Creative - Glassmorphism Design System
@@ -266,6 +267,78 @@
     --color-warning: #f59e0b;
     --color-error: #ef4444;
     --color-info: #3b82f6;
+}
+
+/* =============================================
+   GLASS UTILITY CLASSES (Component Backing)
+   ============================================= */
+
+/* Base Glass Card */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-glass);
+    overflow: hidden;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    padding: var(--space-6);
+    /* Default padding */
+}
+
+/* Featured Variant */
+.glass-card.featured {
+    background: var(--glass-bg-medium);
+    border-color: var(--border-glass-medium);
+    box-shadow: var(--shadow-glass-lg);
+}
+
+/* Glow Variant */
+.glass-card-glow {
+    background: var(--glass-bg-light);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-glass-light);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-glass), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-base);
+    padding: var(--space-6);
+}
+
+.glass-card-glow:hover {
+    border-color: var(--border-glow-cyan);
+    box-shadow: var(--shadow-glass-lg), var(--glow-cyan);
+}
+
+/* Inner Highlight for Depth */
+.glass-card-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent 100%);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Glow Effect Container */
+.glass-card-glow-effect {
+    position: absolute;
+    inset: -1px;
+    border-radius: var(--radius-2xl);
+    background: linear-gradient(135deg,
+            rgba(212, 175, 55, 0.2),
+            rgba(255, 0, 204, 0.1),
+            rgba(0, 242, 255, 0.1));
+    z-index: -1;
+    filter: blur(20px);
+    opacity: 0.6;
+    transition: opacity var(--transition-slow);
 }
 
 /* =============================================
@@ -858,89 +931,7 @@ textarea.form-input-glass {
 
 /* End of Glass Inputs */
 
-/* =============================================
-   GLASS PICKER COMPONENTS
-   ============================================= */
-/* Glass Picker Input Box - For GlassTimePicker, GlassDatePicker */
-.glass-picker-input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    padding-left: 3rem;
-    font-size: 1rem;
-    color: white;
-    background-color: rgba(2, 6, 23, 0.3);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
-    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
 
-.glass-picker-input.is-open {
-    background-color: rgba(2, 6, 23, 0.5);
-    border-color: var(--brand-gold);
-    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.5);
-}
-
-.glass-picker-input.placeholder {
-    color: #94a3b8;
-}
-
-/* Glass Picker Dropdown */
-.glass-picker-dropdown {
-    position: absolute;
-    z-index: 100;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 0.5rem;
-    width: calc(100% + 2rem);
-    max-width: 320px;
-    min-width: 280px;
-    background-color: var(--bg-base);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 0.75rem;
-    box-shadow: 0 10px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.2);
-    padding: 1rem;
-}
-
-@media (max-width: 480px) {
-    .glass-picker-dropdown {
-        left: 0;
-        right: 0;
-        transform: none;
-        width: calc(100vw - 2rem);
-        max-width: none;
-        margin-left: auto;
-        margin-right: auto;
-    }
-}
-
-/* Glass Picker Option Button */
-.glass-picker-option {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    background: transparent;
-    color: #cbd5e1;
-    border: none;
-    cursor: pointer;
-}
-
-.glass-picker-option:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.glass-picker-option.selected {
-    background-color: var(--brand-gold);
-    color: black;
-    font-weight: 700;
-}
 
 /* =============================================
    TABLE UTILITIES - GLASS STYLE
@@ -2719,75 +2710,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 }
 
-/* =============================================
-   THEME FORM - Selection Components
-   ============================================= */
 
-/* Music/Option Selection Item */
-.selection-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(100, 116, 139, 0.5);
-    background: rgba(15, 23, 42, 0.5);
-    color: rgb(148, 163, 184);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.selection-item:hover {
-    border-color: rgb(100, 116, 139);
-    color: rgb(226, 232, 240);
-}
-
-.selection-item.selected {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--brand-gold);
-    color: white;
-}
-
-.selection-item-left {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.selection-icon {
-    padding: 0.5rem;
-    border-radius: 50%;
-    background: rgba(30, 41, 59, 1);
-    color: rgb(100, 116, 139);
-}
-
-.selection-item.selected .selection-icon {
-    background: rgba(212, 175, 55, 0.2);
-    color: var(--brand-gold);
-}
-
-.selection-radio {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    border: 2px solid rgb(71, 85, 105);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.selection-item.selected .selection-radio {
-    border-color: var(--brand-gold);
-    background: var(--brand-gold);
-}
-
-.selection-radio-inner {
-    width: 50%;
-    height: 50%;
-    border-radius: 50%;
-    background: white;
-}
 
 /* Form Section Header */
 .form-section-header {
