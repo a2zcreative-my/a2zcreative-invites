@@ -93,7 +93,7 @@ export default function Navbar({ customLinks }: NavbarProps) {
             <div className="nav-container">
                 <Link href="/" className="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
                     <div className="brand-mark">
-                        <img src="/logo.png" alt="A2Z Creative" />
+                        <img src="/logo.png" alt="A2Z Creative" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
                     </div>
                     <span className="logo-text-gradient" style={{ fontSize: '1.25rem' }}>A2ZCreative</span>
                 </Link>
