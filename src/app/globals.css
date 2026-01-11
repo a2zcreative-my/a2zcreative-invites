@@ -1,4 +1,11 @@
 /* =============================================
+   Tailwind CSS Directives
+   ============================================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================
    A2Z Creative - Glassmorphism Design System
    Fuse-Style Modern UI Theme
    ============================================= */
@@ -77,6 +84,17 @@
     }
 }
 
+/* Template Card Shimmer Effect - Professional SaaS */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
 /* Tagline styling */
 .logo-tagline {
     font-weight: 500;
@@ -113,6 +131,14 @@
     --brand-gold: #d4af37;
     --brand-gold-light: #f4d03f;
     --brand-gold-dark: #b8972e;
+
+    /* Brand Aliases (for Tailwind) */
+    --brand-primary: #d4af37;
+    --brand-secondary: #1e293b;
+    --brand-dark: #020617;
+    --brand-light: #f8fafc;
+    --brand-glass: rgba(255, 255, 255, 0.05);
+    --brand-accent: #ff6b6b;
 
     /* Text Colors */
     --text-primary: #ffffff;
@@ -243,6 +269,100 @@
 }
 
 /* =============================================
+   THEME ENGINE - Invitation Preset Themes
+   ============================================= */
+
+/* Royal Purple Theme */
+.theme-royal {
+    --primary: #7C3AED;
+    --background: #1E1B4B;
+    --text: #F3E8FF;
+    --accent: #C4B5FD;
+    --surface: rgba(139, 92, 246, 0.1);
+}
+
+/* Modern Blue Theme */
+.theme-modern {
+    --primary: #3B82F6;
+    --background: #FFFFFF;
+    --text: #1E293B;
+    --accent: #60A5FA;
+    --surface: rgba(59, 130, 246, 0.1);
+}
+
+/* Tropical Teal Theme */
+.theme-tropical {
+    --primary: #14B8A6;
+    --background: #F0FDFA;
+    --text: #134E4A;
+    --accent: #5EEAD4;
+    --surface: rgba(20, 184, 166, 0.1);
+}
+
+/* Dark Luxury Theme */
+.theme-dark {
+    --primary: #D4AF37;
+    --background: #0F172A;
+    --text: #F8FAFC;
+    --accent: #FCD34D;
+    --surface: rgba(212, 175, 55, 0.1);
+}
+
+/* Elegant Rose Theme */
+.theme-elegant {
+    --primary: #E11D48;
+    --background: #FFF1F2;
+    --text: #881337;
+    --accent: #FB7185;
+    --surface: rgba(225, 29, 72, 0.1);
+}
+
+/* Rustic Warm Theme */
+.theme-rustic {
+    --primary: #92400E;
+    --background: #FFFBEB;
+    --text: #78350F;
+    --accent: #D97706;
+    --surface: rgba(146, 64, 14, 0.1);
+}
+
+/* Blush Pink Theme */
+.theme-blush {
+    --primary: #F472B6;
+    --background: #FDF2F8;
+    --text: #9D174D;
+    --accent: #FBCFE8;
+    --surface: rgba(244, 114, 182, 0.1);
+}
+
+/* Ocean Deep Theme */
+.theme-ocean {
+    --primary: #0D9488;
+    --background: #042F2E;
+    --text: #CCFBF1;
+    --accent: #5EEAD4;
+    --surface: rgba(13, 148, 136, 0.1);
+}
+
+/* Sunset Orange Theme */
+.theme-sunset {
+    --primary: #F97316;
+    --background: #FFFBEB;
+    --text: #7C2D12;
+    --accent: #FB923C;
+    --surface: rgba(249, 115, 22, 0.1);
+}
+
+/* Garden Green Theme */
+.theme-garden {
+    --primary: #22C55E;
+    --background: #052E16;
+    --text: #DCFCE7;
+    --accent: #86EFAC;
+    --surface: rgba(34, 197, 94, 0.1);
+}
+
+/* =============================================
    BASE RESET
    ============================================= */
 *,
@@ -297,10 +417,13 @@ body::before {
 
 /* Pulse animations for double-click hint on event cards */
 @keyframes pulse-glow {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
         transform: scale(1);
     }
+
     50% {
         box-shadow: 0 0 25px rgba(212, 175, 55, 0.7), 0 0 40px rgba(212, 175, 55, 0.4);
         transform: scale(1.1);
@@ -308,10 +431,13 @@ body::before {
 }
 
 @keyframes pulse-hint {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
         transform: scale(1);
     }
+
     50% {
         opacity: 0.8;
         transform: scale(1.02);
@@ -640,6 +766,256 @@ a:hover {
     margin-top: var(--space-1);
     font-size: var(--text-sm);
     color: var(--color-error);
+}
+
+/* Custom 2-Column Grid for Date/Time */
+.form-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.form-row>* {
+    flex: 1;
+    min-width: 0;
+    /* Prevents overflow in flex items */
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+/* Icon Positioning System */
+.input-group {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    /* slate-500 */
+    transition: color 0.3s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Special alignment for Textarea Icon */
+.input-icon.textarea-icon {
+    top: 1rem;
+    transform: none;
+}
+
+.input-group:focus-within .input-icon {
+    color: var(--brand-gold);
+}
+
+/* Ensuring Glass Input has space for icon and proper color scheme */
+.form-input-glass {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-left: 3rem !important;
+    /* Force padding for icon */
+    font-size: 1rem;
+    color: white;
+    background-color: rgba(2, 6, 23, 0.3);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    color-scheme: dark;
+    /* Triggers dark date picker */
+}
+
+.form-input-glass:focus {
+    outline: none;
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.5), inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.form-input-glass::placeholder {
+    color: #94a3b8;
+}
+
+textarea.form-input-glass {
+    min-height: 120px;
+    padding-top: 1rem;
+    padding-left: 3rem !important;
+    resize: vertical;
+    background-color: rgba(2, 6, 23, 0.3) !important;
+    /* Force background */
+    color: white !important;
+    /* Force text color */
+}
+
+/* End of Glass Inputs */
+
+/* =============================================
+   GLASS PICKER COMPONENTS
+   ============================================= */
+/* Glass Picker Input Box - For GlassTimePicker, GlassDatePicker */
+.glass-picker-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-left: 3rem;
+    font-size: 1rem;
+    color: white;
+    background-color: rgba(2, 6, 23, 0.3);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.glass-picker-input.is-open {
+    background-color: rgba(2, 6, 23, 0.5);
+    border-color: var(--brand-gold);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.5);
+}
+
+.glass-picker-input.placeholder {
+    color: #94a3b8;
+}
+
+/* Glass Picker Dropdown */
+.glass-picker-dropdown {
+    position: absolute;
+    z-index: 100;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.5rem;
+    width: calc(100% + 2rem);
+    max-width: 320px;
+    min-width: 280px;
+    background-color: var(--bg-base);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.2);
+    padding: 1rem;
+}
+
+@media (max-width: 480px) {
+    .glass-picker-dropdown {
+        left: 0;
+        right: 0;
+        transform: none;
+        width: calc(100vw - 2rem);
+        max-width: none;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Glass Picker Option Button */
+.glass-picker-option {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    background: transparent;
+    color: #cbd5e1;
+    border: none;
+    cursor: pointer;
+}
+
+.glass-picker-option:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.glass-picker-option.selected {
+    background-color: var(--brand-gold);
+    color: black;
+    font-weight: 700;
+}
+
+/* =============================================
+   TABLE UTILITIES - GLASS STYLE
+   ============================================= */
+/* Glass Table */
+.table-glass {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.table-glass th {
+    text-align: left;
+    padding-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.table-glass td {
+    padding-right: 12px;
+}
+
+.table-glass td:last-child {
+    padding-right: 0;
+}
+
+/* Glass Table Cell Input */
+.table-cell-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    background-color: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(100, 116, 139, 0.5);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.table-cell-input:focus {
+    border-color: var(--brand-gold);
+}
+
+.table-cell-input::placeholder {
+    color: #94a3b8;
+}
+
+/* Glass Table Cell Button */
+.table-cell-button {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(100, 116, 139, 0.5);
+    border-radius: 8px;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.table-cell-button:hover {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.5);
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Remove default browser styles for clearer look */
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.6);
+    cursor: pointer;
 }
 
 /* =============================================
@@ -2341,4 +2717,475 @@ a:hover {
     .event-grid {
         grid-template-columns: 1fr !important;
     }
+}
+
+/* =============================================
+   THEME FORM - Selection Components
+   ============================================= */
+
+/* Music/Option Selection Item */
+.selection-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(100, 116, 139, 0.5);
+    background: rgba(15, 23, 42, 0.5);
+    color: rgb(148, 163, 184);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.selection-item:hover {
+    border-color: rgb(100, 116, 139);
+    color: rgb(226, 232, 240);
+}
+
+.selection-item.selected {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--brand-gold);
+    color: white;
+}
+
+.selection-item-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.selection-icon {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: rgba(30, 41, 59, 1);
+    color: rgb(100, 116, 139);
+}
+
+.selection-item.selected .selection-icon {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--brand-gold);
+}
+
+.selection-radio {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 2px solid rgb(71, 85, 105);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.selection-item.selected .selection-radio {
+    border-color: var(--brand-gold);
+    background: var(--brand-gold);
+}
+
+.selection-radio-inner {
+    width: 50%;
+    height: 50%;
+    border-radius: 50%;
+    background: white;
+}
+
+/* Form Section Header */
+.form-section-header {
+    color: white;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-section-header svg {
+    color: var(--brand-gold);
+}
+
+/* Vertical Stack */
+.stack-y {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* =========================
+   CUSTOM KEYFRAMES
+   ========================= */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 40px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 100%, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-slide-up-fade {
+    animation: slideUpFade 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 1s ease-out forwards;
+}
+
+@keyframes spinSlow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin-slow {
+    animation: spinSlow 8s linear infinite;
+}
+
+/* =============================================
+   THEME PICKER - Netflix/Canva Style
+   ============================================= */
+
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Smooth touch scrolling for mobile */
+.theme-picker-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+}
+
+/* Theme card hover enhancements */
+.theme-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.theme-card:hover {
+    transform: scale(1.03);
+}
+
+/* Glass label at bottom of theme cards */
+.theme-card-label {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Glowing ring for selected state */
+.theme-card-selected {
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.6), 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+/* =============================================
+   MOTION ENGINE - Dynamic Animation System
+   ============================================= */
+
+/* SOFT Motion - Slow, romantic, gentle */
+@keyframes fadeInSoft {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUpSoft {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleInSoft {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in-soft {
+    animation: fadeInSoft 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-fade-in-up-soft {
+    animation: fadeInUpSoft 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-scale-in-soft {
+    animation: scaleInSoft 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* MODERN Motion - Crisp, fast, professional */
+@keyframes fadeInModern {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUpModern {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleInModern {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in-modern {
+    animation: fadeInModern 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-fade-in-up-modern {
+    animation: fadeInUpModern 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-scale-in-modern {
+    animation: scaleInModern 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* LUXURY Motion - Dramatic, slow reveal */
+@keyframes fadeInLuxury {
+    from {
+        opacity: 0;
+        filter: blur(4px);
+    }
+
+    to {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+@keyframes fadeInUpLuxury {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+        filter: blur(2px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+@keyframes scaleInLuxury {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in-luxury {
+    animation: fadeInLuxury 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-up-luxury {
+    animation: fadeInUpLuxury 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in-luxury {
+    animation: scaleInLuxury 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* CALM Motion - Balanced, friendly */
+@keyframes fadeInCalm {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUpCalm {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleInCalm {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in-calm {
+    animation: fadeInCalm 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.animate-fade-in-up-calm {
+    animation: fadeInUpCalm 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.animate-scale-in-calm {
+    animation: scaleInCalm 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* POP Motion - Bouncy, fun, playful */
+@keyframes fadeInPop {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUpPop {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes scaleInPop {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in-pop {
+    animation: fadeInPop 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+}
+
+.animate-fade-in-up-pop {
+    animation: fadeInUpPop 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+}
+
+.animate-scale-in-pop {
+    animation: scaleInPop 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+}
+
+/* Stagger animation delays for lists */
+.stagger-1 {
+    animation-delay: 0.05s;
+}
+
+.stagger-2 {
+    animation-delay: 0.1s;
+}
+
+.stagger-3 {
+    animation-delay: 0.15s;
+}
+
+.stagger-4 {
+    animation-delay: 0.2s;
+}
+
+.stagger-5 {
+    animation-delay: 0.25s;
+}
+
+.stagger-6 {
+    animation-delay: 0.3s;
+}
+
+.stagger-7 {
+    animation-delay: 0.35s;
+}
+
+.stagger-8 {
+    animation-delay: 0.4s;
 }
